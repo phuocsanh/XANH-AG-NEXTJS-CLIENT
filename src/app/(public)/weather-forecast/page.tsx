@@ -113,8 +113,8 @@ export default function WeatherForecastPage() {
     }
   }
 
-  const detectLocation = () => {
-    setGeoError(null)
+  const detectLocation = (isSilent = false) => {
+    if (!isSilent) setGeoError(null)
     if (typeof window === 'undefined' || !navigator.geolocation) {
       setGeoError('Trình duyện không hỗ trợ định vị.')
       fetchWeather(DEFAULT_COORD.latitude, DEFAULT_COORD.longitude, 'An Giang')
@@ -148,6 +148,14 @@ export default function WeatherForecastPage() {
       if (hasGotPosition) return
       console.warn('Geolocation error:', error)
       
+      // Nếu là chế độ im lặng (lần đầu vào trang), đừng làm phiền người dùng bằng thông báo lỗi
+      // trừ khi là lỗi từ chối quyền truy cập
+      if (isSilent && error.code !== 1) {
+        fetchWeather(DEFAULT_COORD.latitude, DEFAULT_COORD.longitude, 'An Giang')
+        setLoading(false)
+        return
+      }
+
       let msg = 'Không thể lấy vị trí.'
       if (error.code === 1) msg = 'Quyền truy cập vị trí bị từ chối hoặc yêu cầu HTTPS.'
       if (error.code === 2) msg = 'Thiết bị không thể xác định vị trí. Vui lòng kiểm tra cài đặt GPS hoặc chọn trên bản đồ.'
@@ -157,36 +165,38 @@ export default function WeatherForecastPage() {
       fetchWeather(DEFAULT_COORD.latitude, DEFAULT_COORD.longitude, 'An Giang')
     }
 
-    // Thử lấy vị trí trực tiếp trước
+    // Ưu tiên thử cấu hình low accuracy trước vì nó ổn định và nhanh hơn nhiều
     navigator.geolocation.getCurrentPosition(handleSuccess, (error) => {
-      // Nếu lỗi code 2 (UNAVAILABLE), thử dùng watchPosition như bản Admin
-      if (error.code === 2) {
-        console.log('CurrentPosition failed, trying watchPosition fallback...')
+      // Nếu lỗi code 2 (UNAVAILABLE) hoặc code 3 (TIMEOUT), thử dùng watchPosition như bản Admin
+      if (error.code === 2 || error.code === 3) {
+        console.log('Low accuracy failed, trying watchPosition fallback...')
         watchId = navigator.geolocation.watchPosition(handleSuccess, handleError, {
           enableHighAccuracy: true,
-          timeout: 20000,
-          maximumAge: 60000
+          timeout: 15000,
+          maximumAge: 300000 // 5 phút
         })
 
-        // Tự động hủy watch sau 20s nếu không có kết quả
+        // Tự động hủy watch sau 15s nếu không có kết quả
         setTimeout(() => {
           if (!hasGotPosition && watchId !== null) {
             navigator.geolocation.clearWatch(watchId)
             handleError({ code: 3, message: 'Timeout' } as GeolocationPositionError)
           }
-        }, 20000)
+        }, 15000)
       } else {
         handleError(error)
       }
     }, {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 60000 // Cho phép dùng vị trí cũ trong vòng 1 phút (giống Admin)
+      enableHighAccuracy: false, // Dùng Wi-Fi/IP cho nhanh và ổn định
+      timeout: 5000,
+      maximumAge: 300000 // 5 phút
     })
   }
 
   useEffect(() => {
-    detectLocation()
+    // Không tự động gọi GPS để tránh lỗi kCLErrorLocationUnknown từ hệ điều hành
+    // Chỉ load vị trí mặc định, người dùng sẽ chủ động nhấn "Ghim GPS" nếu muốn dùng vị trí thực
+    fetchWeather(DEFAULT_COORD.latitude, DEFAULT_COORD.longitude, 'An Giang')
   }, [])
 
   const filteredLocations = useMemo(() => {
@@ -215,7 +225,7 @@ export default function WeatherForecastPage() {
   return (
     <div className="min-h-screen bg-agri-50/50 pb-10 sm:pb-20 overflow-x-hidden w-full relative">
       {/* Header Banner - Agriculture Theme */}
-      <div className="bg-gradient-to-br from-agri-600 via-agri-700 to-agri-800 pt-8 sm:pt-28 pb-10 sm:pb-14 px-3 sm:px-4 overflow-hidden relative w-full">
+      <div className="bg-gradient-to-br from-agri-600 via-agri-700 to-agri-800 pt-8 sm:pt-10 pb-10 sm:pb-14 px-3 sm:px-4 overflow-hidden relative w-full">
         <div className="max-w-7xl mx-auto w-full">
           <Link href="/" className="inline-flex items-center gap-2 text-agri-100 hover:text-white mb-4 sm:mb-6 transition-colors font-bold text-sm sm:text-base">
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -253,13 +263,12 @@ export default function WeatherForecastPage() {
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-gray-100 w-full">
                 <button 
-                  onClick={() => detectLocation()} 
-                  className={`flex items-center gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-wider transition-all active:scale-95 shadow-md group ${geoError ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+                  onClick={() => detectLocation(false)} 
+                  className={`flex items-center gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-wider transition-all active:scale-95 shadow-md group ${geoError && geoError.includes('HTTPS') ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
                   disabled={!!geoError && geoError.includes('HTTPS')}
                 >
-                  <Navigation className="w-4 h-4 sm:w-5 sm:h-5 sm:group-hover:rotate-12 transition-transform" />
-                  <span className="hidden xs:inline">Gửi GPS</span>
-                  <span className="xs:hidden">GPS</span>
+                  <Navigation className="w-3.5 h-3.5 sm:w-5 sm:h-5 group-hover:animate-pulse" />
+                  Ghim GPS
                 </button>
 
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -267,9 +276,8 @@ export default function WeatherForecastPage() {
                     <button 
                       className="flex items-center gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-agri-600 text-white rounded-lg sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-wider hover:bg-agri-700 transition-all active:scale-95 shadow-md"
                     >
-                      <Search className="w-4 h-4 sm:w-5 sm:h-5" />
-                      <span className="hidden xs:inline">Chọn vùng</span>
-                      <span className="xs:hidden">Vùng</span>
+                      <Search className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
+                      Tìm xã
                     </button>
                   </DialogTrigger>
                   <DialogContent className="w-[95vw] sm:max-w-[850px] max-h-[90vh] flex flex-col p-4 sm:p-8 overflow-hidden bg-white border-none shadow-2xl rounded-[1.5rem] sm:rounded-[3rem]">
@@ -328,11 +336,11 @@ export default function WeatherForecastPage() {
                           </div>
                         </div>
                       </div>
-                    </DialogContent>
+                  </DialogContent>
                 </Dialog>
 
                 <button 
-                  onClick={() => fetchWeather(coords.latitude, coords.longitude, locationName)} 
+                  onClick={() => detectLocation(false)} 
                   className="flex items-center gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-white text-gray-600 rounded-lg sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-wider hover:bg-gray-50 transition-all active:scale-95 border border-gray-200 shadow-sm"
                 >
                   <RefreshCw className={`w-4 h-4 sm:w-5 sm:h-5 ${loading ? 'animate-spin' : ''}`} />
@@ -356,7 +364,7 @@ export default function WeatherForecastPage() {
                 onMouseLeave={handleMouseLeave}
                 onMouseUp={handleMouseUp}
                 onMouseMove={handleMouseMove}
-                className={`flex flex-nowrap mt-3 gap-3 sm:gap-4 overflow-x-auto pb-10 pt-4 scrollbar-hide touch-pan-x -mx-3 px-3 ${isDragging ? 'cursor-grabbing select-none' : 'cursor-grab scroll-smooth snap-x snap-mandatory scroll-pl-3'}`}
+                className={`flex flex-nowrap mt-3 gap-3 sm:gap-4 overflow-x-auto pb-10 pt-4 scrollbar-hide touch-pan-x mx-4 px-3 ${isDragging ? 'cursor-grabbing select-none' : 'cursor-grab scroll-smooth snap-x snap-mandatory scroll-pl-3'}`}
               >
                 {dailyForecast.map((day, i) => (
                   <button
