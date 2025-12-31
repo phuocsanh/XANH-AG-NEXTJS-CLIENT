@@ -56,11 +56,12 @@ export default function WeatherForecastPage() {
 
   // Drag to scroll logic
   const scrollRef = useRef<HTMLDivElement>(null)
-  const [isSearching, setIsDragging] = useState(false)
+  const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [scrollLeftPos, setScrollLeftPos] = useState(0)
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    // Only handle mouse events for dragging on desktop (non-touch)
     if (!scrollRef.current) return
     setIsDragging(true)
     setStartX(e.pageX - scrollRef.current.offsetLeft)
@@ -76,7 +77,7 @@ export default function WeatherForecastPage() {
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isSearching || !scrollRef.current) return
+    if (!isDragging || !scrollRef.current) return
     e.preventDefault()
     const x = e.pageX - scrollRef.current.offsetLeft
     const walk = (x - startX) * 2 // Speed multiplier
@@ -212,9 +213,9 @@ export default function WeatherForecastPage() {
   })
 
   return (
-    <div className="min-h-screen bg-agri-50/50 pb-10 sm:pb-20 overflow-x-hidden w-full">
+    <div className="min-h-screen bg-agri-50/50 pb-10 sm:pb-20 overflow-x-hidden w-full relative">
       {/* Header Banner - Agriculture Theme */}
-      <div className="bg-gradient-to-br from-agri-600 via-agri-700 to-agri-800 pt-5 sm:pt-5 pb-10 sm:pb-14 px-3 sm:px-4 overflow-hidden relative w-full">
+      <div className="bg-gradient-to-br from-agri-600 via-agri-700 to-agri-800 pt-8 sm:pt-28 pb-10 sm:pb-14 px-3 sm:px-4 overflow-hidden relative w-full">
         <div className="max-w-7xl mx-auto w-full">
           <Link href="/" className="inline-flex items-center gap-2 text-agri-100 hover:text-white mb-4 sm:mb-6 transition-colors font-bold text-sm sm:text-base">
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -348,14 +349,14 @@ export default function WeatherForecastPage() {
         <div className="max-w-7xl mx-auto w-full">
           <div className="grid lg:grid-cols-4 gap-6 sm:gap-8 w-full">
             {/* 1. Day Selector Tabs - First on Mobile, Sidebar-right on Desktop */}
-            <div className="lg:col-span-3 lg:col-start-2 order-1 lg:order-1 w-full overflow-visible">
+            <div className="lg:col-span-3 lg:col-start-2 order-1 lg:order-1 w-full overflow-hidden">
               <div 
                 ref={scrollRef}
                 onMouseDown={handleMouseDown}
                 onMouseLeave={handleMouseLeave}
                 onMouseUp={handleMouseUp}
                 onMouseMove={handleMouseMove}
-                className={`flex flex-nowrap mt-3 gap-3 sm:gap-4 overflow-x-auto pb-10 pt-4 scrollbar-hide touch-pan-x -mx-4 px-4 ${isSearching ? 'cursor-grabbing select-none' : 'cursor-grab scroll-smooth snap-x snap-mandatory scroll-pl-4'}`}
+                className={`flex flex-nowrap mt-3 gap-3 sm:gap-4 overflow-x-auto pb-10 pt-4 scrollbar-hide touch-pan-x -mx-3 px-3 ${isDragging ? 'cursor-grabbing select-none' : 'cursor-grab scroll-smooth snap-x snap-mandatory scroll-pl-3'}`}
               >
                 {dailyForecast.map((day, i) => (
                   <button
