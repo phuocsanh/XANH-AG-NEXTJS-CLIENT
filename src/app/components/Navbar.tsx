@@ -24,13 +24,43 @@ import { IoMdArrowDropdown } from "react-icons/io"
 import { useAppStore } from "@/stores"
 import Img from "./Img"
 import Block from "./Block"
-import { useState } from "react"
-import { useLogoutMutation } from "@/tanstack-queries/use-auth"
+import { useState, useEffect } from "react"
+
+interface ProductType {
+  id: number
+  name: string
+  code: string
+  status: string
+}
 
 export default function Navbar() {
   const isAuthenticated = useAppStore((state) => state.isLogin)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const logoutMutation = useLogoutMutation()
+  const [productTypes, setProductTypes] = useState<ProductType[]>([])
+
+  // Fetch product types for dropdown
+  useEffect(() => {
+    async function fetchProductTypes() {
+      try {
+        const response = await fetch('/api/product-types')
+        if (!response.ok) return
+        
+        const data = await response.json()
+        if (data.success && data.data) {
+          setProductTypes(data.data)
+        }
+      } catch (error) {
+        console.error('Error fetching product types:', error)
+      }
+    }
+
+    fetchProductTypes()
+  }, [])
+
+  const handleLogout = () => {
+    // TODO: Implement logout logic
+    console.log("Logout clicked")
+  }
 
   return (
     <nav className='fixed left-0 w-full z-50 h-auto bg-background'>
@@ -60,16 +90,38 @@ export default function Navbar() {
                 Trang chủ
               </Link>
               <div className='relative group'>
-                <button className='text-foreground hover:text-primary font-medium flex items-center'>
+                <Link
+                  href='/products'
+                  className='text-foreground hover:text-primary font-medium flex items-center'
+                >
                   Sản phẩm
                   <IoMdArrowDropdown className='w-5 h-5 ml-1 transition-transform duration-300 transform group-hover:rotate-180' />
-                </button>
-                <div className='absolute top-full left-0 text-sm bg-background rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 min-w-[200px] py-2'>
-                  {/* Dropdown content */}
+                </Link>
+                <div className='absolute top-full left-0 text-sm bg-background border border-border rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 min-w-[200px] py-2 mt-1'>
+                  <Link
+                    href='/products'
+                    className='block px-4 py-2 hover:bg-accent text-foreground font-medium'
+                  >
+                    Tất cả sản phẩm
+                  </Link>
+                  {productTypes.length > 0 && (
+                    <>
+                      <div className='border-t border-border my-1' />
+                      {productTypes.map((type) => (
+                        <Link
+                          key={type.id}
+                          href={`/products#type-${type.id}`}
+                          className='block px-4 py-2 hover:bg-accent text-foreground'
+                        >
+                          {type.name}
+                        </Link>
+                      ))}
+                    </>
+                  )}
                 </div>
               </div>
               <Link
-                href='/'
+                href='/promotions'
                 className='text-foreground hover:text-primary font-medium'
               >
                 Khuyến mãi
@@ -79,6 +131,24 @@ export default function Navbar() {
                 className='text-foreground hover:text-primary font-medium'
               >
                 Chat
+              </Link>
+              <Link
+                href='/weather-forecast'
+                className='text-foreground hover:text-primary font-medium'
+              >
+                Thời tiết
+              </Link>
+              <Link
+                href='/lunar-calendar'
+                className='text-foreground hover:text-primary font-medium'
+              >
+                Lịch vạn niên
+              </Link>
+              <Link
+                href='/contact'
+                className='text-foreground hover:text-primary font-medium'
+              >
+                Liên hệ
               </Link>
             </div>
           </div>
@@ -143,7 +213,7 @@ export default function Navbar() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 {isAuthenticated && (
-                  <DropdownMenuItem onClick={() => logoutMutation.mutate()}>
+                  <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className='mr-2 h-4 w-4' />
                     <span>Đăng xuất</span>
                   </DropdownMenuItem>
@@ -178,11 +248,25 @@ export default function Navbar() {
                 Khuyến mãi
               </Link>
               <Link
-                href='/chat'
+                href='/weather-forecast'
                 className='block py-2 text-foreground hover:text-primary font-medium text-sm'
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Chat
+                Thời tiết
+              </Link>
+              <Link
+                href='/lunar-calendar'
+                className='block py-2 text-foreground hover:text-primary font-medium text-sm'
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Lịch vạn niên
+              </Link>
+              <Link
+                href='/contact'
+                className='block py-2 text-foreground hover:text-primary font-medium text-sm'
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Liên hệ
               </Link>
             </div>
           </div>

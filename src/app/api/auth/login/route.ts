@@ -1,4 +1,3 @@
-import authApiRequest from "@/apiRequest/auth"
 import { LoginBodyType } from "@/schemaValidations/auth.schema"
 import { cookies } from "next/headers"
 import jwt from "jsonwebtoken"
@@ -8,7 +7,13 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as LoginBodyType
 
-    const res = await authApiRequest.sLogin(body)
+    // TODO: Implement direct API call to backend
+    // const res = await authApiRequest.sLogin(body)
+    
+    // Temporary mock response for development
+    throw new Error("Login API not implemented - authApiRequest removed")
+    
+    /* Original code - restore when implementing:
     const cookieStore = await cookies()
 
     if (res.data?.tokens.accessToken && res.data?.tokens.refreshToken) {
@@ -32,6 +37,7 @@ export async function POST(request: Request) {
     }
 
     return createApiResponse(res)
+    */
   } catch (error) {
     return serverHandleApiError(error)
   }

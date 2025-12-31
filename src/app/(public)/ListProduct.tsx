@@ -1,7 +1,6 @@
 "use client"
 import React, { useEffect } from "react"
 import Block from "@/app/components/Block"
-import productApiRequest from "@/apiRequest/product"
 import Img from "../components/Img"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { convertCurrency } from "@/lib/utils"
@@ -18,6 +17,9 @@ function ListProduct({ data }: { data: PagingResponseData<ProductItem> }) {
   const router = useRouter()
   const { ref, inView } = useInView()
   const category = searchParams.get("category")
+  
+  // TODO: Implement direct API call to backend
+  /* Original code - restore when implementing:
   const {
     data: queryData,
     isFetchingNextPage,
@@ -47,6 +49,13 @@ function ListProduct({ data }: { data: PagingResponseData<ProductItem> }) {
     },
   })
   const products = queryData?.pages.flatMap((page) => page.data.data) || []
+  */
+  
+  // Mock data for now
+  const products: ProductItem[] = []
+  const isFetchingNextPage = false
+  const fetchNextPage = () => {}
+  const refetch = () => {}
 
   useEffect(() => {
     refetch() // Lấy lại dữ liệu khi `category` thay đổi
@@ -90,7 +99,7 @@ function ListProduct({ data }: { data: PagingResponseData<ProductItem> }) {
                       size: {p?.productAttributes?.size}
                     </p>
                     <p className='mt-1 flex px-2 line-clamp-2 text-slate-400 italic items-center text-sm'>
-                      {p?.product_ratings_average || "5.0"}
+                      {p?.productRatingsAverage || "5.0"}
                       <IoMdStar className='ml-1 text-yellow-400' />
                     </p>
                   </div>

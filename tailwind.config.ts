@@ -17,6 +17,24 @@ const config: Config = {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
         },
+        // Agricultural green palette
+        agri: {
+          50: '#f0f9f4',
+          100: '#dcf3e4',
+          200: '#bae6ca',
+          300: '#8dd4a8',
+          400: '#5cb97f',
+          500: '#4a7c59', // Primary green
+          600: '#3d6548',
+          700: '#2d5016', // Dark green for gradients
+          800: '#234013',
+          900: '#1a3310',
+        },
+        accent: {
+          purple: '#4a1942', // Button color
+          gold: '#c9a961',   // Heading color
+          green: '#6b9e4d',  // Light green accent
+        },
         soft_green: {
           DEFAULT: "hsl(var(--soft-green))",
         },
@@ -63,6 +81,11 @@ const config: Config = {
         spin: "spin 1s linear infinite",
         shine: "shine 4s linear infinite",
         blink: "blink 1s infinite",
+      },
+      backgroundImage: {
+        'gradient-agri': 'linear-gradient(135deg, #4a7c59 0%, #2d5016 100%)',
+        'gradient-agri-light': 'linear-gradient(to bottom, #6b9e4d, #4a7c59)',
+        'gradient-agri-radial': 'radial-gradient(circle at top right, #6b9e4d, #4a7c59)',
       },
     },
   },

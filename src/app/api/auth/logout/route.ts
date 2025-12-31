@@ -1,16 +1,17 @@
 import { cookies } from "next/headers"
 import { createApiResponse, serverHandleApiError } from "@/lib/api-response"
-import authApiRequest from "@/apiRequest/auth"
 
 export async function POST(request: Request) {
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const accessToken = cookieStore.get("accessToken")?.value
 
+    // TODO: Implement direct API call to backend for logout
     // Gọi API logout từ server nếu có accessToken
     if (accessToken) {
       try {
-        await authApiRequest.logout(accessToken)
+        // await authApiRequest.logout(accessToken)
+        console.log("Logout API call skipped - authApiRequest removed")
       } catch (error) {
         console.error("Error calling logout API:", error)
         // Tiếp tục xử lý ngay cả khi API logout thất bại

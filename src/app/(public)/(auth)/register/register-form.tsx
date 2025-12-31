@@ -32,11 +32,6 @@ import {
 import { useState } from "react"
 import { Player } from "@lottiefiles/react-lottie-player"
 import Link from "next/link"
-import {
-  useRegisterEmailMutation,
-  useUpdatePassRegisterMutation,
-  useVerifyOTPMutation,
-} from "@/tanstack-queries/use-auth"
 import Btn from "@/app/components/Btn"
 
 type Steps = 1 | 2 | 3 | undefined
@@ -55,15 +50,12 @@ const RegisterForm = () => {
     },
   })
   console.log("errr", form.formState.errors)
-  const registerEmailMutation = useRegisterEmailMutation()
 
   const onSubmitEmail = async (values: RegisterEmailType) => {
-    await registerEmailMutation.mutateAsync(values, {
-      onSuccess: () => {
-        setEmail(values.verifyKey)
-        setStep(1)
-      },
-    })
+    // TODO: Implement register email logic
+    console.log("Register email:", values)
+    setEmail(values.verifyKey)
+    setStep(1)
   }
 
   return (
@@ -101,8 +93,6 @@ const RegisterForm = () => {
                 <Btn
                   title='Tiếp theo'
                   type='submit'
-                  isLoading={registerEmailMutation.isPending}
-                  disabled={registerEmailMutation.isPending}
                 />
               </form>
             </Form>
@@ -128,7 +118,6 @@ function InputOTPPattern({
   setStep: (step: Steps) => void
   email: string
 }) {
-  const verifyOTPMutation = useVerifyOTPMutation()
   const form = useForm<RegisterVerifyOTPType>({
     resolver: zodResolver(RegisterVerifyOTP),
     defaultValues: {
@@ -138,21 +127,10 @@ function InputOTPPattern({
   })
 
   async function onSubmitOTP(values: RegisterVerifyOTPType) {
-    await verifyOTPMutation.mutateAsync(
-      {
-        verifyCode: values.verifyCode,
-        verifyKey: values.verifyKey,
-      },
-      {
-        onSuccess: (result) => {
-          console.log("🚀 ~ onSubmitOTP ~ result:", result)
-          if (result.data?.token) {
-            setToken(result.data.token)
-            setStep(2)
-          }
-        },
-      }
-    )
+    // TODO: Implement verify OTP logic
+    console.log("Verify OTP:", values)
+    setToken("dummy-token")
+    setStep(2)
   }
 
   return (
@@ -236,8 +214,6 @@ function InputOTPPattern({
                   <Btn
                     title='Tiếp theo'
                     type='submit'
-                    isLoading={verifyOTPMutation.isPending}
-                    disabled={verifyOTPMutation.isPending}
                   />
                 </div>
               </form>
@@ -256,8 +232,6 @@ function CreatePass({
   setStep: (step: Steps) => void
   token: string
 }) {
-  const updatePassRegisterMutation = useUpdatePassRegisterMutation()
-
   const form = useForm<RegisterPasswordType>({
     resolver: zodResolver(RegisterPassword),
     defaultValues: {
@@ -267,17 +241,9 @@ function CreatePass({
   })
 
   async function onSubmit(values: RegisterPasswordType) {
-    await updatePassRegisterMutation.mutateAsync(
-      {
-        userPassword: values.password,
-        userToken: token,
-      },
-      {
-        onSuccess: () => {
-          setStep(3)
-        },
-      }
-    )
+    // TODO: Implement update password logic
+    console.log("Update password:", { ...values, token })
+    setStep(3)
   }
 
   return (
@@ -332,8 +298,6 @@ function CreatePass({
             <Btn
               title='Xác nhận'
               type='submit'
-              isLoading={updatePassRegisterMutation.isPending}
-              disabled={updatePassRegisterMutation.isPending}
             />
           </form>
         </Form>

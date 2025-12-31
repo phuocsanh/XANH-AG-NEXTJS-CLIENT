@@ -5,6 +5,37 @@ import { redirect } from "next/navigation"
 // Types
 interface CustomOptions extends Omit<RequestInit, "method"> {
   baseUrl?: string
+  accessToken?: string // Cho phép inject token từ server-side (Next.js API routes)
+}
+
+// Backend response format từ ResponseInterceptor
+interface BackendSuccessResponse<T> {
+  success: boolean
+  data: T
+  meta: {
+    timestamp: string
+    path: string
+    method: string
+  }
+  pagination?: {
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }
+  [key: string]: any // Cho phép các field bổ sung như summary, statistics
+}
+
+// Backend error response format từ HttpExceptionFilter (RFC 7807)
+interface BackendErrorResponse {
+  type: string
+  title: string
+  status: number
+  detail: string
+  field?: string
+  details?: Array<{ field?: string; message: string }>
+  code?: string
+  resource?: string
 }
 
 interface EntityErrorPayload {
@@ -66,10 +97,14 @@ class HttpClient {
   private async getAccessToken(): Promise<string | null> {
     try {
       const response = await fetch("/api/auth/get-access-token")
-      if (!response.ok) return null
+      if (!response.ok) {
+        console.warn(`Failed to get access token: ${response.status} ${response.statusText}`)
+        return null
+      }
       const { accessToken } = await response.json()
       return accessToken
-    } catch {
+    } catch (error) {
+      console.error("Error getting access token:", error)
       return null
     }
   }
@@ -82,10 +117,14 @@ class HttpClient {
           method: "POST",
         }
       )
-      if (!response.ok) return null
+      if (!response.ok) {
+        console.warn(`Failed to refresh access token: ${response.status} ${response.statusText}`)
+        return null
+      }
       const { accessToken } = await response.json()
       return accessToken
-    } catch {
+    } catch (error) {
+      console.error("Error refreshing access token:", error)
       return null
     }
   }
@@ -107,21 +146,50 @@ class HttpClient {
     method: string,
     body?: string | FormData
   ): Promise<Response> {
-    const accessToken = await this.refreshAccessToken()
-    if (!accessToken) {
-      if (isClient) {
+    console.log('🔄 Handling 401 error, attempting token refresh...')
+    
+    // CLIENT-SIDE: Refresh qua API route
+    if (isClient) {
+      const accessToken = await this.refreshAccessToken()
+      if (!accessToken) {
+        console.warn('❌ Client-side refresh failed, redirecting to login')
         await this.handleLogout()
         location.href = "/login"
         throw new Error("Redirecting to login")
-      } else {
-        const headers = options?.headers as AuthHeaders
-        const currentToken = headers?.Authorization?.split("Bearer ")[1]
-        redirect(`/logout?accessToken=${currentToken}`)
       }
+
+      console.log('✅ Client-side token refreshed, retrying request')
+      const baseHeaders = this.getBaseHeaders(body)
+      baseHeaders.Authorization = `Bearer ${accessToken}`
+
+      return fetch(url, {
+        ...options,
+        headers: { ...baseHeaders, ...options?.headers },
+        body,
+        method,
+      })
+    }
+    
+    // SERVER-SIDE: Refresh trực tiếp từ backend
+    console.log('🔄 Server-side refresh attempt...')
+    
+    // Dynamic import để tránh lỗi khi chạy client-side
+    const { getValidAccessToken } = await import('@/lib/server-auth')
+    const newAccessToken = await getValidAccessToken()
+    
+    if (!newAccessToken) {
+      console.warn('❌ Server-side refresh failed')
+      // Throw error để API route có thể xử lý
+      throw new HttpError({
+        code: 401,
+        data: null,
+        message: "Unauthorized - token refresh failed"
+      })
     }
 
+    console.log('✅ Server-side token refreshed, retrying request')
     const baseHeaders = this.getBaseHeaders(body)
-    baseHeaders.Authorization = `Bearer ${accessToken}`
+    baseHeaders.Authorization = `Bearer ${newAccessToken}`
 
     return fetch(url, {
       ...options,
@@ -159,12 +227,18 @@ class HttpClient {
     }
 
     const baseHeaders = this.getBaseHeaders(body)
-    if (isClient) {
+    
+    // Ưu tiên token từ options (server-side)
+    if (options?.accessToken) {
+      baseHeaders.Authorization = `Bearer ${options.accessToken}`
+    } else if (isClient) {
+      // Client-side: lấy từ cookies qua API route
       const accessToken = await this.getAccessToken()
       if (accessToken) {
         baseHeaders.Authorization = `Bearer ${accessToken}`
       }
     }
+    // Server-side mà không có accessToken trong options: không attach token
 
     let response = await fetch(fullUrl, {
       ...options,
@@ -228,6 +302,20 @@ class HttpClient {
           errorMessage,
         })
 
+        // Log backend error details nếu có (RFC 7807 format)
+        if (errorData && typeof errorData === 'object') {
+          const backendError = errorData as Partial<BackendErrorResponse>
+          if (backendError.type || backendError.title) {
+            console.error("Backend Error Details:", {
+              type: backendError.type,
+              title: backendError.title,
+              detail: backendError.detail,
+              field: backendError.field,
+              details: backendError.details,
+            })
+          }
+        }
+
         // For 422 errors, throw EntityError
         if (response.status === 422) {
           throw new EntityError({
@@ -238,8 +326,9 @@ class HttpClient {
         }
 
         // For other errors, throw HttpError
+        // Map HTTP status code thành code field
         throw new HttpError({
-          code: response.status,
+          code: response.status, // Sử dụng response.status thay vì errorData.code
           data: errorData,
           message: errorMessage,
         })

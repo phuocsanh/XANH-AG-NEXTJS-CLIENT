@@ -1,115 +1,130 @@
-import React from "react";
-import { FaFacebook, FaInstagramSquare, FaLinkedin } from "react-icons/fa";
-import Img from "./Img";
-const listPaymentMethods = [
-  { icon: "/assets/img_visa.png" },
-  { icon: "/assets/img_mastercard.png" },
-  { icon: "/assets/img_jcb.png" },
-  { icon: "/assets/img_gop.png" },
-  { icon: "/assets/img_cod.png" },
-];
+'use client'
 
-const listDeliveryMethods = [
-  { icon: "/assets/img_delivery_spx.png" },
-  { icon: "/assets/img_delivery_vietnam_post.png" },
-  { icon: "/assets/img_delivery_viettel.png" },
-];
+import React from "react"
+import Link from "next/link"
+import { FaFacebook, FaYoutube, FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa"
+import Img from "./Img"
+
+const footerLinks = {
+  customerService: [
+    { name: "Hướng dẫn mua hàng", href: "/huong-dan" },
+    { name: "Chính sách đổi trả", href: "/chinh-sach-doi-tra" },
+    { name: "Chính sách bảo mật", href: "/bao-mat" },
+    { name: "Điều khoản sử dụng", href: "/dieu-khoan" },
+  ],
+  company: [
+    { name: "Giới thiệu Xanh AG", href: "/about" },
+    { name: "Sản phẩm", href: "/products" },
+    { name: "Tin tức", href: "/news" },
+    { name: "Liên hệ", href: "/contact" },
+  ]
+}
+
 export default function Footer() {
   return (
-    <footer className="bg-bg_green w-full py-10 px-4 md:px-10">
-      <section className="w-full flex flex-wrap gap-8 justify-between">
-        {/* Customer Service */}
-        <div className="w-full md:w-[40%] lg:w-[20%]">
-          <h1 className="font-semibold">DỊCH VỤ KHÁCH HÀNG</h1>
-          {[
-            "Hướng Dẫn Mua Hàng/Đặt Hàng",
-            "Đơn Hàng",
-            "Hướng Dẫn Bán Hàng",
-            "Trả Hàng/Hoàn Tiền",
-            "Liên Hệ SQ",
-            "Chính Sách Bảo Hành",
-          ].map((text, idx) => (
-            <p
-              key={idx}
-              className="text-sm mt-2 cursor-pointer hover:text-primary"
-            >
-              {text}
-            </p>
-          ))}
-        </div>
-
-        {/* About SQ-Ecommerce */}
-        <div className="w-full md:w-[40%] lg:w-[20%]">
-          <h1 className="font-semibold">Về SQ-ECOMMERCE</h1>
-          {[
-            "Tuyển Dụng",
-            "Điều Khoản SQ",
-            "Chính Sách Bảo Mật",
-            "Flash Sale",
-            "Tiếp Thị Liên Kết",
-            "Liên Hệ Truyền Thông",
-          ].map((text, idx) => (
-            <p
-              key={idx}
-              className="text-sm mt-2 cursor-pointer hover:text-primary"
-            >
-              {text}
-            </p>
-          ))}
-        </div>
-
-        {/* Payment Methods */}
-        <div className="w-full md:w-[40%] lg:w-[20%]">
-          <h1 className="font-semibold">THANH TOÁN</h1>
-          <div className="flex flex-row flex-wrap mt-2 gap-3">
-            {listPaymentMethods.map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded px-2 py-1 shadow-sm w-[50px] h-[22px]"
-              >
-                <Img alt="payment_method.png" src={item.icon} />
+    <footer className="bg-gradient-to-br from-agri-900 to-agri-800 text-white pt-16 pb-8">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+          {/* Brand Column */}
+          <div className="space-y-6">
+            <Link href="/" className="inline-block">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white rounded-full p-2">
+                  <Img
+                    alt="Xanh AG Logo"
+                    src="https://cdn-icons-png.flaticon.com/128/8044/8044419.png"
+                    fill
+                  />
+                </div>
+                <span className="text-2xl font-bold tracking-tight text-white uppercase">
+                  Xanh <span className="text-agri-400">AG</span>
+                </span>
               </div>
-            ))}
+            </Link>
+            <p className="text-agri-100/80 leading-relaxed">
+              Xanh AG - Giải pháp nông nghiệp xanh, bền vững. Chúng tôi cung cấp vật tư nông nghiệp chất lượng cao cho bà con nông dân.
+            </p>
+            <div className="flex items-center gap-4">
+              <a href="#" className="w-10 h-10 rounded-full bg-agri-700 flex items-center justify-center hover:bg-agri-600 transition-colors shadow-lg">
+                <FaFacebook className="text-xl" />
+              </a>
+              <a href="#" className="w-10 h-10 rounded-full bg-agri-700 flex items-center justify-center hover:bg-agri-600 transition-colors shadow-lg">
+                <FaYoutube className="text-xl" />
+              </a>
+            </div>
           </div>
-          <h1 className="font-semibold mt-4">ĐƠN VỊ VẬN CHUYỂN</h1>
-          <div className="flex flex-row flex-wrap mt-2 gap-3">
-            {listDeliveryMethods.map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded px-2 py-1 shadow-sm w-[50px] h-[22px]"
-              >
-                <Img alt="delivery_method.png" src={item.icon} />
-              </div>
-            ))}
+
+          {/* Quick Links */}
+          <div>
+            <h3 className="text-lg font-bold mb-6 relative inline-block">
+              Về Xanh AG
+              <span className="absolute -bottom-2 left-0 w-12 h-1 bg-accent-gold rounded-full"></span>
+            </h3>
+            <ul className="space-y-4">
+              {footerLinks.company.map((link) => (
+                <li key={link.name}>
+                  <Link href={link.href} className="text-agri-100/80 hover:text-white hover:translate-x-1 transition-all inline-block">
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Customer Service */}
+          <div>
+            <h3 className="text-lg font-bold mb-6 relative inline-block">
+              Hỗ trợ khách hàng
+              <span className="absolute -bottom-2 left-0 w-12 h-1 bg-accent-gold rounded-full"></span>
+            </h3>
+            <ul className="space-y-4">
+              {footerLinks.customerService.map((link) => (
+                <li key={link.name}>
+                  <Link href={link.href} className="text-agri-100/80 hover:text-white hover:translate-x-1 transition-all inline-block">
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact Info */}
+          <div>
+            <h3 className="text-lg font-bold mb-6 relative inline-block">
+              Liên hệ với chúng tôi
+              <span className="absolute -bottom-2 left-0 w-12 h-1 bg-accent-gold rounded-full"></span>
+            </h3>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-3 text-agri-100/80">
+                <FaMapMarkerAlt className="mt-1 flex-shrink-0 text-accent-gold" />
+                <span>Số nhà 257, Tân Hòa A, Tân Hiệp - An Giang</span>
+              </li>
+              <li className="flex items-center gap-3 text-agri-100/80">
+                <FaPhoneAlt className="flex-shrink-0 text-accent-gold" />
+                <a href="tel:0987383606" className="hover:text-white transition-colors font-semibold text-lg">
+                  0987.383.606
+                </a>
+              </li>
+              <li className="flex items-center gap-3 text-agri-100/80">
+                <FaEnvelope className="flex-shrink-0 text-accent-gold" />
+                <a href="mailto:contact@xanhag.com" className="hover:text-white transition-colors">
+                  contact@xanhag.com
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Social Media */}
-        <div className="w-full md:w-[40%] lg:w-[20%]">
-          <h1 className="font-semibold">THEO DÕI</h1>
-          {[
-            {
-              icon: <FaFacebook className="text-slate-500" />,
-              name: "Facebook",
-            },
-            {
-              icon: <FaInstagramSquare className="text-slate-500" />,
-              name: "Instagram",
-            },
-            {
-              icon: <FaLinkedin className="text-slate-500" />,
-              name: "LinkedIn",
-            },
-          ].map((item, idx) => (
-            <button key={idx} className="flex items-center mt-2">
-              {item.icon}
-              <p className="text-sm ml-1 cursor-pointer hover:text-primary">
-                {item.name}
-              </p>
-            </button>
-          ))}
+        {/* Bottom Bar */}
+        <div className="pt-8 border-t border-agri-700/50 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-agri-100/60">
+          <p>© {new Date().getFullYear()} Xanh AG. All rights reserved.</p>
+          <div className="flex items-center gap-6">
+            <Link href="/privacy" className="hover:text-white transition-colors">Bảo mật</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">Điều khoản</Link>
+            <Link href="/sitemap" className="hover:text-white transition-colors">Sitemap</Link>
+          </div>
         </div>
-      </section>
+      </div>
     </footer>
-  );
+  )
 }

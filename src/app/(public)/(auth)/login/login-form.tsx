@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { LoginBody, LoginBodyType } from "@/schemaValidations/auth.schema"
-import { useLoginMutation } from "@/tanstack-queries/use-auth"
 import Btn from "@/app/components/Btn"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -22,24 +21,14 @@ const LoginForm = () => {
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
     defaultValues: {
-      userAccount: "",
-      userPassword: "",
+      user_account: "",
+      user_password: "",
     },
   })
 
-  const loginMutation = useLoginMutation()
-
-  const onSubmit = async ({ userAccount, userPassword }: LoginBodyType) => {
-    await loginMutation.mutateAsync(
-      { userAccount, userPassword },
-      {
-        onSuccess: (res) => {
-          if (res.data?.tokens.accessToken) {
-            router.push("/")
-          }
-        },
-      }
-    )
+  const onSubmit = async ({ user_account, user_password }: LoginBodyType) => {
+    // TODO: Implement login logic
+    console.log("Login:", { user_account, user_password })
   }
 
   return (
@@ -57,7 +46,7 @@ const LoginForm = () => {
           >
             <FormField
               control={form.control}
-              name='userAccount'
+              name='user_account'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className='text-base'>Email</FormLabel>
@@ -75,7 +64,7 @@ const LoginForm = () => {
             />
             <FormField
               control={form.control}
-              name='userPassword'
+              name='user_password'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className='text-base'>Mật khẩu</FormLabel>
@@ -96,8 +85,6 @@ const LoginForm = () => {
               <Btn
                 title='Đăng nhập'
                 type='submit'
-                isLoading={loginMutation.isPending}
-                disabled={loginMutation.isPending}
               />
               <Link
                 href='/register'
