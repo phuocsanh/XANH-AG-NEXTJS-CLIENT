@@ -98,11 +98,18 @@ export default function ProductDetailModal({
                       key={index}
                       className="flex-shrink-0 w-full sm:w-1/2 md:w-1/3 snap-center"
                     >
-                      <div className="relative aspect-square bg-gradient-to-br from-agri-50 to-agri-100 rounded-lg overflow-hidden border-2 border-agri-200">
+                      <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden border border-agri-100 shadow-inner">
+                        {/* Background Blurred Image */}
+                        <img
+                          src={pic}
+                          alt=""
+                          className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-30"
+                        />
+                        {/* Foreground Original Image */}
                         <img
                           src={pic}
                           alt={`${product.name} - Ảnh ${index + 1}`}
-                          className="w-full h-full object-contain"
+                          className="relative z-10 w-full h-full object-contain p-2"
                         />
                       </div>
                     </div>
@@ -115,11 +122,18 @@ export default function ProductDetailModal({
                 )}
               </div>
             ) : product.thumb ? (
-              <div className="relative aspect-square bg-gradient-to-br from-agri-50 to-agri-100 rounded-lg overflow-hidden border-2 border-agri-200 max-w-md mx-auto">
+              <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden border border-agri-100 shadow-inner max-w-md mx-auto">
+                {/* Background Blurred Image */}
+                <img
+                  src={product.thumb}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-30"
+                />
+                {/* Foreground Original Image */}
                 <img
                   src={product.thumb}
                   alt={product.name}
-                  className="w-full h-full object-contain"
+                  className="relative z-10 w-full h-full object-contain p-2"
                 />
               </div>
             ) : (

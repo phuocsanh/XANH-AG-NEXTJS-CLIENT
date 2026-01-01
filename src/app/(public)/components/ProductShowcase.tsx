@@ -198,20 +198,38 @@ export default function ProductShowcase() {
                     </svg>
                   </div>
 
-                  {/* Product image */}
-                  <div className="relative w-full h-48 md:h-56 bg-gray-50 overflow-hidden">
+                  {/* Product image with Blurred Backdrop Effect */}
+                  <div className="relative w-full h-48 md:h-56 bg-gray-100 overflow-hidden group-hover:scale-105 transition-transform duration-500">
                     {product.pictures && product.pictures.length > 0 ? (
-                      <img
-                        src={product.pictures[0]}
-                        alt={product.name}
-                        className="w-full h-full object-contain"
-                      />
+                      <>
+                        {/* Background Blurred Image */}
+                        <img
+                          src={product.pictures[0]}
+                          alt=""
+                          className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50"
+                        />
+                        {/* Foreground Original Image */}
+                        <img
+                          src={product.pictures[0]}
+                          alt={product.name}
+                          className="relative z-10 w-full h-full object-contain p-1"
+                        />
+                      </>
                     ) : product.thumb ? (
-                      <img
-                        src={product.thumb}
-                        alt={product.name}
-                        className="w-full h-full object-contain"
-                      />
+                      <>
+                        {/* Background Blurred Image */}
+                        <img
+                          src={product.thumb}
+                          alt=""
+                          className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50"
+                        />
+                        {/* Foreground Original Image */}
+                        <img
+                          src={product.thumb}
+                          alt={product.name}
+                          className="relative z-10 w-full h-full object-contain p-1"
+                        />
+                      </>
                     ) : (
                       <>
                         <div className="absolute inset-0 flex items-center justify-center">
@@ -249,7 +267,7 @@ export default function ProductShowcase() {
         <div className="flex justify-center mt-12">
           <Link
             href="/products"
-            className="bg-accent-purple hover:bg-accent-purple/90 text-white px-8 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
+            className="bg-yellow-500 hover:bg-yellow-600 text-black px-8 py-3 rounded-lg font-bold transition-all transform hover:scale-105 shadow-lg"
           >
             Xem tất cả sản phẩm
           </Link>
