@@ -210,10 +210,13 @@ class HttpClient {
     if (isClient) {
       const accessToken = await this.refreshAccessToken()
       if (!accessToken) {
-        console.warn('❌ Client-side refresh failed, redirecting to login')
-        await this.handleLogout()
-        location.href = "/login"
-        throw new Error("Redirecting to login")
+        console.warn('❌ Client-side refresh failed')
+        if (location.pathname !== "/login") {
+           console.log('Redirecting to login...')
+           await this.handleLogout()
+           location.href = "/login"
+        }
+        throw new Error("Unauthorized")
       }
 
       console.log('✅ Client-side token refreshed, retrying request')

@@ -47,16 +47,16 @@ export default function HeroSection() {
         </div>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-row gap-4 pb-40 lg:pb-20">
           <Link
             href="/products"
-            className="bg-accent-purple hover:bg-accent-purple/90 text-white px-8 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-xl min-w-[180px]"
+            className="text-sm lg:text-base bg-yellow-500 hover:bg-yellow-600 text-black px-5 py-3 rounded-lg font-bold transition-all transform hover:scale-105 shadow-xl max-w-[150px] lg:min-w-[180px] flex items-center justify-center"
           >
             Xem sản phẩm
           </Link>
           <Link
             href="/promotions"
-            className="bg-white hover:bg-agri-50 text-agri-700 px-8 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-xl min-w-[180px]"
+            className="text-sm lg:text-base bg-white hover:bg-agri-50 text-agri-700 px-5 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-xl max-w-[150px] lg:min-w-[180px]"
           >
             Khuyến mãi
           </Link>

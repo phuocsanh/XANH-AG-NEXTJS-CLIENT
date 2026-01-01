@@ -1,6 +1,12 @@
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+  register: true,
+  skipWaiting: true,
+})
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Disable service worker
   experimental: {
     workerThreads: false,
   },
@@ -39,16 +45,13 @@ const nextConfig = {
       },
     ],
   },
-  // Add React strict mode
   reactStrictMode: true,
-  // Add TypeScript strict mode
   typescript: {
     ignoreBuildErrors: false,
   },
-  // Add ESLint configuration
   eslint: {
     ignoreDuringBuilds: false,
   },
 }
 
-module.exports = nextConfig
+module.exports = withPWA(nextConfig)

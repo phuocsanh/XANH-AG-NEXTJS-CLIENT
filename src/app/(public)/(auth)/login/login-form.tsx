@@ -15,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { LoginBody, LoginBodyType } from "@/schemaValidations/auth.schema"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Phone, Lock, ArrowRight, Loader2 } from "lucide-react"
+import { Phone, Lock, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react"
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { handleErrorApi } from "@/lib/utils"
@@ -27,6 +27,7 @@ const LoginForm = () => {
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -60,7 +61,13 @@ const LoginForm = () => {
       const result = await response.json()
 
       if (!response.ok) {
-        throw { response: { data: result, message: result.message } }
+        const errorData = result;
+        throw { 
+          response: { 
+            data: errorData,
+            message: errorData.message || "Tài khoản hoặc mật khẩu không chính xác" 
+          } 
+        }
       }
 
       console.log("✅ Login response:", result)
@@ -96,7 +103,7 @@ const LoginForm = () => {
       })
 
       // Redirect to dashboard or home
-      router.push("/rice-crops")
+      router.push("/")
     } catch (error) {
       handleErrorApi({ error })
     } finally {
@@ -162,12 +169,29 @@ const LoginForm = () => {
                   Mật khẩu
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder='••••••••'
-                    type='password'
-                    className='h-12 text-base bg-white/50 border-2 border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all rounded-xl text-gray-800 font-medium'
-                    {...field}
-                  />
+                  <div className="relative group">
+                    <Input
+                      placeholder='••••••••'
+                      {...field}
+                      type={showPassword ? 'text' : 'password'}
+                      className='h-12 text-base bg-white/50 border-2 border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all rounded-xl text-gray-800 font-medium pr-12'
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setShowPassword(!showPassword);
+                      }}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-green-600 transition-colors rounded-lg hover:bg-green-50 z-10"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage className='text-red-600 font-medium text-sm animate-shake' />
               </FormItem>

@@ -12,6 +12,7 @@ import { MdArrowBack } from "react-icons/md"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
+import { Eye, EyeOff } from "lucide-react"
 import {
   Form,
   FormControl,
@@ -232,6 +233,8 @@ function CreatePass({
   setStep: (step: Steps) => void
   token: string
 }) {
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const form = useForm<RegisterPasswordType>({
     resolver: zodResolver(RegisterPassword),
     defaultValues: {
@@ -264,14 +267,27 @@ function CreatePass({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className='text-base'>Mật khẩu</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder='Nhập mật khẩu'
-                      type='password'
-                      className='w-full h-12 text-base bg-white border-2 border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-gray-800 font-medium'
-                      {...field}
-                    />
-                  </FormControl>
+                   <FormControl>
+                     <div className="relative group">
+                       <Input
+                         placeholder='Nhập mật khẩu'
+                         {...field}
+                         type={showPassword ? 'text' : 'password'}
+                         className='w-full h-12 text-base bg-white border-2 border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-gray-800 font-medium pr-10'
+                       />
+                       <button
+                         type="button"
+                         onClick={(e) => {
+                           e.preventDefault();
+                           e.stopPropagation();
+                           setShowPassword(!showPassword);
+                         }}
+                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
+                       >
+                         {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                       </button>
+                     </div>
+                   </FormControl>
                   <FormMessage className='text-red-600 font-medium' />
                 </FormItem>
               )}
@@ -282,14 +298,27 @@ function CreatePass({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className='text-base'>Nhập lại mật khẩu</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder='Nhập lại mật khẩu'
-                      type='password'
-                      className='w-full h-12 text-base bg-white border-2 border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-gray-800 font-medium'
-                      {...field}
-                    />
-                  </FormControl>
+                   <FormControl>
+                     <div className="relative group">
+                       <Input
+                         placeholder='Nhập lại mật khẩu'
+                         {...field}
+                         type={showConfirmPassword ? 'text' : 'password'}
+                         className='w-full h-12 text-base bg-white border-2 border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-gray-800 font-medium pr-10'
+                       />
+                       <button
+                         type="button"
+                         onClick={(e) => {
+                           e.preventDefault();
+                           e.stopPropagation();
+                           setShowConfirmPassword(!showConfirmPassword);
+                         }}
+                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
+                       >
+                         {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                       </button>
+                     </div>
+                   </FormControl>
                   <FormMessage className='text-red-600 font-medium' />
                 </FormItem>
               )}

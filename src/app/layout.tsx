@@ -4,12 +4,22 @@ import { cn } from "@/lib/utils"
 import { Lexend } from "next/font/google"
 import RootProvider from "@/provider/root-provider"
 import Block from "./components/Block"
+import { FirebaseNotificationsProvider } from "./components/firebase-notifications-provider"
 
 const lexend = Lexend({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "GN Farm",
-  description: "GN Farm - Nông trại thông minh",
+  title: "Xanh AG - Nông nghiệp thông minh",
+  description: "Ứng dụng quản lý nông nghiệp thông minh cho nông dân",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Xanh AG",
+  },
+  icons: {
+    apple: "/assets/logo3.png",
+  },
 }
 
 export const viewport = {
@@ -17,6 +27,7 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  themeColor: "#16a34a",
 }
 
 export default function RootLayout({
@@ -33,6 +44,7 @@ export default function RootLayout({
         )}
       >
         <RootProvider>
+          <FirebaseNotificationsProvider />
           <Block>{children}</Block>
         </RootProvider>
       </body>

@@ -20,11 +20,11 @@ async function Page() {
         {/* Product Showcase - Tab danh mục và danh sách sản phẩm nổi bật */}
         <ProductShowcase />
 
-        {/* Features Section - Giới thiệu về Xanh AG */}
-        <FeaturesSection />
-
         {/* Latest News - Tin tức nông nghiệp mới nhất */}
         <LatestNews />
+        
+         {/* Features Section - Giới thiệu về Xanh AG */}
+        <FeaturesSection />
       </div>
     )
   } catch (error) {
