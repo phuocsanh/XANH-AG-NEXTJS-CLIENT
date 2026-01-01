@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useRiceCrops } from "@/hooks/use-rice-crops"
 import { useSeasons } from "@/hooks/use-seasons"
 import {
@@ -37,6 +38,7 @@ import {
 import { Eye, Search } from "lucide-react"
 
 export default function RiceCropsPage() {
+  const router = useRouter()
   // State cho filters
   const [filters, setFilters] = useState<{
     field_name: string
@@ -267,8 +269,7 @@ export default function RiceCropsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              // TODO: Navigate to detail page
-                              console.log("View crop:", crop.id)
+                              router.push(`/rice-crops/${crop.id}`)
                             }}
                           >
                             <Eye className="h-4 w-4 mr-1" />

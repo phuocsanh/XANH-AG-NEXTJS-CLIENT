@@ -95,21 +95,71 @@ class HttpClient {
   }
 
   private async getAccessToken(): Promise<string | null> {
+    if (isClient) {
+      // Ưu tiên lấy từ LocalStorage/SessionStorage
+      const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken")
+      if (token) return token
+    }
+    
+    // Fallback: Thử gọi API route (nếu dùng cookies)
     try {
       const response = await fetch("/api/auth/get-access-token")
       if (!response.ok) {
-        console.warn(`Failed to get access token: ${response.status} ${response.statusText}`)
         return null
       }
       const { accessToken } = await response.json()
       return accessToken
     } catch (error) {
-      console.error("Error getting access token:", error)
       return null
     }
   }
 
   private async refreshAccessToken(): Promise<string | null> {
+    // 1. Nếu là Client và có RefreshToken trong Storage -> Gọi trực tiếp Backend
+    if (isClient) {
+      const refreshToken = localStorage.getItem("refreshToken") || sessionStorage.getItem("refreshToken")
+      if (refreshToken) {
+        try {
+          const baseUrl = envConfig.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:3003"
+          const response = await fetch(`${baseUrl}/auth/refresh`, {
+             method: "POST",
+             headers: { "Content-Type": "application/json" },
+             body: JSON.stringify({ refresh_token: refreshToken }),
+          })
+
+          if (!response.ok) {
+            console.warn(`Failed to refresh access token directly: ${response.status}`)
+            return null
+          }
+
+          const data = await response.json()
+          // Backend trả về: { accessToken, refreshToken, ... } hoặc { data: { ... } }
+          // Tùy cấu trúc, check auth.controller trả về 'tokens'.
+          // auth.service.refreshToken thường trả về { accessToken, refreshToken }
+          
+          const newTokens = data.data || data
+          const accessToken = newTokens?.accessToken || newTokens?.access_token
+          const newRefreshToken = newTokens?.refreshToken || newTokens?.refresh_token
+          
+          if (accessToken) {
+             // Cập nhật lại Storage
+             if (localStorage.getItem("accessToken")) {
+               localStorage.setItem("accessToken", accessToken)
+               if (newRefreshToken) localStorage.setItem("refreshToken", newRefreshToken)
+             } else {
+               sessionStorage.setItem("accessToken", accessToken)
+               if (newRefreshToken) sessionStorage.setItem("refreshToken", newRefreshToken)
+             }
+             return accessToken
+          }
+        } catch (error) {
+          console.error("Error refreshing token client-side:", error)
+          return null
+        }
+      }
+    }
+
+    // 2. Fallback: Gọi qua API route (Cookies)
     try {
       const response = await fetch(
         "/api/auth/get-access-token-by-refresh-token",
@@ -118,18 +168,26 @@ class HttpClient {
         }
       )
       if (!response.ok) {
-        console.warn(`Failed to refresh access token: ${response.status} ${response.statusText}`)
         return null
       }
       const { accessToken } = await response.json()
       return accessToken
     } catch (error) {
-      console.error("Error refreshing access token:", error)
+      console.error("Error refreshing access token via proxy:", error)
       return null
     }
   }
 
   private async handleLogout(): Promise<void> {
+    if (isClient) {
+      localStorage.removeItem("accessToken")
+      localStorage.removeItem("refreshToken")
+      localStorage.removeItem("user")
+      sessionStorage.removeItem("accessToken")
+      sessionStorage.removeItem("refreshToken")
+      sessionStorage.removeItem("user")
+    }
+    
     if (!this.clientLogoutRequest) {
       this.clientLogoutRequest = fetch("/api/auth/logout", {
         method: "POST",
