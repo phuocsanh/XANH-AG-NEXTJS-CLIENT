@@ -109,7 +109,7 @@ export default function ProductDetailModal({
                         <img
                           src={pic}
                           alt={`${product.name} - Ảnh ${index + 1}`}
-                          className="relative z-10 w-full h-full object-contain p-2"
+                          className="relative z-10 w-full h-full object-cover"
                         />
                       </div>
                     </div>
@@ -133,7 +133,7 @@ export default function ProductDetailModal({
                 <img
                   src={product.thumb}
                   alt={product.name}
-                  className="relative z-10 w-full h-full object-contain p-2"
+                  className="relative z-10 w-full h-full object-cover"
                 />
               </div>
             ) : (

@@ -199,7 +199,7 @@ export default function ProductShowcase() {
                   </div>
 
                   {/* Product image with Blurred Backdrop Effect */}
-                  <div className="relative w-full h-48 md:h-56 bg-gray-100 overflow-hidden group-hover:scale-105 transition-transform duration-500">
+                  <div className="relative w-full aspect-square bg-gray-100 overflow-hidden group-hover:scale-105 transition-transform duration-500">
                     {product.pictures && product.pictures.length > 0 ? (
                       <>
                         {/* Background Blurred Image */}
@@ -212,7 +212,7 @@ export default function ProductShowcase() {
                         <img
                           src={product.pictures[0]}
                           alt={product.name}
-                          className="relative z-10 w-full h-full object-contain p-1"
+                          className="relative z-10 w-full h-full object-cover"
                         />
                       </>
                     ) : product.thumb ? (
@@ -227,7 +227,7 @@ export default function ProductShowcase() {
                         <img
                           src={product.thumb}
                           alt={product.name}
-                          className="relative z-10 w-full h-full object-contain p-1"
+                          className="relative z-10 w-full h-full object-cover"
                         />
                       </>
                     ) : (
