@@ -103,7 +103,7 @@ export default function GrowthTrackingTab({ riceCropId }: GrowthTrackingTabProps
     try {
       await deleteMutation.mutateAsync({ id, cropId: riceCropId })
       toast({ title: "Thành công", description: "Xóa bản ghi thành công" })
-    } catch (error) {
+    } catch {
       toast({ title: "Lỗi", description: "Có lỗi xảy ra khi xóa bản ghi", variant: "destructive" })
     }
   }
@@ -128,7 +128,7 @@ export default function GrowthTrackingTab({ riceCropId }: GrowthTrackingTabProps
       }
 
       setIsModalOpen(false)
-    } catch (error) {
+    } catch {
       toast({ title: "Lỗi", description: "Có lỗi xảy ra khi lưu dữ liệu", variant: "destructive" })
     }
   }

@@ -35,21 +35,5 @@ export default function AuthLayout({
     }
   }, [])
 
-  const userName = user?.account || "User"
-  const userInitial = userName.charAt(0).toUpperCase()
-
-  const handleLogout = () => {
-    // Xóa tokens
-    localStorage.removeItem("accessToken")
-    localStorage.removeItem("refreshToken")
-    localStorage.removeItem("user")
-    sessionStorage.removeItem("accessToken")
-    sessionStorage.removeItem("refreshToken")
-    sessionStorage.removeItem("user")
-
-    // Redirect về trang login
-    router.push("/login")
-  }
-
   return <>{children}</>
 }

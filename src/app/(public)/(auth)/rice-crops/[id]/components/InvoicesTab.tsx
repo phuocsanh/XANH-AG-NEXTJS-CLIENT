@@ -61,7 +61,7 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
       try {
         await deleteMutation.mutateAsync({ id: numericId, riceCropId })
         toast({ title: "Thành công", description: "Đã xóa hóa đơn mua hàng" })
-      } catch (error) {
+      } catch {
         toast({ title: "Lỗi", description: "Có lỗi xảy ra khi xóa", variant: "destructive" })
       }
     } else {

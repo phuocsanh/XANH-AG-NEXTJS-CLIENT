@@ -2,13 +2,10 @@
 "use client"
 
 import Link from "next/link"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
-  CreditCard,
-  LifeBuoy,
   LogOut,
   Menu,
-  Settings,
   User,
   X,
 } from "lucide-react"
@@ -17,7 +14,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { IoMdArrowDropdown } from "react-icons/io"

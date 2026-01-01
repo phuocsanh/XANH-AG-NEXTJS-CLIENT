@@ -20,13 +20,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Loader2 } from "lucide-react"
 import dayjs from "dayjs"
@@ -116,7 +109,7 @@ export default function CreateCostItemModal({
         toast({ title: "Thành công", description: "Thêm chi phí thành công" })
       }
       onClose()
-    } catch (error) {
+    } catch {
       toast({ title: "Lỗi", description: "Có lỗi xảy ra", variant: "destructive" })
     }
   }
@@ -150,7 +143,7 @@ export default function CreateCostItemModal({
                 name="category_id"
                 label="Loại chi phí"
                 placeholder="Chọn loại"
-                options={categories.map((cat: any) => ({
+                options={categories.map((cat: { id: number; name: string }) => ({
                   value: cat.id,
                   label: cat.name,
                 }))}

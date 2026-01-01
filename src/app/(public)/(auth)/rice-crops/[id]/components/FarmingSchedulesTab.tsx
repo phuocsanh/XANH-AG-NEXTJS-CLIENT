@@ -100,7 +100,7 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
     try {
       await deleteMutation.mutateAsync({ id, cropId: riceCropId })
       toast({ title: "Thành công", description: "Xóa lịch canh tác thành công" })
-    } catch (error) {
+    } catch {
       toast({ title: "Lỗi", description: "Có lỗi xảy ra khi xóa lịch canh tác", variant: "destructive" })
     }
   }
@@ -109,7 +109,7 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
     try {
       await completeMutation.mutateAsync(id)
       toast({ title: "Thành công", description: "Đã đánh dấu hoàn thành" })
-    } catch (error) {
+    } catch {
       toast({ title: "Lỗi", description: "Có lỗi xảy ra", variant: "destructive" })
     }
   }
@@ -140,7 +140,7 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
       }
 
       setIsModalOpen(false)
-    } catch (error) {
+    } catch {
       toast({ title: "Lỗi", description: "Có lỗi xảy ra khi lưu dữ liệu", variant: "destructive" })
     }
   }

@@ -59,7 +59,7 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
     try {
       await deleteMutation.mutateAsync({ id, cropId: riceCropId })
       toast({ title: "Thành công", description: "Đã xóa bản ghi thu hoạch" })
-    } catch (error) {
+    } catch {
       toast({ title: "Lỗi", description: "Có lỗi xảy ra khi xóa", variant: "destructive" })
     }
   }

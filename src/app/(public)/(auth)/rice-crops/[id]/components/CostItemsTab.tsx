@@ -29,13 +29,12 @@ export default function CostItemsTab({ riceCropId }: CostItemsTabProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<CostItem | null>(null)
 
-  /* eslint-disable @typescript-eslint/no-explicit-any */
   const { data: costItemsData, isLoading } = useCostItems({ rice_crop_id: riceCropId })
   
   // Xử lý dữ liệu trả về từ API search (có thể là { data: [], total: ... } hoặc [])
   const costItems = Array.isArray(costItemsData) 
     ? costItemsData 
-    : (costItemsData as any)?.data || []
+    : (costItemsData as unknown as { data?: CostItem[] })?.data || []
 
   const deleteMutation = useDeleteCostItem()
 
@@ -55,7 +54,7 @@ export default function CostItemsTab({ riceCropId }: CostItemsTabProps) {
     try {
       await deleteMutation.mutateAsync({ id, cropId: riceCropId })
       toast({ title: "Thành công", description: "Đã xóa chi phí canh tác" })
-    } catch (error) {
+    } catch {
       toast({ title: "Lỗi", description: "Có lỗi xảy ra khi xóa", variant: "destructive" })
     }
   }
