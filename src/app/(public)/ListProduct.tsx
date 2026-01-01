@@ -2,7 +2,6 @@
 import React, { useEffect } from "react"
 import Block from "@/app/components/Block"
 import Img from "../components/Img"
-import { useInfiniteQuery } from "@tanstack/react-query"
 import { convertCurrency } from "@/lib/utils"
 import { IoMdStar } from "react-icons/io"
 import { useSearchParams, useRouter } from "next/navigation"
@@ -12,7 +11,8 @@ import LoadingSpinner from "../components/LoadingSpinner"
 import { COLLOR } from "@/lib/color"
 import { useInView } from "react-intersection-observer"
 
-function ListProduct({ data }: { data: PagingResponseData<ProductItem> }) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function ListProduct({ data: _data }: { data: PagingResponseData<ProductItem> }) {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { ref, inView } = useInView()

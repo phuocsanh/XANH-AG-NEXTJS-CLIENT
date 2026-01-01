@@ -31,19 +31,6 @@ export const useUploadImageMutation = () => {
       // In use-api.ts, if isFormData is true, it passes data directly? No, it expects data to be object or FormData.
       // Let's implement manually here for safety.
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/upload/image`, {
-        method: "POST",
-        body: formData,
-        headers: {
-             // 'Content-Type': 'multipart/form-data', // Do NOT set this manually with FormData
-             // Add Auth header if needed. Assuming httpClient handles it, but verify.
-             // Typically we should use httpClient.post but passing FormData.
-        }
-      })
-      
-      // Let's rely on httpClient to handle Auth tokens.
-      // We can't import httpClient easily inside this hook definition file unless we import it at top.
-      // Wait, I can import httpClient from lib/http
       
       const { default: httpClient } = await import("@/lib/http")
       return httpClient.post("/upload/image", formData)

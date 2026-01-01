@@ -1,7 +1,7 @@
 import { cookies } from "next/headers"
 import { createApiResponse, serverHandleApiError } from "@/lib/api-response"
 
-export async function POST(request: Request) {
+export async function POST() {
   try {
     const cookieStore = await cookies()
     const accessToken = cookieStore.get("accessToken")?.value

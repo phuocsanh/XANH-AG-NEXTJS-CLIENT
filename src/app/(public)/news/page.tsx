@@ -1,6 +1,6 @@
 'use client'
 
-import { Calendar, User, ArrowRight, Search } from 'lucide-react'
+import { Calendar, ArrowRight, Search } from 'lucide-react'
 import Link from 'next/link'
 
 interface NewsItem {

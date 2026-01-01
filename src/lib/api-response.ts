@@ -33,11 +33,11 @@ export function serverHandleApiError(
   )
 }
 
-export function createApiResponse<T>(data: T): NextResponse<T> {
+export function createApiResponse<T>(data: T): NextResponse<ApiResponse<T>> {
   // Kiểm tra xem data có phải là một API response không
-  if (data && typeof data === "object" && "code" in data && "message" in data) {
+  if (data && typeof data === "object" && "code" in data && "message" in data && "data" in data) {
     // Nếu đã là API response, trả về trực tiếp
-    return NextResponse.json(data)
+    return NextResponse.json(data as unknown as ApiResponse<T>)
   }
 
   // Nếu không, bọc lại trong API response

@@ -90,7 +90,7 @@ async function refreshTokenFromBackend(refreshToken: string): Promise<{
  */
 export async function getValidAccessToken(): Promise<string | null> {
   const cookieStore = await cookies()
-  let accessToken = cookieStore.get('accessToken')?.value
+  const accessToken = cookieStore.get('accessToken')?.value
 
   // Nếu có token và còn hạn, dùng luôn
   if (accessToken && !isTokenExpired(accessToken)) {

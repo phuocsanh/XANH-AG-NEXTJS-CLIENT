@@ -9,22 +9,6 @@ interface CustomOptions extends Omit<RequestInit, "method"> {
 }
 
 // Backend response format từ ResponseInterceptor
-interface BackendSuccessResponse<T> {
-  success: boolean
-  data: T
-  meta: {
-    timestamp: string
-    path: string
-    method: string
-  }
-  pagination?: {
-    total: number
-    page: number
-    limit: number
-    totalPages: number
-  }
-  [key: string]: any // Cho phép các field bổ sung như summary, statistics
-}
 
 // Backend error response format từ HttpExceptionFilter (RFC 7807)
 interface BackendErrorResponse {
@@ -57,9 +41,7 @@ interface EntityErrorResponse extends HttpErrorResponse {
   data: EntityErrorPayload
 }
 
-interface AuthHeaders {
-  Authorization?: string
-}
+
 
 // Constants
 const AUTHENTICATION_ERROR_STATUS = 401
@@ -109,7 +91,7 @@ class HttpClient {
       }
       const { accessToken } = await response.json()
       return accessToken
-    } catch (error) {
+    } catch {
       return null
     }
   }

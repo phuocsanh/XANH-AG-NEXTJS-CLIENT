@@ -1,12 +1,8 @@
-import { LoginBodyType } from "@/schemaValidations/auth.schema"
-import { cookies } from "next/headers"
-import jwt from "jsonwebtoken"
-import { createApiResponse, serverHandleApiError } from "@/lib/api-response"
+import { serverHandleApiError } from "@/lib/api-response"
 
-export async function POST(request: Request) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function POST(_request: Request) {
   try {
-    const body = (await request.json()) as LoginBodyType
-
     // TODO: Implement direct API call to backend
     // const res = await authApiRequest.sLogin(body)
     

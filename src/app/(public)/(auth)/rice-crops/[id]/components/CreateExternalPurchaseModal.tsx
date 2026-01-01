@@ -44,7 +44,23 @@ export default function CreateExternalPurchaseModal({
 }: CreateExternalPurchaseModalProps) {
   const { toast } = useToast()
   
-  const [formData, setFormData] = useState<any>({
+  
+  interface PurchaseItem {
+    product_name: string
+    quantity: number
+    unit_price: number
+    total_price: number
+    notes?: string
+  }
+
+  const [formData, setFormData] = useState<{
+    supplier_name: string
+    purchase_date: string
+    payment_status: string
+    paid_amount: number
+    notes: string
+    items: PurchaseItem[]
+  }>({
     supplier_name: "",
     purchase_date: dayjs().format("YYYY-MM-DD"),
     payment_status: "paid",
@@ -90,22 +106,38 @@ export default function CreateExternalPurchaseModal({
 
   const removeItem = (index: number) => {
     if (formData.items.length === 1) return
-    const newItems = formData.items.filter((_: any, i: number) => i !== index)
+    const newItems = formData.items.filter((_: PurchaseItem, i: number) => i !== index)
     setFormData({ ...formData, items: newItems })
   }
 
-  const updateItem = (index: number, field: string, value: any) => {
+  const updateItem = (index: number, field: string, value: string | number) => {
     const newItems = [...formData.items]
-    newItems[index] = { ...newItems[index], [field]: value }
+    const currentItem = newItems[index]
+    if (!currentItem) return // Guard clause để tránh undefined
     
-    if (field === "quantity" || field === "unit_price") {
-      newItems[index].total_price = Number(newItems[index].quantity) * Number(newItems[index].unit_price)
+    // Cập nhật field với kiểu dữ liệu đúng
+    if (field === "product_name") {
+      newItems[index] = { ...currentItem, product_name: String(value) } as PurchaseItem
+    } else if (field === "quantity") {
+      const quantity = Number(value)
+      newItems[index] = { 
+        ...currentItem, 
+        quantity,
+        total_price: quantity * currentItem.unit_price 
+      } as PurchaseItem
+    } else if (field === "unit_price") {
+      const unit_price = Number(value)
+      newItems[index] = { 
+        ...currentItem, 
+        unit_price,
+        total_price: currentItem.quantity * unit_price 
+      } as PurchaseItem
     }
     
     setFormData({ ...formData, items: newItems })
   }
 
-  const totalAmount = formData.items.reduce((sum: number, item: any) => sum + (Number(item.total_price) || 0), 0)
+  const totalAmount = formData.items.reduce((sum: number, item: PurchaseItem) => sum + (Number(item.total_price) || 0), 0)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -119,7 +151,7 @@ export default function CreateExternalPurchaseModal({
         paid_amount: formData.payment_status === 'paid' ? totalAmount : Number(formData.paid_amount),
         payment_status: formData.payment_status,
         notes: formData.notes,
-        items: formData.items.map((item: any) => ({
+        items: formData.items.map((item: PurchaseItem) => ({
           product_name: item.product_name,
           quantity: Number(item.quantity),
           unit_price: Number(item.unit_price),
@@ -138,7 +170,7 @@ export default function CreateExternalPurchaseModal({
       }
 
       onClose()
-    } catch (error) {
+    } catch {
       toast({ title: "Lỗi", description: "Có lỗi xảy ra", variant: "destructive" })
     }
   }
@@ -197,7 +229,7 @@ export default function CreateExternalPurchaseModal({
                   id="paid_amount"
                   type="number"
                   value={formData.paid_amount}
-                  onChange={(e) => setFormData({ ...formData, paid_amount: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, paid_amount: Number(e.target.value) })}
                   required
                 />
               </div>
@@ -212,7 +244,7 @@ export default function CreateExternalPurchaseModal({
               </Button>
             </div>
             <div className="space-y-3 border rounded-md p-3 bg-muted/50">
-              {formData.items.map((item: any, index: number) => (
+              {formData.items.map((item: PurchaseItem, index: number) => (
                 <div key={index} className="grid grid-cols-12 gap-2 items-end">
                   <div className="col-span-4 space-y-1">
                     <Label className="text-[10px]">Tên SP</Label>

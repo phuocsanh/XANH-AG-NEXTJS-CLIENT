@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { GNChatClient, Conversation, Message, UserStatus, UserTyping } from '@/lib/chat/chatClient';
+import { GNChatClient, Conversation, Message } from '@/lib/chat/chatClient';
 
 interface ChatState {
   // Client instance

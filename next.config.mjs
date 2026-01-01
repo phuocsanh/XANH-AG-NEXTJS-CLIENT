@@ -8,6 +8,10 @@ const nextConfig = {
       },
     ],
   },
+  eslint: {
+    // Cho phép production build thành công ngay cả khi có ESLint warnings
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;

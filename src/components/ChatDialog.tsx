@@ -56,33 +56,37 @@ export default function ChatDialog({ open, onOpenChange }: ChatDialogProps) {
     if (open) {
       if (isLogin && !isInitialized) {
         const token = localStorage.getItem("token")
-        const apiUrl =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api"
-        const socketUrl =
-          process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3000"
+        
+        // Chỉ khởi tạo nếu có token
+        if (token) {
+          const apiUrl =
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api"
+          const socketUrl =
+            process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3000"
 
-        initializeClient(apiUrl, socketUrl, token)
-          .then(() => {
-            // Nếu không có cuộc trò chuyện nào, tạo một cuộc trò chuyện mặc định với admin
-            if (!activeConversationId) {
-              // Trong thực tế, bạn sẽ cần lấy ID của admin từ API
-              const adminId = "admin-user-id"
-              useChatStore
-                .getState()
-                .createConversation("direct", null, [adminId])
-                .then((conversation) => {
-                  useChatStore
-                    .getState()
-                    .setActiveConversation(conversation.conversationId)
-                })
-                .catch((error) => {
-                  console.error("Failed to create default conversation:", error)
-                })
-            }
-          })
-          .catch((error) => {
-            console.error("Failed to initialize chat:", error)
-          })
+          initializeClient(apiUrl, socketUrl, token)
+            .then(() => {
+              // Nếu không có cuộc trò chuyện nào, tạo một cuộc trò chuyện mặc định với admin
+              if (!activeConversationId) {
+                // Trong thực tế, bạn sẽ cần lấy ID của admin từ API
+                const adminId = "admin-user-id"
+                useChatStore
+                  .getState()
+                  .createConversation("direct", null, [adminId])
+                  .then((conversation) => {
+                    useChatStore
+                      .getState()
+                      .setActiveConversation(conversation.conversationId)
+                  })
+                  .catch((error) => {
+                    console.error("Failed to create default conversation:", error)
+                  })
+              }
+            })
+            .catch((error) => {
+              console.error("Failed to initialize chat:", error)
+            })
+        }
       }
     }
   }, [open, isLogin, isInitialized, initializeClient, activeConversationId])

@@ -119,7 +119,6 @@ export const useApiMutation = <TData, TVariables>(
     onSuccessCallback,
     headers: customHeaders,
     isFormData = false,
-    credentials,
   } = options || {}
 
   return useMutation<TData, Error, TVariables>({

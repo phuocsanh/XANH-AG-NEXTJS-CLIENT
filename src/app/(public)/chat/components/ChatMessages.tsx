@@ -51,7 +51,7 @@ export default function ChatMessages({ conversationId }: ChatMessagesProps) {
         messages: [message]
       });
     } else {
-      groupedMessages[groupedMessages.length - 1].messages.push(message);
+      groupedMessages[groupedMessages.length - 1]?.messages.push(message);
     }
   });
   
@@ -73,7 +73,7 @@ export default function ChatMessages({ conversationId }: ChatMessagesProps) {
           {group.messages.map((message, messageIndex) => {
             const isCurrentUser = message.sender === 'current-user-id'; // Replace with actual user ID
             const showAvatar = messageIndex === 0 || 
-              group.messages[messageIndex - 1].sender !== message.sender;
+              group.messages[messageIndex - 1]?.sender !== message.sender;
             
             return (
               <div 

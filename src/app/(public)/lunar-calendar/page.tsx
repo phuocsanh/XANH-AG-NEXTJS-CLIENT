@@ -183,7 +183,7 @@ export default function LunarCalendarPage() {
                    <div className="p-5 rounded-3xl bg-orange-50/50 border border-orange-100">
                       <p className="font-black text-orange-700 text-sm mb-2">Lời khuyên nông vụ</p>
                       <p className="text-gray-600 text-sm leading-relaxed italic">
-                        "Tháng chạp là tháng làm ăn, <br/> Lo gieo mạ sớm, dọn ngăn ruộng đồng."
+                        &quot;Tháng chạp là tháng làm ăn, <br/> Lo gieo mạ sớm, dọn ngăn ruộng đồng.&quot;
                       </p>
                    </div>
                    <div className="p-5 rounded-3xl bg-gray-50 border border-gray-100">

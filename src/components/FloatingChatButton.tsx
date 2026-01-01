@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react"
 import { MessageCircle, Phone, Mail, MapPin, X } from "lucide-react"
-import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useIsActivePath } from "@/hooks/useIsActivePath"
 import FloatingChatWindow from "./FloatingChatWindow"
@@ -11,7 +10,7 @@ export default function FloatingChatButton() {
   const [isOpen, setIsOpen] = useState(false)
   const [isChatOpen, setIsChatOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-  const router = useRouter()
+
   const isOnChatPage = useIsActivePath("/chat")
 
   // Xử lý click bên ngoài để đóng menu

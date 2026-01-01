@@ -11,7 +11,6 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
 } from "@/components/ui/command"
 import {
   Popover,
@@ -19,14 +18,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Control, FieldValues, Path, PathValue } from "react-hook-form"
+import { FieldValues, Path, Control } from "react-hook-form"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 export interface ComboBoxOption {

@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { useFormContext, Controller, Control, FieldValues, Path } from "react-hook-form"
-import { UploadCloud, X, Loader2, Image as ImageIcon } from "lucide-react"
+import { Control, FieldValues, Path } from "react-hook-form"
+import { UploadCloud, X, Loader2 } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 import { useUploadImageMutation } from "@/hooks/use-upload"
 import { cn } from "@/lib/utils"
@@ -60,6 +60,8 @@ export function FormImageUpload<T extends FieldValues>({
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
+        if (!file) continue // Skip nếu file undefined
+        
         // Upload logic here
         // Assuming response structure { url: string } based on hook
         const res = await uploadMutation.mutateAsync({ file })

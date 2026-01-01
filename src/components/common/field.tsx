@@ -42,7 +42,9 @@ export function Field({
   rows = 4,
   error,
 }: FieldProps) {
-  const inputId = id || React.useId()
+  // React Hooks phải được gọi ở top level, không được gọi trong điều kiện
+  const generatedId = React.useId()
+  const inputId = id || generatedId
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     onChange?.(e.target.value)

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { conversationId: string } }
+  { params }: { params: Promise<{ conversationId: string }> }
 ) {
   try {
     const token = request.headers.get('authorization')?.split(' ')[1];
@@ -14,7 +14,7 @@ export async function GET(
       );
     }
     
-    const { conversationId } = params;
+    const { conversationId } = await params;
     const searchParams = request.nextUrl.searchParams;
     const limit = searchParams.get('limit') || '50';
     const before = searchParams.get('before');
@@ -46,7 +46,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { conversationId: string } }
+  { params }: { params: Promise<{ conversationId: string }> }
 ) {
   try {
     const token = request.headers.get('authorization')?.split(' ')[1];
@@ -58,7 +58,7 @@ export async function POST(
       );
     }
     
-    const { conversationId } = params;
+    const { conversationId } = await params;
     const body = await request.json();
     
     const chatServiceUrl = process.env.CHAT_SERVICE_URL || 'http://localhost:3000';

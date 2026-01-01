@@ -15,10 +15,10 @@ import {
 } from "@/models/rice-farming"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ArrowLeft, Edit, Calendar, Sprout, Coins, Receipt, Wheat, LineChart, Info } from "lucide-react"
+import { ArrowLeft, Edit } from "lucide-react"
 import dayjs from "dayjs"
 import { cn } from "@/lib/utils"
 

@@ -31,7 +31,6 @@ interface ProductType {
 }
 
 export default function Navbar() {
-  const isAuthenticated = useAppStore((state) => state.isLogin)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [productTypes, setProductTypes] = useState<ProductType[]>([])
   

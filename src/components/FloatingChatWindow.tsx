@@ -79,49 +79,52 @@ export default function FloatingChatWindow({
           return
         }
 
-        const apiUrl =
-          process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api"
-        const socketUrl =
-          process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3000"
-        const socketPath = process.env.NEXT_PUBLIC_SOCKET_PATH || "/socket.io"
+        // Chỉ khởi tạo nếu có authToken
+        if (authToken) {
+          const apiUrl =
+            process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api"
+          const socketUrl =
+            process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3000"
+          const socketPath = process.env.NEXT_PUBLIC_SOCKET_PATH || "/socket.io"
 
-        // Thêm log để debug
-        console.log(
-          "Initializing chat client with token:",
-          authToken ? "Token exists" : "No token"
-        )
-        console.log("API URL:", apiUrl)
-        console.log("Socket URL:", socketUrl)
-        console.log("Socket Path:", socketPath)
+          // Thêm log để debug
+          console.log(
+            "Initializing chat client with token:",
+            authToken ? "Token exists" : "No token"
+          )
+          console.log("API URL:", apiUrl)
+          console.log("Socket URL:", socketUrl)
+          console.log("Socket Path:", socketPath)
 
-        initializeClient(apiUrl, socketUrl, authToken)
-          .then(() => {
-            console.log("Chat client initialized successfully")
-            // Nếu không có cuộc trò chuyện nào, tạo một cuộc trò chuyện mặc định với admin
-            if (!activeConversationId) {
-              // Trong thực tế, bạn sẽ cần lấy ID của admin từ API
-              const adminId = "admin-user-id"
-              console.log("Creating default conversation with admin:", adminId)
-              useChatStore
-                .getState()
-                .createConversation("direct", null, [adminId])
-                .then((conversation) => {
-                  console.log(
-                    "Default conversation created:",
-                    conversation.conversationId
-                  )
-                  useChatStore
-                    .getState()
-                    .setActiveConversation(conversation.conversationId)
-                })
-                .catch((error) => {
-                  console.error("Failed to create default conversation:", error)
-                })
-            }
-          })
-          .catch((error) => {
-            console.error("Failed to initialize chat:", error)
-          })
+          initializeClient(apiUrl, socketUrl, authToken)
+            .then(() => {
+              console.log("Chat client initialized successfully")
+              // Nếu không có cuộc trò chuyện nào, tạo một cuộc trò chuyện mặc định với admin
+              if (!activeConversationId) {
+                // Trong thực tế, bạn sẽ cần lấy ID của admin từ API
+                const adminId = "admin-user-id"
+                console.log("Creating default conversation with admin:", adminId)
+                useChatStore
+                  .getState()
+                  .createConversation("direct", null, [adminId])
+                  .then((conversation) => {
+                    console.log(
+                      "Default conversation created:",
+                      conversation.conversationId
+                    )
+                    useChatStore
+                      .getState()
+                      .setActiveConversation(conversation.conversationId)
+                  })
+                  .catch((error) => {
+                    console.error("Failed to create default conversation:", error)
+                  })
+              }
+            })
+            .catch((error) => {
+              console.error("Failed to initialize chat:", error)
+            })
+        }
       }
     }
   }, [open, isLogin, isInitialized, initializeClient, activeConversationId])

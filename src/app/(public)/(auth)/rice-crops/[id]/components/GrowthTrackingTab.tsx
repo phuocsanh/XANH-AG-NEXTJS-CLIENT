@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Plus, Edit, Trash2, Loader2, Thermometer } from "lucide-react"
+import { Plus, Edit, Trash2, Loader2 } from "lucide-react"
 import dayjs from "dayjs"
 import {
   useGrowthTrackings,

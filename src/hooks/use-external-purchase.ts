@@ -76,7 +76,7 @@ export const useDeleteExternalPurchase = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, riceCropId }: { id: number; riceCropId: number }) => {
+    mutationFn: async ({ id }: { id: number; riceCropId: number }) => {
       return httpClient.delete(`/external-purchases/${id}`)
     },
     onSuccess: (_, variables) => {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { Calendar, User, ArrowLeft, Share2, Facebook, Twitter } from 'lucide-react'
+import { Calendar, ArrowLeft, Share2, Facebook, Twitter } from 'lucide-react'
 import Link from 'next/link'
 
 /**

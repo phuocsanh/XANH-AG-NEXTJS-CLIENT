@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { 
@@ -17,7 +17,6 @@ import {
   Edit, 
   Trash2, 
   Loader2, 
-  Wheat,
   TrendingUp,
   Scale
 } from "lucide-react"

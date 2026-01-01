@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { convertSolar2Lunar } from '@/lib/lunar-calendar'
-import { Calendar as CalendarIcon, Moon, Sun, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Moon, Sun, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function LunarCalendarWidget() {
-  const [currentDate, setCurrentDate] = useState(new Date())
+  const [currentDate] = useState(new Date())
   const [viewDate, setViewDate] = useState(new Date())
 
   const getLunarData = (date: Date) => {
@@ -118,7 +118,7 @@ export default function LunarCalendarWidget() {
       {/* Footer Quote */}
       <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
         <p className="text-[10px] text-gray-400 italic text-center leading-relaxed">
-          "Thời điểm tốt nhất để trồng cây là 20 năm trước. <br/> Thời điểm tốt thứ hai là ngay bây giờ."
+          &quot;Thời điểm tốt nhất để trồng cây là 20 năm trước. <br/> Thời điểm tốt thứ hai là ngay bây giờ.&quot;
         </p>
       </div>
     </div>

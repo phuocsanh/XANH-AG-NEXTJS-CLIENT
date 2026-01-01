@@ -131,7 +131,7 @@ export default function CreateHarvestRecordModal({
       }
 
       onClose()
-    } catch (error) {
+    } catch {
       toast({ title: "Lỗi", description: "Có lỗi xảy ra", variant: "destructive" })
     }
   }

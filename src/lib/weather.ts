@@ -187,7 +187,7 @@ class WeatherService {
         return uniqueParts.length > 0 ? uniqueParts.join(', ') : 'Vị trí đã chọn';
       }
       return 'Vị trí đã chọn';
-    } catch (error) {
+    } catch {
       return 'Vị trí đã chọn';
     }
   }

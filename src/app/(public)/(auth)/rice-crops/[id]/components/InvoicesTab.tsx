@@ -13,7 +13,6 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { 
-  Plus, 
   Edit, 
   Trash2, 
   Loader2, 
@@ -43,10 +42,7 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
   const { data: purchases, isLoading } = useMergedPurchases(riceCropId)
   const deleteMutation = useDeleteExternalPurchase()
 
-  const handleAdd = () => {
-    setEditingItem(null)
-    setIsModalOpen(true)
-  }
+
 
   const handleEdit = (item: MergedPurchase) => {
     setEditingItem(item)
