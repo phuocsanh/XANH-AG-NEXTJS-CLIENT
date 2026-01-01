@@ -31,9 +31,15 @@ import {
   RegisterVerifyOTPType,
 } from "@/schemaValidations/auth.schema"
 import { useState } from "react"
-import { Player } from "@lottiefiles/react-lottie-player"
+import dynamic from "next/dynamic"
 import Link from "next/link"
 import Btn from "@/app/components/Btn"
+
+// Dynamic import Player để tránh lỗi SSR
+const Player = dynamic(
+  () => import("@lottiefiles/react-lottie-player").then((mod) => mod.Player),
+  { ssr: false }
+)
 
 type Steps = 1 | 2 | 3 | undefined
 
