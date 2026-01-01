@@ -150,7 +150,7 @@ export default function CreateExternalPurchaseModal({
           <DialogTitle>{initialData ? "Sửa hóa đơn" : "Tự nhập hóa đơn mua hàng"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="supplier_name">Nhà cung cấp / Cửa hàng</Label>
               <Input
@@ -173,7 +173,7 @@ export default function CreateExternalPurchaseModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="payment_status">Thanh toán</Label>
               <Select

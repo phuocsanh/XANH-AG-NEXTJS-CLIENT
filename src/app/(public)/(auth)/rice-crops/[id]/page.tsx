@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ArrowLeft, Edit, Calendar, Sprout, Coins, Receipt, Wheat, LineChart, Info } from "lucide-react"
 import dayjs from "dayjs"
 import { cn } from "@/lib/utils"
@@ -37,11 +38,47 @@ export default function RiceCropDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Đang tải thông tin ruộng lúa...</p>
+      <div className="space-y-6">
+        {/* Header Skeleton */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-10 w-10" />
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-6 w-24" />
+              </div>
+              <Skeleton className="h-5 w-32" />
+            </div>
+          </div>
+          <Skeleton className="h-10 w-full sm:w-40" />
         </div>
+
+        {/* Card with Tabs Skeleton */}
+        <Card>
+          <CardContent className="p-0">
+            {/* Tabs Skeleton */}
+            <div className="border-b px-4">
+              <div className="h-12 flex gap-6">
+                {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                  <Skeleton key={i} className="h-12 w-32" />
+                ))}
+              </div>
+            </div>
+
+            {/* Content Skeleton */}
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+                  <div key={i} className="grid grid-cols-2 py-3 border-b">
+                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-5 w-40" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     )
   }
@@ -56,7 +93,7 @@ export default function RiceCropDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mt-6">
       {/* Header & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">

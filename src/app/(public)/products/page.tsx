@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Leaf, Search, ChevronDown } from 'lucide-react'
 import ProductDetailModal from '../components/ProductDetailModal'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface ProductType {
   id: number
@@ -122,10 +123,48 @@ export default function ProductsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-agri-50 to-white py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center">
-            <div className="animate-spin w-12 h-12 border-4 border-agri-500 border-t-transparent rounded-full mx-auto" />
+      <div className="min-h-screen bg-gradient-to-b from-agri-50 to-white">
+        {/* Header Skeleton */}
+        <div className="bg-gradient-to-r from-agri-600 to-agri-700 text-white py-12">
+          <div className="container mx-auto px-4">
+            <Skeleton className="h-10 w-64 bg-white/20 mb-4" />
+            <Skeleton className="h-6 w-96 bg-white/10" />
+          </div>
+        </div>
+
+        {/* Search Bar Skeleton */}
+        <div className="container mx-auto px-4 -mt-6">
+          <div className="bg-white rounded-lg shadow-lg p-4 max-w-2xl mx-auto">
+            <Skeleton className="h-12 w-full" />
+          </div>
+        </div>
+
+        {/* Products Skeleton */}
+        <div className="container mx-auto px-4 py-12">
+          <div className="space-y-16">
+            {[1, 2].map((section) => (
+              <div key={section}>
+                {/* Type Header Skeleton */}
+                <div className="mb-6">
+                  <Skeleton className="h-8 w-48 mb-2" />
+                  <Skeleton className="h-1 w-20" />
+                </div>
+
+                {/* Products Grid Skeleton */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((item) => (
+                    <div key={item} className="bg-white rounded-lg overflow-hidden shadow-md">
+                      <Skeleton className="w-full h-40 md:h-48" />
+                      <div className="p-3 space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-5 w-24" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

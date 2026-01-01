@@ -1,6 +1,8 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import {
   Dialog,
   DialogContent,
@@ -10,7 +12,14 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 import {
   Select,
   SelectContent,
@@ -24,6 +33,10 @@ import dayjs from "dayjs"
 import { useCreateCostItem, useUpdateCostItem } from "@/hooks/use-cost-item"
 import { useCostItemCategories } from "@/hooks/use-cost-item-category"
 import { useToast } from "@/hooks/use-toast"
+import { CreateCostItemBody, CreateCostItemBodyType } from "@/schemaValidations/rice-farming.schema"
+import { FormNumberInput } from "@/components/form/form-number-input"
+import { FormComboBox } from "@/components/form/form-combo-box"
+import { FormDatePicker } from "@/components/form/form-date-picker"
 import type { CostItem } from "@/models/rice-farming"
 
 interface CreateCostItemModalProps {
@@ -40,60 +53,68 @@ export default function CreateCostItemModal({
   riceCropId,
 }: CreateCostItemModalProps) {
   const { toast } = useToast()
-  const [formData, setFormData] = useState<any>({
-    item_name: "",
-    category_id: "",
-    total_cost: 0,
-    expense_date: dayjs().format("YYYY-MM-DD"),
-    notes: "",
+  
+  // React Hook Form
+  const form = useForm<CreateCostItemBodyType>({
+    resolver: zodResolver(CreateCostItemBody),
+    defaultValues: {
+      rice_crop_id: riceCropId,
+      item_name: "",
+      total_cost: 0,
+      expense_date: dayjs().format("YYYY-MM-DD"),
+      notes: "",
+    },
   })
 
   // Lấy danh sách loại chi phí từ Database
   const { data: categoryData, isLoading: isLoadingCategories } = useCostItemCategories({ limit: 100 })
   const categories = categoryData?.data || []
 
+  // Reset form khi mở modal hoặc có data mới
   useEffect(() => {
-    if (initialData) {
-      setFormData({
-        item_name: initialData.item_name,
-        category_id: initialData.category_id || "", // Giả định backend sẽ được cập nhật
-        total_cost: initialData.total_cost,
-        expense_date: dayjs(initialData.purchase_date || initialData.expense_date).format("YYYY-MM-DD"),
-        notes: initialData.notes || "",
-      })
-    } else {
-      setFormData({
-        item_name: "",
-        category_id: "",
-        total_cost: 0,
-        expense_date: dayjs().format("YYYY-MM-DD"),
-        notes: "",
-      })
+    if (isOpen) {
+      if (initialData) {
+        form.reset({
+          rice_crop_id: riceCropId,
+          item_name: initialData.item_name,
+          category_id: initialData.category_id,
+          total_cost: initialData.total_cost,
+          expense_date: dayjs(initialData.purchase_date || initialData.expense_date).format("YYYY-MM-DD"),
+          notes: initialData.notes || "",
+        })
+      } else {
+        form.reset({
+          rice_crop_id: riceCropId,
+          item_name: "",
+          category_id: undefined,
+          total_cost: 0,
+          expense_date: dayjs().format("YYYY-MM-DD"),
+          notes: "",
+        })
+      }
     }
-  }, [initialData, isOpen])
+  }, [initialData, isOpen, riceCropId, form])
 
   const createMutation = useCreateCostItem()
   const updateMutation = useUpdateCostItem()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+  const onSubmit = async (values: CreateCostItemBodyType) => {
     try {
-      const dto = {
-        ...formData,
-        rice_crop_id: riceCropId,
-        total_cost: Number(formData.total_cost),
-        category_id: formData.category_id ? Number(formData.category_id) : undefined,
-      }
-
       if (initialData) {
-        await updateMutation.mutateAsync({ id: initialData.id, dto })
+        await updateMutation.mutateAsync({ 
+          id: initialData.id, 
+          dto: { ...values, unit_price: values.total_cost } 
+        })
         toast({ title: "Thành công", description: "Cập nhật chi phí thành công" })
       } else {
-        await createMutation.mutateAsync(dto)
+        // Đảm bảo rice_crop_id được set và thêm unit_price mặc định
+        await createMutation.mutateAsync({ 
+          ...values, 
+          rice_crop_id: riceCropId,
+          unit_price: values.total_cost 
+        })
         toast({ title: "Thành công", description: "Thêm chi phí thành công" })
       }
-
       onClose()
     } catch (error) {
       toast({ title: "Lỗi", description: "Có lỗi xảy ra", variant: "destructive" })
@@ -106,88 +127,84 @@ export default function CreateCostItemModal({
         <DialogHeader>
           <DialogTitle>{initialData ? "Sửa chi phí" : "Thêm chi phí mới"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="item_name">Tên chi phí</Label>
-            <Input
-              id="item_name"
-              value={formData.item_name}
-              onChange={(e) => setFormData({ ...formData, item_name: e.target.value })}
-              placeholder="VD: Phân Urê, Thuốc trừ sâu..."
-              required
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+            <FormField
+              control={form.control}
+              name="item_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tên chi phí <span className="text-red-500">*</span></FormLabel>
+                  <FormControl>
+                    <Input placeholder="VD: Phân Urê, Thuốc trừ sâu..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="category">Loại chi phí</Label>
-              <Select
-                value={formData.category_id?.toString()}
-                onValueChange={(value) => setFormData({ ...formData, category_id: value })}
-              >
-                <SelectTrigger id="category">
-                  <SelectValue placeholder={isLoadingCategories ? "Đang tải..." : "Chọn loại"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.length > 0 ? (
-                    categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id.toString()}>
-                        {cat.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <div className="p-2 text-xs text-muted-foreground text-center">
-                      Chưa có loại chi phí trong DB
-                    </div>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="total_cost">Tổng tiền (VNĐ)</Label>
-              <Input
-                id="total_cost"
-                type="number"
-                value={formData.total_cost}
-                onChange={(e) => setFormData({ ...formData, total_cost: e.target.value })}
-                required
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormComboBox
+                control={form.control}
+                name="category_id"
+                label="Loại chi phí"
+                placeholder="Chọn loại"
+                options={categories.map((cat: any) => ({
+                  value: cat.id,
+                  label: cat.name,
+                }))}
+                isLoading={isLoadingCategories}
+              />
+
+              <FormNumberInput
+                control={form.control}
+                name="total_cost"
+                label="Tổng tiền (VNĐ)"
+                placeholder="0"
+                suffix=" ₫"
+                decimalScale={0}
               />
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="expense_date">Ngày chi</Label>
-            <Input
-              id="expense_date"
-              type="date"
-              value={formData.expense_date}
-              onChange={(e) => setFormData({ ...formData, expense_date: e.target.value })}
-              required
+            <FormDatePicker 
+              control={form.control}
+              name="expense_date"
+              label="Ngày chi"
             />
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="notes">Ghi chú</Label>
-            <Textarea
-              id="notes"
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              rows={3}
-            />
-          </div>
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Hủy
-            </Button>
-            <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
-              {(createMutation.isPending || updateMutation.isPending) && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <FormField
+              control={form.control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ghi chú</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Ghi chú thêm..." 
+                      className="resize-none" 
+                      rows={3} 
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-              {initialData ? "Cập nhật" : "Lưu"}
-            </Button>
-          </DialogFooter>
-        </form>
+            />
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={onClose}>
+                Hủy
+              </Button>
+              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+                {(createMutation.isPending || updateMutation.isPending) && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                {initialData ? "Cập nhật" : "Lưu"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   )

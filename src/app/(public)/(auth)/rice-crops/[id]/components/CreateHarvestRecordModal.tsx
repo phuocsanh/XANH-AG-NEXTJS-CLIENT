@@ -143,7 +143,7 @@ export default function CreateHarvestRecordModal({
           <DialogTitle>{initialData ? "Sửa đợt thu hoạch" : "Thêm đợt thu hoạch mới"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="harvest_date">Ngày thu hoạch</Label>
               <Input
@@ -167,7 +167,7 @@ export default function CreateHarvestRecordModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="yield_amount">Sản lượng</Label>
               <div className="flex gap-2">
@@ -213,7 +213,7 @@ export default function CreateHarvestRecordModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="quality_grade">Chất lượng lúa</Label>
               <Input

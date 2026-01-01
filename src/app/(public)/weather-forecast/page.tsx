@@ -194,9 +194,9 @@ export default function WeatherForecastPage() {
   }
 
   useEffect(() => {
-    // Không tự động gọi GPS để tránh lỗi kCLErrorLocationUnknown từ hệ điều hành
-    // Chỉ load vị trí mặc định, người dùng sẽ chủ động nhấn "Ghim GPS" nếu muốn dùng vị trí thực
-    fetchWeather(DEFAULT_COORD.latitude, DEFAULT_COORD.longitude, 'An Giang')
+    // Tự động xin quyền lấy vị trí hiện tại khi vào trang
+    // Sử dụng silent mode để không hiển thị lỗi nếu GPS không khả dụng
+    detectLocation(true)
   }, [])
 
   const filteredLocations = useMemo(() => {
@@ -245,9 +245,9 @@ export default function WeatherForecastPage() {
                   <h1 className="text-lg sm:text-2xl md:text-3xl font-black text-gray-900 leading-tight break-words">
                     {locationName}
                   </h1>
-                  <span className="inline-block mt-2 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-100 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">
+                  {/* <span className="inline-block mt-2 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-100 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">
                     GPS: {coords.latitude.toFixed(4)}, {coords.longitude.toFixed(4)}
-                  </span>
+                  </span> */}
 
                   {geoError && (
                     <div className="mt-3 p-2 sm:p-3 bg-amber-50 border border-amber-200 rounded-lg sm:rounded-xl flex items-center gap-2 sm:gap-3 text-amber-700 w-full overflow-hidden">
@@ -268,7 +268,7 @@ export default function WeatherForecastPage() {
                   disabled={!!geoError && geoError.includes('HTTPS')}
                 >
                   <Navigation className="w-3.5 h-3.5 sm:w-5 sm:h-5 group-hover:animate-pulse" />
-                  Ghim GPS
+                  Vị trí hiện tại
                 </button>
 
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -377,9 +377,12 @@ export default function WeatherForecastPage() {
                     }`}
                   >
                     <p className={`text-[8px] sm:text-[10px] font-black uppercase mb-1 sm:mb-3 tracking-widest ${activeTab === i ? 'text-agri-200' : 'text-gray-400'}`}>
-                      {new Date(day.date).toLocaleDateString('vi', { weekday: 'short' })}
+                      {new Date(day.date).toLocaleDateString('vi', { weekday: 'long' }).toUpperCase()}
                     </p>
-                    <p className="text-xl sm:text-3xl font-black tabular-nums">{new Date(day.date).getDate()}<span className="text-xs sm:text-sm opacity-50 ml-0.5">/{new Date(day.date).getMonth() + 1}</span></p>
+                    <div className="flex flex-col items-center">
+                      <p className="text-xl sm:text-3xl font-black tabular-nums">{new Date(day.date).getDate()}<span className="text-xs sm:text-lg opacity-50 ml-0.5">/{new Date(day.date).getMonth() + 1}</span></p>
+                      <p className={`text-[7px] sm:text-[9px] font-bold uppercase tracking-wider mt-0.5 ${activeTab === i ? 'text-agri-200' : 'text-gray-400'}`}>Ngày/Tháng</p>
+                    </div>
                     <div className="my-3 sm:my-5 flex justify-center">
                       {getWeatherIcon(day.weatherCode, "w-8 h-8 sm:w-12 sm:h-12")}
                     </div>
@@ -391,7 +394,7 @@ export default function WeatherForecastPage() {
 
             {/* 2. Detailed Stats Column - Second on Mobile, Sidebar-left on Desktop */}
             <div className="lg:col-span-1 lg:col-start-1 order-2 lg:order-1 w-full overflow-hidden">
-              <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 shadow-xl border border-agri-100 flex flex-col gap-5 sm:gap-8 lg:sticky lg:top-24 w-full">
+              <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 shadow-xl border border-agri-100 flex flex-col gap-5 sm:gap-8 lg:sticky  w-full">
                 <h3 className="font-black text-gray-800 border-b border-gray-100 pb-3 sm:pb-4 text-base sm:text-xl tracking-tight">Chi tiết theo ngày</h3>
                 
                 <div className="flex flex-col gap-4 sm:gap-6 w-full">
@@ -406,7 +409,7 @@ export default function WeatherForecastPage() {
                   <div className="flex items-center gap-3 sm:gap-5 w-full">
                     <div className="p-3 sm:p-4 bg-cyan-50 rounded-xl sm:rounded-2xl text-cyan-600 shadow-sm flex-shrink-0"><Wind className="w-5 h-5 sm:w-7 sm:h-7" /></div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[9px] sm:text-xs text-gray-400 font-black uppercase tracking-widest truncate">Lượng mưa dự kiến</p>
+                      <p className="text-[9px] sm:text-xs text-gray-400 font-black uppercase tracking-widest truncate">Lượng mưa</p>
                       <p className="text-lg sm:text-2xl font-black text-gray-800">{selectedDay?.precipitationSum ?? 0} mm</p>
                     </div>
                   </div>
@@ -450,50 +453,77 @@ export default function WeatherForecastPage() {
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4 sm:gap-6 w-full">
-                  {hourlyForSelectedDay.map((hour) => (
-                    <div key={hour.dt} className="flex items-center justify-between p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] bg-gray-50/50 border-2 border-transparent hover:border-agri-200 hover:bg-white transition-all group shadow-sm hover:shadow-lg w-full overflow-hidden">
-                      <div className="flex items-center gap-4 sm:gap-10 min-w-0 flex-1">
-                        {/* Time with label */}
-                        <div className="flex flex-col items-center min-w-[50px] sm:min-w-[60px] flex-shrink-0">
-                          <p className="text-[9px] sm:text-[11px] font-black text-gray-600 uppercase tracking-widest mb-1 group-hover:text-agri-600 transition-colors">Giờ</p>
-                          <span className="text-lg sm:text-2xl font-black text-gray-800 group-hover:text-agri-900 tabular-nums leading-none">
-                            {new Date(hour.dt * 1000).toLocaleTimeString('vi', { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        </div>
-
-                        {/* Info and Stats */}
-                        <div className="flex flex-col gap-2 sm:gap-3 min-w-0 flex-1">
-                          <p className="text-base sm:text-xl font-black text-gray-900 group-hover:text-agri-800 leading-none truncate">{hour.weather[0]?.description ?? 'N/A'}</p>
-                          
-                          {/* Khả năng mưa */}
-                          <div className="flex items-center gap-1.5 sm:gap-2 text-blue-700 bg-blue-100/70 w-fit px-3 sm:px-4 py-1 sm:py-1.5 rounded-full">
-                            <Droplets className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-blue-600/20 flex-shrink-0" />
-                            <span className="text-[10px] sm:text-[13px] font-black uppercase tracking-tight truncate">Mưa: {Math.round((hour.pop ?? 0) * 100)}%</span>
-                          </div>
-
-                          {/* Secondary Stats */}
-                          <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-[9px] sm:text-[12px] text-gray-700 font-black uppercase tracking-tight w-full">
-                            <span className="flex items-center gap-1.5 shrink-0">
-                              <Wind className="w-4 h-4 text-cyan-600" /> 
-                              <span>{hour.wind?.speed ?? 0}m/s</span>
-                            </span>
-                            <span className="flex items-center gap-1.5 shrink-0">
-                              <Thermometer className="w-4 h-4 text-orange-600" /> 
-                              <span>{hour.main?.humidity ?? 0}% Ẩm</span>
+                  {hourlyForSelectedDay.map((hour) => {
+                    // Kiểm tra xem có phải giờ hiện tại không (so sánh hour)
+                    const now = new Date()
+                    const hourDate = new Date(hour.dt * 1000)
+                    const isCurrentHour = now.getHours() === hourDate.getHours() && 
+                                         now.getDate() === hourDate.getDate()
+                    
+                    return (
+                      <div 
+                        key={hour.dt} 
+                        className={`flex items-center justify-between p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 transition-all group shadow-sm hover:shadow-lg w-full overflow-hidden ${
+                          isCurrentHour 
+                            ? 'bg-agri-50 border-agri-400 ring-2 ring-agri-200' 
+                            : 'bg-gray-50/50 border-transparent hover:border-agri-200 hover:bg-white'
+                        }`}
+                      >
+                        <div className="flex items-center gap-4 sm:gap-10 min-w-0 flex-1">
+                          {/* Time with label */}
+                          <div className="flex flex-col items-center min-w-[50px] sm:min-w-[60px] flex-shrink-0">
+                            <p className={`text-[9px] sm:text-[11px] font-black uppercase tracking-widest mb-1 transition-colors ${
+                              isCurrentHour ? 'text-agri-700' : 'text-gray-600 group-hover:text-agri-600'
+                            }`}>
+                              {isCurrentHour ? 'Hiện tại' : 'Giờ'}
+                            </p>
+                            <span className={`text-lg sm:text-2xl font-black tabular-nums leading-none ${
+                              isCurrentHour ? 'text-agri-900' : 'text-gray-800 group-hover:text-agri-900'
+                            }`}>
+                              {new Date(hour.dt * 1000).toLocaleTimeString('vi', { hour: '2-digit', minute: '2-digit' })}
                             </span>
                           </div>
+
+                          {/* Info and Stats */}
+                          <div className="flex flex-col gap-2 sm:gap-3 min-w-0 flex-1">
+                            <p className={`text-base sm:text-xl font-black leading-none truncate ${
+                              isCurrentHour ? 'text-agri-900' : 'text-gray-900 group-hover:text-agri-800'
+                            }`}>
+                              {hour.weather[0]?.description ?? 'N/A'}
+                            </p>
+                            
+                            {/* Khả năng mưa */}
+                            <div className="flex items-center gap-1.5 sm:gap-2 text-blue-700 bg-blue-100/70 w-fit px-3 sm:px-4 py-1 sm:py-1.5 rounded-full">
+                              <Droplets className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-blue-600/20 flex-shrink-0" />
+                              <span className="text-[10px] sm:text-[13px] font-black uppercase tracking-tight truncate">Mưa: {Math.round((hour.pop ?? 0) * 100)}%</span>
+                            </div>
+
+                            {/* Secondary Stats */}
+                            <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-[9px] sm:text-[12px] text-gray-700 font-black uppercase tracking-tight w-full">
+                              <span className="flex items-center gap-1.5 shrink-0">
+                                <Wind className="w-4 h-4 text-cyan-600" /> 
+                                <span>{hour.wind?.speed ?? 0}m/s</span>
+                              </span>
+                              <span className="flex items-center gap-1.5 shrink-0">
+                                <Thermometer className="w-4 h-4 text-orange-600" /> 
+                                <span>{hour.main?.humidity ?? 0}% Ẩm</span>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Temperature */}
+                        <div className="text-right flex-shrink-0 ml-2">
+                          <p className={`text-3xl sm:text-5xl font-black tabular-nums leading-none ${
+                            isCurrentHour ? 'text-agri-700' : 'text-agri-900'
+                          }`}>
+                            {Math.round(hour.main?.temp ?? 0)}°
+                          </p>
+                          <p className="text-[9px] sm:text-[11px] font-black text-gray-600 uppercase tracking-widest mt-1">Nhiệt độ</p>
                         </div>
                       </div>
-
-                      {/* Temperature */}
-                      <div className="text-right flex-shrink-0 ml-2">
-                        <p className="text-3xl sm:text-5xl font-black text-agri-900 tabular-nums leading-none">
-                          {Math.round(hour.main?.temp ?? 0)}°
-                        </p>
-                        <p className="text-[9px] sm:text-[11px] font-black text-gray-600 uppercase tracking-widest mt-1">Nhiệt độ</p>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             </div>

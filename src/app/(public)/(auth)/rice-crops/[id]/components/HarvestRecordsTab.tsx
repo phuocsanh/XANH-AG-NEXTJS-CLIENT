@@ -110,12 +110,12 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Ngày thu hoạch</TableHead>
-              <TableHead>Sản lượng</TableHead>
-              <TableHead>Chất lượng / Độ ẩm</TableHead>
-              <TableHead className="text-right">Giá bán (đ/kg)</TableHead>
-              <TableHead className="text-right">Thành tiền</TableHead>
-              <TableHead className="text-right">Hành động</TableHead>
+              <TableHead className="min-w-[120px]">Ngày thu hoạch</TableHead>
+              <TableHead className="min-w-[120px]">Sản lượng</TableHead>
+              <TableHead className="min-w-[150px]">Chất lượng / Độ ẩm</TableHead>
+              <TableHead className="text-right min-w-[120px]">Giá bán (đ/kg)</TableHead>
+              <TableHead className="text-right min-w-[120px]">Thành tiền</TableHead>
+              <TableHead className="text-right min-w-[120px]">Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

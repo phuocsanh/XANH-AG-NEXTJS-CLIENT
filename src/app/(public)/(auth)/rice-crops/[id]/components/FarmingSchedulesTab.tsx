@@ -158,11 +158,11 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Ngày dự kiến</TableHead>
-              <TableHead>Công việc</TableHead>
-              <TableHead>Trạng thái</TableHead>
-              <TableHead>Ngày hoàn thành</TableHead>
-              <TableHead className="text-right">Hành động</TableHead>
+              <TableHead className="min-w-[120px]">Ngày dự kiến</TableHead>
+              <TableHead className="min-w-[180px]">Công việc</TableHead>
+              <TableHead className="min-w-[130px]">Trạng thái</TableHead>
+              <TableHead className="min-w-[130px]">Ngày hoàn thành</TableHead>
+              <TableHead className="text-right min-w-[140px]">Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -250,7 +250,7 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="scheduled_date">Ngày dự kiến</Label>
                 <Input

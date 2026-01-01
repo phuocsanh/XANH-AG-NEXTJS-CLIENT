@@ -1,13 +1,16 @@
 'use client'
 
-import { Cloud, Calendar as CalendarIcon, ArrowRight, Sun, Moon, MapPin } from 'lucide-react'
+import { Cloud, Calendar as CalendarIcon, ArrowRight, Sun, Moon, MapPin, Sprout } from 'lucide-react'
 import Link from 'next/link'
+import { useAppStore } from '@/stores'
 
 /**
  * ToolsSection Component
  * Hiển thị thẻ truy cập Dự báo thời tiết và Lịch vạn niên trên trang chủ
  */
 export default function ToolsSection() {
+  const { isLogin } = useAppStore()
+  
   return (
     <section className="py-24 bg-white overflow-hidden">
       <div className="container mx-auto px-4">
@@ -24,8 +27,8 @@ export default function ToolsSection() {
           </p>
         </div>
 
-        {/* Widgets Grid */}
-        <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+        {/* Widgets Grid - Responsive: 1 col mobile, 2 cols tablet, 3 cols desktop when logged in */}
+        <div className={`grid gap-8 max-w-7xl mx-auto ${isLogin ? 'md:grid-cols-2 lg:grid-cols-3' : 'lg:grid-cols-2 gap-12'}`}>
           {/* Weather Entry Card */}
           <Link 
             href="/weather-forecast"
@@ -85,6 +88,38 @@ export default function ToolsSection() {
               <CalendarIcon className="w-64 h-64 text-white" />
             </div>
           </Link>
+
+          {/* Farm Management Card - Only show when logged in */}
+          {isLogin && (
+            <Link 
+              href="/rice-crops"
+              className="group relative bg-gradient-to-br from-emerald-600 to-teal-700 rounded-[3rem] p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-20 translate-x-20 group-hover:bg-white/20 transition-all" />
+
+              <div className="relative z-10">
+                <div className="w-20 h-20 bg-white/10 backdrop-blur-xl rounded-3xl flex items-center justify-center mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
+                  <Sprout className="w-10 h-10 text-white" />
+                </div>
+                <p className="text-emerald-100 font-black uppercase tracking-widest text-sm mb-4">Quản lý nông nghiệp</p>
+                <h3 className="text-4xl md:text-5xl font-black text-white mb-6">Quản lý <br/> Canh tác</h3>
+                <div className="flex items-center gap-3 text-white/60 mb-8">
+                  <Sprout className="w-5 h-5" />
+                  <span className="font-bold">Theo dõi vụ lúa</span>
+                </div>
+
+                <div className="flex items-center gap-2 text-white font-black text-lg group-hover:gap-4 transition-all">
+                  Xem danh sách vụ lúa 
+                  <ArrowRight className="w-6 h-6 text-accent-gold" />
+                </div>
+              </div>
+
+              {/* Decorative Icons */}
+              <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Sprout className="w-64 h-64 text-white" />
+              </div>
+            </Link>
+          )}
         </div>
       </div>
     </section>

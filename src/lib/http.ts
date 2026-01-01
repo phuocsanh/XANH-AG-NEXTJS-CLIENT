@@ -331,6 +331,33 @@ class HttpClient {
           method,
           body
         )
+        
+        // Kiểm tra lại response sau khi retry với token mới
+        if (!response.ok) {
+          console.error('❌ Request failed even after token refresh:', response.status)
+          let errorData = null
+          let errorMessage = response.statusText || "Request failed after authentication"
+
+          try {
+            const contentType = response.headers.get("content-type")
+            if (contentType && contentType.includes("application/json")) {
+              errorData = await response.json()
+              errorMessage = errorData?.message || errorMessage
+            } else {
+              const text = await response.text()
+              errorData = { text }
+              errorMessage = text || errorMessage
+            }
+          } catch (error) {
+            console.error("Error parsing retry response:", error)
+          }
+
+          throw new HttpError({
+            code: response.status,
+            data: errorData,
+            message: errorMessage,
+          })
+        }
       } else {
         let errorData = null
         let errorMessage = response.statusText || "An error occurred"

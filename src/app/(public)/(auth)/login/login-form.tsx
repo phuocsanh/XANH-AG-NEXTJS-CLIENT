@@ -113,9 +113,7 @@ const LoginForm = () => {
       {/* Header */}
       <div className='relative mb-8'>
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
-            <span className="text-xl">🌾</span>
-          </div>
+         
           <h1 className='font-black text-3xl sm:text-4xl bg-gradient-to-r from-green-700 to-green-600 bg-clip-text text-transparent'>
             Chào mừng trở lại
           </h1>
@@ -220,7 +218,7 @@ const LoginForm = () => {
           </button>
 
           {/* Register Link */}
-          <div className="text-center pt-4 border-t border-gray-200">
+          {/* <div className="text-center pt-4 border-t border-gray-200">
             <p className="text-sm text-gray-600">
               Chưa có tài khoản?{' '}
               <Link
@@ -230,7 +228,7 @@ const LoginForm = () => {
                 Đăng ký ngay
               </Link>
             </p>
-          </div>
+          </div> */}
         </form>
       </Form>
 

@@ -91,12 +91,12 @@ export default function CostItemsTab({ riceCropId }: CostItemsTabProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Tên chi phí</TableHead>
-              <TableHead>Loại</TableHead>
-              <TableHead className="text-right">Tổng tiền</TableHead>
-              <TableHead>Ngày chi</TableHead>
-              <TableHead>Ghi chú</TableHead>
-              <TableHead className="text-right">Hành động</TableHead>
+              <TableHead className="min-w-[150px]">Tên chi phí</TableHead>
+              <TableHead className="min-w-[120px]">Loại</TableHead>
+              <TableHead className="text-right min-w-[120px]">Tổng tiền</TableHead>
+              <TableHead className="min-w-[100px]">Ngày chi</TableHead>
+              <TableHead className="min-w-[150px]">Ghi chú</TableHead>
+              <TableHead className="text-right min-w-[120px]">Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

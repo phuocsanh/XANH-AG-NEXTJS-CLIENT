@@ -11,7 +11,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:3003"
  * Lấy báo cáo lợi nhuận theo ruộng lúa
  */
 export const useProfitReport = (riceCropId: number) => {
-  return useApiQuery<ProfitReport>(`${API_URL}/rice-crops/${riceCropId}/profit-report`, {
+  return useApiQuery<ProfitReport>(`${API_URL}/profit-reports/crop/${riceCropId}`, {
     queryKey: ["profit-report", riceCropId?.toString() || ""],
     enabled: !!riceCropId,
   })

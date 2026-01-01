@@ -1,8 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
-import { useState, useEffect } from "react"
 import { useAppStore } from "@/stores"
-
-const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT
+import http from "@/lib/http"
 
 interface UserProfile {
   id: number
@@ -26,41 +24,23 @@ interface User {
 
 /**
  * Hook để lấy thông tin user hiện tại từ API
+ * HttpClient sẽ tự động xử lý token và refresh khi cần
  */
 export function useCurrentUser() {
-  const [accessToken, setAccessToken] = useState<string | null>(null)
   const isAuthenticated = useAppStore((state) => state.isLogin)
 
-  // Đọc token khi component mount hoặc khi trạng thái login thay đổi
-  useEffect(() => {
-    const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken")
-    console.log('[useCurrentUser] Auth transition - Token from storage:', token ? 'EXISTS' : 'NULL')
-    setAccessToken(token)
-  }, [isAuthenticated]) // Kích hoạt lại khi isAuthenticated thay đổi
-
-  console.log('[useCurrentUser] Current accessToken state:', accessToken ? 'EXISTS' : 'NULL')
-
   return useQuery<User>({
-    queryKey: ["current-user", accessToken], // Thêm accessToken vào queryKey để query bám theo token
+    queryKey: ["current-user"],
     queryFn: async () => {
       console.log('[useCurrentUser] Fetching user profile...')
-      if (!accessToken) throw new Error("No access token")
-
-      const response = await fetch(`${API_URL}/users/me`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch user profile")
-      }
-
-      const data = await response.json()
-      console.log('[useCurrentUser] User profile:', data)
-      return data.data || data // Trả về nội dung bên trong wrapper data
+      
+      // HttpClient sẽ tự động lấy token từ storage và refresh nếu cần
+      const response = await http.get<{ data: User }>("/users/me")
+      console.log('[useCurrentUser] User profile:', response)
+      return response.data
     },
-    enabled: !!accessToken, // Chỉ fetch khi có token
+    enabled: isAuthenticated, // Chỉ fetch khi đã login
     staleTime: 5 * 60 * 1000, // Cache 5 phút
+    retry: 1, // Retry 1 lần nếu thất bại (cho phép refresh token)
   })
 }

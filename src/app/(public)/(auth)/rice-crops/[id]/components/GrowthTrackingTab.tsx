@@ -146,12 +146,12 @@ export default function GrowthTrackingTab({ riceCropId }: GrowthTrackingTabProps
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Ngày kiểm tra</TableHead>
-              <TableHead>Giai đoạn</TableHead>
-              <TableHead>Chiều cao (cm)</TableHead>
-              <TableHead>Màu lá</TableHead>
-              <TableHead>Sâu bệnh</TableHead>
-              <TableHead className="text-right">Hành động</TableHead>
+              <TableHead className="min-w-[120px]">Ngày kiểm tra</TableHead>
+              <TableHead className="min-w-[130px]">Giai đoạn</TableHead>
+              <TableHead className="min-w-[130px]">Chiều cao (cm)</TableHead>
+              <TableHead className="min-w-[100px]">Màu lá</TableHead>
+              <TableHead className="min-w-[150px]">Sâu bệnh</TableHead>
+              <TableHead className="text-right min-w-[120px]">Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -220,7 +220,7 @@ export default function GrowthTrackingTab({ riceCropId }: GrowthTrackingTabProps
             <DialogTitle>{editingItem ? "Sửa bản ghi sinh trưởng" : "Thêm bản ghi mới"}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="tracking_date">Ngày kiểm tra</Label>
                 <Input
@@ -253,7 +253,7 @@ export default function GrowthTrackingTab({ riceCropId }: GrowthTrackingTabProps
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="plant_height">Chiều cao cây (cm)</Label>
                 <Input

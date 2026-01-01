@@ -91,10 +91,10 @@ export default function Navbar() {
               href='/'
               className='text-sm md:text-lg font-semibold text-foreground truncate flex items-center'
             >
-              <div className='w-8 h-8 sm:w-9 sm:h-9'>
+              <div className='w-8 h-8 sm:w-16 sm:h-16'>
                 <Img
                   alt=''
-                  src='https://cdn-icons-png.flaticon.com/128/8044/8044419.png'
+                  src='/assets/logo3.png'
                   fill
                 />
               </div>
