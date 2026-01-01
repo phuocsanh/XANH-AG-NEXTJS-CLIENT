@@ -16,7 +16,7 @@ export default function HomeLayout({
   return (
     <div>
       <Navbar />
-      <main className='flex-grow pt-32'>{children}</main>
+      <main className='flex-grow'>{children}</main>
       <Footer />
       <FloatingChatButton />
     </div>

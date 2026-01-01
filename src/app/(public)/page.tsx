@@ -10,7 +10,7 @@ import LatestNews from "./components/LatestNews"
 async function Page() {
   try {
     return (
-      <main className='min-h-screen'>
+      <div className='min-h-screen'>
         {/* Hero Section - Banner với gradient xanh nông nghiệp */}
         <HeroSection />
         
@@ -25,7 +25,7 @@ async function Page() {
 
         {/* Latest News - Tin tức nông nghiệp mới nhất */}
         <LatestNews />
-      </main>
+      </div>
     )
   } catch (error) {
     console.error("Error in Page component:", error)

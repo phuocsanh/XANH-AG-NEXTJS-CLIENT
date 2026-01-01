@@ -55,7 +55,11 @@ export type RegisterResType = z.TypeOf<typeof RegisterRes>
 
 export const LoginBody = z
   .object({
-    user_account: z.string().email("Email không đúng định dạng"),
+    user_account: z
+      .string()
+      .min(10, "Số điện thoại phải có ít nhất 10 số")
+      .max(11, "Số điện thoại không hợp lệ")
+      .regex(/^[0-9]+$/, "Số điện thoại chỉ chứa chữ số"),
     user_password: z
       .string()
       .min(6, "Tối thiểu 6 kí tự")

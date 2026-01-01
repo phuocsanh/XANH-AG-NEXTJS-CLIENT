@@ -25,6 +25,7 @@ import { useAppStore } from "@/stores"
 import Img from "./Img"
 import Block from "./Block"
 import { useState, useEffect } from "react"
+import { useCurrentUser } from "@/hooks/use-user-profile"
 
 interface ProductType {
   id: number
@@ -37,6 +38,9 @@ export default function Navbar() {
   const isAuthenticated = useAppStore((state) => state.isLogin)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [productTypes, setProductTypes] = useState<ProductType[]>([])
+  
+  // Fetch user profile từ API
+  const { data: user } = useCurrentUser()
 
   // Fetch product types for dropdown
   useEffect(() => {
@@ -57,13 +61,28 @@ export default function Navbar() {
     fetchProductTypes()
   }, [])
 
+  const userName = user?.user_profile?.nickname || user?.account || ""
+  const userInitial = userName ? userName.charAt(0).toUpperCase() : "U"
+
+  const setIsLogin = useAppStore((state) => state.setIsLogin)
   const handleLogout = () => {
-    // TODO: Implement logout logic
-    console.log("Logout clicked")
+    // Xóa tokens và user info
+    localStorage.removeItem("accessToken")
+    localStorage.removeItem("refreshToken")
+    localStorage.removeItem("user")
+    sessionStorage.removeItem("accessToken")
+    sessionStorage.removeItem("refreshToken")
+    sessionStorage.removeItem("user")
+    
+    // Reset state trong store
+    setIsLogin(false)
+    
+    // Reload trang để cập nhật state
+    window.location.href = "/login"
   }
 
   return (
-    <nav className='fixed left-0 w-full z-50 h-auto bg-background'>
+    <nav className='sticky top-0 w-full z-50 h-auto bg-white/90 backdrop-blur-xl border-b border-green-200/50 shadow-sm'>
       <Block className='px-0'>
         <div className='px-2 sm:px-8 py-3 flex items-center justify-between'>
           <div className='flex items-center space-x-4 sm:space-x-8'>
@@ -165,58 +184,34 @@ export default function Navbar() {
             {/* User menu - Visible on both mobile and desktop */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Avatar className='h-8 w-8 sm:h-10 sm:w-10'>
-                  <AvatarImage
-                    src='https://github.com/shadcn.png'
-                    alt='@shadcn'
-                  />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
+                <div className="flex items-center gap-2 cursor-pointer hover:opacity-80">
+                  <Avatar className='h-8 w-8 sm:h-10 sm:w-10 border-2 border-green-500'>
+                    <AvatarFallback className="bg-gradient-to-br from-green-500 to-green-600 text-white font-bold">
+                      {userInitial}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align='end'
                 className='w-48 md:w-56 bg-background'
               >
-                <DropdownMenuSeparator />
-                {isAuthenticated ? (
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                      <User className='mr-2 h-4 w-4' />
-                      <span>Profile</span>
+                {user ? (
+                  <>
+                    <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
+                      <LogOut className='mr-2 h-4 w-4' />
+                      <span>Đăng xuất</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <CreditCard className='mr-2 h-4 w-4' />
-                      <span>Billing</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
+                  </>
                 ) : (
                   <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                      <User className='mr-2 h-4 w-4' />
-                      <Link href={"/register"}>Đăng kí</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <CreditCard className='mr-2 h-4 w-4' />
-                      <Link href={"/login"}>Đăng nhập</Link>
+                    <DropdownMenuItem asChild>
+                      <Link href={"/login"} className="cursor-pointer">
+                        <User className='mr-2 h-4 w-4' />
+                        <span>Đăng nhập</span>
+                      </Link>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
-                )}
-
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <LifeBuoy className='mr-2 h-4 w-4' />
-                  <span>Hỗ trợ</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className='mr-2 h-4 w-4' />
-                  <span>Cài đặt</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                {isAuthenticated && (
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className='mr-2 h-4 w-4' />
-                    <span>Đăng xuất</span>
-                  </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>

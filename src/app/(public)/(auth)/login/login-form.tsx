@@ -15,11 +15,16 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { LoginBody, LoginBodyType } from "@/schemaValidations/auth.schema"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react"
+import { Phone, Lock, ArrowRight, Loader2 } from "lucide-react"
 import { useState } from "react"
+import { useToast } from "@/hooks/use-toast"
+import { handleErrorApi } from "@/lib/utils"
+import { useAppStore } from "@/stores"
 
 const LoginForm = () => {
+  const setIsLogin = useAppStore((state) => state.setIsLogin)
   const router = useRouter()
+  const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
 
@@ -31,14 +36,69 @@ const LoginForm = () => {
     },
   })
 
-  const onSubmit = async ({ user_account, user_password }: LoginBodyType) => {
+  const onSubmit = async (data: LoginBodyType, e?: React.BaseSyntheticEvent) => {
+    if (e) {
+      e.preventDefault()
+    }
+    
     setIsLoading(true)
     try {
-      // TODO: Implement login logic
-      console.log("Login:", { user_account, user_password, rememberMe })
-      await new Promise(resolve => setTimeout(resolve, 1500)) // Simulate API call
+      const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:3003"
+      
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          account: data.user_account,
+          password: data.user_password,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw { response: { data: result, message: result.message } }
+      }
+
+      console.log("✅ Login response:", result)
+
+      // Lưu tokens - response có cấu trúc { success, data: { access_token, refresh_token, user } }
+      const tokens = result.data || result // Fallback nếu không có .data wrapper
+      
+      if (rememberMe) {
+        localStorage.setItem("accessToken", tokens.access_token)
+        localStorage.setItem("refreshToken", tokens.refresh_token)
+        localStorage.setItem("user", JSON.stringify(tokens.user)) // Lưu thông tin user
+        console.log("✅ Saved to localStorage:", {
+          accessToken: localStorage.getItem("accessToken")?.substring(0, 20) + "...",
+          refreshToken: localStorage.getItem("refreshToken")?.substring(0, 20) + "...",
+          user: tokens.user?.account
+        })
+      } else {
+        sessionStorage.setItem("accessToken", tokens.access_token)
+        sessionStorage.setItem("refreshToken", tokens.refresh_token)
+        sessionStorage.setItem("user", JSON.stringify(tokens.user)) // Lưu thông tin user
+        console.log("✅ Saved to sessionStorage:", {
+          accessToken: sessionStorage.getItem("accessToken")?.substring(0, 20) + "...",
+          refreshToken: sessionStorage.getItem("refreshToken")?.substring(0, 20) + "...",
+          user: tokens.user?.account
+        })
+      }
+
+      setIsLogin(true)
+
+      toast({
+        title: "Đăng nhập thành công",
+        description: "Chào mừng bạn trở lại!",
+      })
+
+      // Redirect to dashboard or home
+      router.push("/rice-crops")
     } catch (error) {
-      console.error("Login error:", error)
+      handleErrorApi({ error })
     } finally {
       setIsLoading(false)
     }
@@ -70,20 +130,20 @@ const LoginForm = () => {
           className='space-y-5 relative'
           noValidate
         >
-          {/* Email Field */}
+          {/* Phone Field */}
           <FormField
             control={form.control}
             name='user_account'
             render={({ field }) => (
               <FormItem>
                 <FormLabel className='text-sm font-bold text-gray-700 flex items-center gap-2'>
-                  <Mail className="w-4 h-4 text-green-600" />
-                  Email
+                  <Phone className="w-4 h-4 text-green-600" />
+                  Số điện thoại
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder='example@xanhag.vn'
-                    type='email'
+                    placeholder='Nhập số điện thoại'
+                    type='tel'
                     className='h-12 text-base bg-white/50 border-2 border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all rounded-xl text-gray-800 font-medium placeholder:text-gray-400'
                     {...field}
                   />

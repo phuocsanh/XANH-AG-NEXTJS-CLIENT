@@ -39,14 +39,7 @@ export default function Login() {
       </div>
 
       {/* Register Link */}
-      <div className="absolute top-6 right-6 sm:top-8 sm:right-8 z-20">
-        <Link
-          href="/register"
-          className="px-4 sm:px-6 py-2 sm:py-2.5 bg-white/80 backdrop-blur-sm text-green-700 rounded-xl font-bold text-sm hover:bg-white hover:shadow-lg transition-all border border-green-100"
-        >
-          Đăng ký
-        </Link>
-      </div>
+     
 
       {/* Main Content */}
       <div className="relative z-10 w-full min-h-screen flex items-center justify-center px-4 py-20">
