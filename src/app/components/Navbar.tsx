@@ -140,12 +140,13 @@ export default function Navbar() {
               >
                 Khuyến mãi
               </Link>
-              <Link
+              {/* Ẩn Chat UI */}
+              {/* <Link
                 href='/chat'
                 className='text-foreground hover:text-primary font-medium'
               >
                 Chat
-              </Link>
+              </Link> */}
               <Link
                 href='/weather-forecast'
                 className='text-foreground hover:text-primary font-medium'

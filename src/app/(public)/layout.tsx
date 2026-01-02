@@ -1,7 +1,8 @@
 import Navbar from "@/app/components/Navbar"
 import type { Metadata } from "next"
 import Footer from "../components/Footer"
-import FloatingChatButton from "@/components/FloatingChatButton"
+// Ẩn Chat UI
+// import FloatingChatButton from "@/components/FloatingChatButton"
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,7 +19,8 @@ export default function HomeLayout({
       <Navbar />
       <main className='flex-grow'>{children}</main>
       <Footer />
-      <FloatingChatButton />
+      {/* Ẩn Chat UI */}
+      {/* <FloatingChatButton /> */}
     </div>
   )
 }
