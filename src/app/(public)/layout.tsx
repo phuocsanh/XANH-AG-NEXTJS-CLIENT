@@ -1,6 +1,7 @@
 import Navbar from "@/app/components/Navbar"
 import type { Metadata } from "next"
 import Footer from "../components/Footer"
+import PullToRefreshProvider from "@/components/PullToRefreshProvider"
 // Ẩn Chat UI
 // import FloatingChatButton from "@/components/FloatingChatButton"
 
@@ -21,6 +22,8 @@ export default function HomeLayout({
       <Footer />
       {/* Ẩn Chat UI */}
       {/* <FloatingChatButton /> */}
+      {/* Pull to Refresh */}
+      <PullToRefreshProvider />
     </div>
   )
 }
