@@ -162,13 +162,13 @@ export default function LunarCalendarPage() {
                     className={`group relative aspect-square flex flex-col items-center justify-center rounded-xl sm:rounded-2xl transition-all duration-300 shadow-sm py-1 ${
                       isSelected
                       ? 'bg-orange-600 text-white shadow-xl scale-110 z-10 ring-2 ring-white/20'
-                      : 'bg-gray-50/50 hover:bg-gray-100 border border-gray-50 hover:border-gray-200 opacity-70'
+                      : 'bg-gray-50/50 hover:bg-gray-100 border border-gray-50 hover:border-gray-200'
                     }`}
                   >
-                    <span className={`text-base sm:text-2xl leading-none ${isSelected ? 'font-black' : 'font-medium text-gray-400'} mb-1`}>
+                    <span className={`text-base sm:text-2xl leading-none ${isSelected ? 'font-black' : 'font-bold text-gray-600'} mb-1`}>
                       {prevDateNum}
                     </span>
-                    <span className={`text-xs sm:text-base font-black ${isSelected ? 'text-orange-100' : 'text-gray-300'}`}>
+                    <span className={`text-xs sm:text-base font-black ${isSelected ? 'text-orange-100' : 'text-gray-400'}`}>
                       {prevLunar.day}/{prevLunar.month}
                     </span>
                   </button>
