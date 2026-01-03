@@ -159,11 +159,11 @@ export default function LunarCalendarPage() {
                   <button
                     key={dateNum}
                     onClick={() => setSelectedDate(cellDate)}
-                    className={`group relative aspect-square flex flex-col items-center justify-center rounded-xl sm:rounded-3xl transition-all duration-300 ${
+                    className={`group relative aspect-square flex flex-col items-center justify-center rounded-xl sm:rounded-2xl transition-all duration-300 shadow-sm ${
                       isSelected 
                       ? 'bg-orange-600 text-white shadow-xl scale-110 z-10 ring-2 ring-white/20' 
-                      : 'bg-orange-50/50 hover:bg-orange-100/70 border border-transparent hover:border-orange-200'
-                    } ${isToday && !isSelected ? 'ring-2 sm:ring-4 ring-orange-400 bg-white' : ''} ${isWeekend && !isSelected ? 'text-red-500' : ''}`}
+                      : 'bg-white/80 hover:bg-orange-50 shadow-md hover:shadow-lg border border-gray-100 hover:border-orange-200'
+                    } ${isToday && !isSelected ? 'ring-2 sm:ring-4 ring-orange-400 bg-white shadow-lg' : ''} ${isWeekend && !isSelected ? 'text-red-500' : ''}`}
                   >
                     <span className={`text-base sm:text-2xl leading-none ${isSelected ? 'font-black' : 'font-bold'} mb-1`}>
                       {dateNum}
