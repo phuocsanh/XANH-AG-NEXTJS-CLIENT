@@ -113,7 +113,7 @@ export default function LunarCalendarPage() {
       <div className="container mx-auto px-2 sm:px-4 -mt-12 relative z-20">
         <div className="grid lg:grid-cols-3 gap-10">
           {/* Calendar Grid */}
-          <div className="lg:col-span-2 bg-white rounded-[2rem] sm:rounded-[40px] shadow-2xl border border-orange-100 p-4 sm:p-8 md:p-12">
+          <div className="lg:col-span-2 bg-white rounded-[2rem] sm:rounded-[40px] shadow-2xl border border-orange-100 p-3 sm:p-8 md:p-12">
             <div className="flex justify-between items-center mb-6 sm:mb-12">
               <h2 className="text-xl sm:text-3xl font-black text-gray-800 flex items-center gap-2 sm:gap-4">
                 <CalendarIcon className="w-8 h-8 text-orange-500" />
@@ -129,7 +129,7 @@ export default function LunarCalendarPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-7 gap-1.5 sm:gap-4 text-center mb-6">
+            <div className="grid grid-cols-7 gap-2 sm:gap-4 text-center mb-6">
               {['Thứ\nHai', 'Thứ\nBa', 'Thứ\nTư', 'Thứ\nNăm', 'Thứ\nSáu', 'Thứ\nBảy', 'Chủ\nNhật'].map((day, i) => (
                 <span key={day} className={`text-[10px] sm:text-xs font-black uppercase tracking-wider whitespace-pre-line leading-tight ${i === 6 ? 'text-red-500' : 'text-gray-400'}`}>
                   {day}
@@ -137,7 +137,7 @@ export default function LunarCalendarPage() {
               ))}
             </div>
 
-            <div className="grid grid-cols-7 gap-3 md:gap-4">
+            <div className="grid grid-cols-7 gap-2 md:gap-4">
               {Array.from({ length: firstDayOfMonth }).map((_, i) => (
                 <div key={`empty-${i}`} className="aspect-square" />
               ))}
