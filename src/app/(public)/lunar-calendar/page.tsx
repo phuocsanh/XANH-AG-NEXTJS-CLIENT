@@ -110,10 +110,10 @@ export default function LunarCalendarPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-1 sm:px-4 -mt-12 relative z-20">
+      <div className="container mx-auto px-0 sm:px-4 -mt-12 relative z-20">
         <div className="grid lg:grid-cols-3 gap-10">
           {/* Calendar Grid */}
-          <div className="lg:col-span-2 bg-white rounded-[2rem] sm:rounded-[40px] shadow-2xl border border-orange-100 p-2 sm:p-8 md:p-12">
+          <div className="lg:col-span-2 bg-white rounded-[2rem] sm:rounded-[40px] shadow-2xl border border-orange-100 p-1.5 sm:p-8 md:p-12">
             <div className="flex justify-between items-center mb-6 sm:mb-12">
               <h2 className="text-xl sm:text-3xl font-black text-gray-800 flex items-center gap-2 sm:gap-4">
                 <CalendarIcon className="w-8 h-8 text-orange-500" />
