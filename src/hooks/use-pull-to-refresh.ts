@@ -15,14 +15,14 @@ export function usePullToRefresh() {
     
     const handleTouchStart = (e: TouchEvent) => {
       // Chỉ kích hoạt khi scroll ở đầu trang
-      if (window.scrollY === 0) {
+      if (window.scrollY === 0 && e.touches[0]) {
         touchStartYRef.current = e.touches[0].clientY;
         console.log('🔵 Touch start at:', touchStartYRef.current);
       }
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      if (window.scrollY === 0 && touchStartYRef.current > 0) {
+      if (window.scrollY === 0 && touchStartYRef.current > 0 && e.touches[0]) {
         const touchEndY = e.touches[0].clientY;
         const pullDistance = touchEndY - touchStartYRef.current;
 
