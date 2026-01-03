@@ -110,7 +110,7 @@ export default function LunarCalendarPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-0 sm:px-4 -mt-12 relative z-20">
+      <div className="container mx-auto px-0  sm:px-4 -mt-12 relative z-20">
         <div className="grid lg:grid-cols-3 gap-10">
           {/* Calendar Grid */}
           <div className="lg:col-span-2 bg-white rounded-[2rem] sm:rounded-[40px] shadow-2xl border border-orange-100 p-1.5 sm:p-8 md:p-12">
@@ -137,7 +137,7 @@ export default function LunarCalendarPage() {
               ))}
             </div>
 
-            <div className="grid grid-cols-7 gap-2.5 md:gap-4">
+            <div className="grid grid-cols-7 gap-2.5 md:gap-4 mb-4">
               {Array.from({ length: firstDayOfMonth }).map((_, i) => (
                 <div key={`empty-${i}`} className="aspect-square" />
               ))}
