@@ -138,9 +138,35 @@ export default function LunarCalendarPage() {
             </div>
 
             <div className="grid grid-cols-7 gap-2.5 md:gap-4 mb-4">
-              {Array.from({ length: firstDayOfMonth }).map((_, i) => (
-                <div key={`empty-${i}`} className="aspect-square" />
-              ))}
+              {/* Ngày của tháng trước */}
+              {Array.from({ length: firstDayOfMonth }).map((_, i) => {
+                const prevMonthDays = daysInMonth(
+                  viewDate.getMonth() === 0 ? viewDate.getFullYear() - 1 : viewDate.getFullYear(),
+                  viewDate.getMonth() === 0 ? 11 : viewDate.getMonth() - 1
+                )
+                const prevDateNum = prevMonthDays - firstDayOfMonth + i + 1
+                const prevDate = new Date(
+                  viewDate.getMonth() === 0 ? viewDate.getFullYear() - 1 : viewDate.getFullYear(),
+                  viewDate.getMonth() === 0 ? 11 : viewDate.getMonth() - 1,
+                  prevDateNum
+                )
+                const prevLunar = getLunarData(prevDate)
+                
+                return (
+                  <button
+                    key={`prev-${i}`}
+                    onClick={() => setSelectedDate(prevDate)}
+                    className="group relative aspect-square flex flex-col items-center justify-center rounded-xl sm:rounded-2xl transition-all duration-300 shadow-sm py-1 bg-gray-50/50 hover:bg-gray-100 border border-gray-50 hover:border-gray-200 opacity-50"
+                  >
+                    <span className="text-base sm:text-2xl leading-none font-medium text-gray-400 mb-1">
+                      {prevDateNum}
+                    </span>
+                    <span className="text-xs sm:text-base font-black text-gray-300">
+                      {prevLunar.day}/{prevLunar.month}
+                    </span>
+                  </button>
+                )
+              })}
               {Array.from({ length: daysInMonth(viewDate.getFullYear(), viewDate.getMonth()) }).map((_, i) => {
                 const dateNum = i + 1
                 const isToday = dateNum === currentDate.getDate() && 
@@ -159,7 +185,7 @@ export default function LunarCalendarPage() {
                   <button
                     key={dateNum}
                     onClick={() => setSelectedDate(cellDate)}
-                    className={`group relative aspect-square flex flex-col items-center justify-center rounded-xl sm:rounded-2xl transition-all duration-300 shadow-sm ${
+                    className={`group relative aspect-square flex flex-col items-center justify-center rounded-xl sm:rounded-2xl transition-all duration-300 shadow-sm  py-1 ${
                       isSelected 
                       ? 'bg-orange-600 text-white shadow-xl scale-110 z-10 ring-2 ring-white/20' 
                       : 'bg-white/80 hover:bg-orange-50 shadow-md hover:shadow-lg border border-gray-100 hover:border-orange-200'
