@@ -34,7 +34,11 @@ export default function LunarCalendarPage() {
   }
 
   const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate()
-  const firstDayOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay()
+  // Điều chỉnh để tuần bắt đầu từ Thứ 2 (0=CN -> 6, 1=T2 -> 0, ...)
+  const firstDayOfMonth = (() => {
+    const day = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay()
+    return day === 0 ? 6 : day - 1
+  })()
 
   const prevMonth = () => {
     setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))
@@ -126,8 +130,8 @@ export default function LunarCalendarPage() {
             </div>
 
             <div className="grid grid-cols-7 gap-1.5 sm:gap-4 text-center mb-6">
-              {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map((day, i) => (
-                <span key={day} className={`text-[10px] sm:text-xs font-black uppercase tracking-widest ${i === 0 ? 'text-red-500' : 'text-gray-400'}`}>
+              {['Thứ\nHai', 'Thứ\nBa', 'Thứ\nTư', 'Thứ\nNăm', 'Thứ\nSáu', 'Thứ\nBảy', 'Chủ\nNhật'].map((day, i) => (
+                <span key={day} className={`text-[10px] sm:text-xs font-black uppercase tracking-wider whitespace-pre-line leading-tight ${i === 6 ? 'text-red-500' : 'text-gray-400'}`}>
                   {day}
                 </span>
               ))}
@@ -148,7 +152,8 @@ export default function LunarCalendarPage() {
                 
                 const cellDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), dateNum)
                 const cellLunar = getLunarData(cellDate)
-                const isWeekend = cellDate.getDay() === 0
+                // Điều chỉnh weekend: CN = 0, T7 = 6
+                const isWeekend = cellDate.getDay() === 0 || cellDate.getDay() === 6
 
                 return (
                   <button
@@ -160,10 +165,10 @@ export default function LunarCalendarPage() {
                       : 'bg-orange-50/50 hover:bg-orange-100/70 border border-transparent hover:border-orange-200'
                     } ${isToday && !isSelected ? 'ring-2 sm:ring-4 ring-orange-400 bg-white' : ''} ${isWeekend && !isSelected ? 'text-red-500' : ''}`}
                   >
-                    <span className={`text-base sm:text-2xl leading-none ${isSelected ? 'font-black' : 'font-bold'} mb-0.5`}>
+                    <span className={`text-base sm:text-2xl leading-none ${isSelected ? 'font-black' : 'font-bold'} mb-1`}>
                       {dateNum}
                     </span>
-                    <span className={`text-[9px] sm:text-sm font-medium ${isSelected ? 'text-orange-100/90' : 'text-gray-400'}`}>
+                    <span className={`text-xs sm:text-base font-black ${isSelected ? 'text-orange-100' : 'text-gray-500'}`}>
                       {cellLunar.day}/{cellLunar.month}
                     </span>
                   </button>
