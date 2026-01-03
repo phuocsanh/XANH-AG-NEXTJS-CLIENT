@@ -168,7 +168,7 @@ export default function LunarCalendarPage() {
                     <span className={`text-base sm:text-2xl leading-none ${isSelected ? 'font-black' : 'font-bold text-gray-600'} mb-1`}>
                       {prevDateNum}
                     </span>
-                    <span className={`text-xs sm:text-base font-black ${isSelected ? 'text-orange-100' : 'text-gray-400'}`}>
+                    <span className={`text-xs sm:text-base font-black ${isSelected ? 'text-orange-100' : 'text-gray-500'}`}>
                       {prevLunar.day}/{prevLunar.month}
                     </span>
                   </button>
