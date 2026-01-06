@@ -1,5 +1,6 @@
 /**
- * Service để lấy dữ liệu thời tiết từ Open-Meteo API (Miễn phí, không cần key)
+ * Service để lấy dữ liệu thời tiết từ Tomorrow.io API (v4)
+ * Hỗ trợ các tính năng: Lịch sử ngắn hạn (từ 00:00), Dự báo 6 ngày, và các tham số nông nghiệp.
  */
 
 export interface WeatherData {
@@ -32,125 +33,261 @@ export interface DailyWeatherData {
   weatherDescription: string;
 }
 
-interface OpenMeteoResponse {
-  latitude: number;
-  longitude: number;
-  hourly: {
-    time: string[];
-    temperature_2m: number[];
-    relative_humidity_2m: number[];
-    precipitation_probability: number[];
-    rain: number[];
-    weather_code: number[];
-    wind_speed_10m: number[];
+// Interface cho response từ Tomorrow.io v4
+interface TomorrowResponse {
+  data?: {
+    timelines: Array<{
+      timestep: string;
+      intervals: Array<{
+        startTime: string;
+        values: any;
+      }>;
+    }>;
+  };
+  timelines?: {
+    hourly?: Array<{
+      time: string;
+      values: any;
+    }>;
+    daily?: Array<{
+      time: string;
+      values: any;
+    }>;
   };
 }
 
-interface OpenMeteoDailyResponse {
-  latitude: number;
-  longitude: number;
-  daily: {
-    time: string[];
-    temperature_2m_max: number[];
-    temperature_2m_min: number[];
-    precipitation_probability_max: number[];
-    precipitation_sum: number[];
-    weather_code: number[];
-  };
-}
+import { getAllRemoteValues } from "./firebase";
 
 class WeatherService {
-  private readonly baseUrl = 'https://api.open-meteo.com/v1/forecast';
+  private readonly tomorrowForecastUrl = 'https://api.tomorrow.io/v4/weather/forecast';
+  private readonly tomorrowTimelinesUrl = 'https://api.tomorrow.io/v4/timelines';
+  private tomorrowApiKeys: string[] = [];
+  private keysLoaded = false;
 
+  /**
+   * Đảm bảo các API Key đã được tải từ Remote Config
+   */
+  private async ensureKeysLoaded() {
+    if (this.keysLoaded && this.tomorrowApiKeys.length > 0) return;
+
+    try {
+      // Lấy danh sách TOÀN BỘ Key từ Remote Config (bắt đầu bằng TOMORROW_API_KEY_)
+      const keys = await getAllRemoteValues('TOMORROW_API_KEY_');
+      this.tomorrowApiKeys = keys;
+      this.keysLoaded = true;
+
+      if (this.tomorrowApiKeys.length > 0) {
+        console.log(`✅ [WeatherService] Đã tải ${this.tomorrowApiKeys.length} Tomorrow.io Keys từ Remote Config`);
+      } else {
+        // Fallback về .env nếu Remote Config trống
+        this.tomorrowApiKeys = (process.env.NEXT_PUBLIC_TOMORROW_API_KEY || '').split(',').map(k => k.trim()).filter(Boolean);
+      }
+    } catch (error) {
+      console.error('❌ [WeatherService] Lỗi khi tải API Keys từ Remote Config:', error);
+      // Fallback về .env
+      this.tomorrowApiKeys = (process.env.NEXT_PUBLIC_TOMORROW_API_KEY || '').split(',').map(k => k.trim()).filter(Boolean);
+    }
+  }
+
+  /**
+   * Thực hiện gọi API với cơ chế xoay vòng Key khi gặp lỗi 429 (Rate Limit)
+   */
+  private async fetchWithRotation(baseUrl: string, queryParams: Record<string, string>): Promise<Response> {
+    await this.ensureKeysLoaded();
+
+    if (this.tomorrowApiKeys.length === 0) {
+      throw new Error('Không tìm thấy Tomorrow.io API Key trong cấu hình');
+    }
+
+    let lastResponse: Response | null = null;
+
+    for (let i = 0; i < this.tomorrowApiKeys.length; i++) {
+      const key = this.tomorrowApiKeys[i];
+      if (!key) continue;
+
+      const params = new URLSearchParams(queryParams);
+      params.set('apikey', key);
+      const url = `${baseUrl}?${params.toString()}`;
+
+      try {
+        const response = await fetch(url);
+        
+        // Nếu dính giới hạn lượt gọi (429), thử Key tiếp theo
+        if (response.status === 429) {
+          console.warn(`⚠️ Tomorrow.io API Key thứ ${i + 1} hết hạn mức (429). Đang chuyển sang Key tiếp theo...`);
+          lastResponse = response;
+          continue;
+        }
+
+        // Nếu key không hợp lệ (400, 401, 403), thử Key tiếp theo
+        if (response.status === 400 || response.status === 401 || response.status === 403) {
+          console.warn(`⚠️ Tomorrow.io API Key thứ ${i + 1} không hợp lệ (${response.status}). Đang chuyển sang Key tiếp theo...`);
+          lastResponse = response;
+          continue;
+        }
+
+        return response;
+      } catch (error) {
+        console.error(`❌ Lỗi khi gọi Tomorrow.io với Key thứ ${i + 1}:`, error);
+        throw error;
+      }
+    }
+
+    return lastResponse!;
+  }
+
+  /**
+   * Map mã thời tiết sang mô tả tiếng Việt (Tomorrow.io Codes)
+   */
   private getWeatherDescription(code: number): string {
     const codes: Record<number, string> = {
       0: 'Trời quang đãng',
-      1: 'Trời trong',
-      2: 'Có mây',
-      3: 'Nhiều mây',
-      45: 'Sương mù',
-      48: 'Sương muối',
-      51: 'Mưa phùn nhẹ',
-      53: 'Mưa phùn vừa',
-      55: 'Mưa phùn dày',
-      61: 'Mưa nhẹ',
-      63: 'Mưa vừa',
-      65: 'Mưa to',
-      71: 'Tuyết rơi nhẹ',
-      73: 'Tuyết rơi vừa',
-      75: 'Tuyết rơi dày',
-      77: 'Tuyết hạt',
-      80: 'Mưa rào nhẹ',
-      81: 'Mưa rào vừa',
-      82: 'Mưa rào to',
-      95: 'Dông nhẹ hoặc vừa',
-      96: 'Dông kèm mưa đá nhẹ',
-      99: 'Dông kèm mưa đá to'
+      1000: 'Trời quang',
+      1100: 'Ít mây',
+      1101: 'Có mây rải rác',
+      1102: 'Nhiều mây',
+      1001: 'Mây u ám',
+      2000: 'Sương mù nhẹ',
+      2100: 'Sương mù',
+      4000: 'Mưa phùn nhẹ',
+      4001: 'Mưa nhỏ',
+      4200: 'Mưa vừa',
+      4201: 'Mưa to',
+      5000: 'Tuyết rơi nhẹ',
+      5001: 'Tuyết rơi vừa',
+      5100: 'Tuyết rơi dày',
+      6000: 'Mưa đá nhẹ',
+      6001: 'Mưa đá to',
+      7000: 'Mưa băng',
+      8000: 'Dông sét',
     };
     return codes[code] || 'Không xác định';
   }
 
+  /**
+   * Lấy dự báo thời tiết hourly cho 6 ngày (Hôm nay + 5 ngày tới)
+   */
   async getForecast7Days(lat: number = 21.0285, lon: number = 105.8542): Promise<WeatherData[]> {
+    // Đảm bảo API Keys đã được load từ Remote Config
+    await this.ensureKeysLoaded();
+    
+    if (this.tomorrowApiKeys.length === 0) {
+      console.warn('API Key Tomorrow.io trống hoặc không hợp lệ');
+      return [];
+    }
+
     try {
-      const params = new URLSearchParams({
-        latitude: lat.toString(),
-        longitude: lon.toString(),
-        hourly: 'temperature_2m,relative_humidity_2m,precipitation_probability,rain,weather_code,wind_speed_10m',
-        timezone: 'auto',
-        forecast_days: '7'
-      });
+      // Ưu tiên dùng Timelines API để lấy được cả dữ liệu quá khứ trong ngày (từ 00:00)
+      const now = new Date();
+      // Update: startTime lấy từ thời điểm hiện tại để tiết kiệm quota 120h cho các ngày sau
+      const startTime = now.toISOString();
+      
+      const queryParams = {
+        location: `${lat},${lon}`,
+        units: 'metric',
+        timesteps: '1h',
+        startTime: startTime,
+        timezone: 'Asia/Ho_Chi_Minh',
+        fields: ['temperature', 'humidity', 'precipitationProbability', 'precipitationIntensity', 'weatherCode', 'windSpeed'].join(',')
+      };
 
-      const response = await fetch(`${this.baseUrl}?${params.toString()}`);
-      if (!response.ok) throw new Error(`Weather API error: ${response.status}`);
+      const response = await this.fetchWithRotation(this.tomorrowTimelinesUrl, queryParams);
+      if (!response.ok) throw new Error(`Tomorrow.io Timelines error: ${response.status}`);
+      
+      const result: TomorrowResponse = await response.json();
+      
+      const timelines = result.data?.timelines || [];
+      const timeline = timelines.find(t => t.timestep === '1h');
+      
+      if (!timeline) return [];
 
-      const data: OpenMeteoResponse = await response.json();
-      return data.hourly.time.map((time, index) => ({
-        dt: new Date(time).getTime() / 1000,
+      return timeline.intervals.map(item => ({
+        dt: new Date(item.startTime).getTime() / 1000,
         main: {
-          temp: data.hourly.temperature_2m[index] ?? 0,
-          humidity: data.hourly.relative_humidity_2m[index] ?? 0
+          temp: item.values.temperature,
+          humidity: item.values.humidity
         },
         weather: [{
-          description: this.getWeatherDescription(data.hourly.weather_code[index] ?? 0),
+          description: this.getWeatherDescription(item.values.weatherCode),
           icon: ''
         }],
-        weatherCode: data.hourly.weather_code[index] ?? 0,
-        pop: (data.hourly.precipitation_probability[index] ?? 0) / 100,
-        rain: { '1h': data.hourly.rain[index] ?? 0 },
-        wind: { speed: data.hourly.wind_speed_10m[index] ?? 0 }
+        weatherCode: item.values.weatherCode,
+        pop: (item.values.precipitationProbability || 0) / 100,
+        rain: {
+          '1h': item.values.precipitationIntensity || 0
+        },
+        wind: {
+          speed: item.values.windSpeed || 0
+        }
       }));
     } catch (error) {
-      console.error('Error fetching 7-day weather:', error);
-      throw error;
+      console.error('Error fetching 6-day weather from Tomorrow.io:', error);
+      return [];
     }
   }
 
+  /**
+   * Lấy dự báo tóm tắt theo ngày (6 ngày: Hôm nay + 5 ngày tới)
+   */
   async getDailyForecast7Days(lat: number = 21.0285, lon: number = 105.8542): Promise<DailyWeatherData[]> {
+    // Đảm bảo API Keys đã được load từ Remote Config
+    await this.ensureKeysLoaded();
+    
+    if (this.tomorrowApiKeys.length === 0) {
+      return [];
+    }
+
     try {
-      const params = new URLSearchParams({
-        latitude: lat.toString(),
-        longitude: lon.toString(),
-        daily: 'temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,weather_code',
-        timezone: 'auto',
-        forecast_days: '7'
-      });
+      const now = new Date();
+      // Lấy YYYY-MM-DD của ngày hôm nay để filter
+      const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      
+      // startTime nên là 'now' để tránh việc API trả về dữ liệu ngày hôm trước do lệch múi giờ
+      const startTime = now.toISOString();
 
-      const response = await fetch(`${this.baseUrl}?${params.toString()}`);
-      if (!response.ok) throw new Error(`Daily weather API error: ${response.status}`);
+      const queryParams = {
+        location: `${lat},${lon}`,
+        units: 'metric',
+        timesteps: '1d',
+        startTime: startTime,
+        timezone: 'Asia/Ho_Chi_Minh',
+        fields: ['temperatureMin', 'temperatureMax', 'temperatureAvg', 'precipitationProbabilityMax', 'precipitationProbabilityAvg', 'precipitationIntensityAvg', 'weatherCodeMax', 'weatherCode'].join(',')
+      };
 
-      const data: OpenMeteoDailyResponse = await response.json();
-      return data.daily.time.map((date, index) => ({
-        date: date,
-        tempMin: Math.round(data.daily.temperature_2m_min[index] ?? 0),
-        tempMax: Math.round(data.daily.temperature_2m_max[index] ?? 0),
-        precipitationProbabilityMax: Math.round(data.daily.precipitation_probability_max[index] ?? 0),
-        precipitationSum: parseFloat((data.daily.precipitation_sum[index] ?? 0).toFixed(1)),
-        weatherCode: data.daily.weather_code[index] ?? 0,
-        weatherDescription: this.getWeatherDescription(data.daily.weather_code[index] ?? 0)
-      }));
+      const response = await this.fetchWithRotation(this.tomorrowTimelinesUrl, queryParams);
+      if (!response.ok) throw new Error(`Tomorrow.io Daily error: ${response.status}`);
+      
+      const data: TomorrowResponse = await response.json();
+      
+      // Hỗ trợ cả hai cấu trúc response của Tomorrow.io v4
+      const timelines = data.data?.timelines || [];
+      const timeline = timelines.find(t => t.timestep === '1d');
+      
+      if (!timeline) return [];
+
+      return timeline.intervals
+        .map(item => {
+          const v = item.values;
+          // precipitationAccumulationSum không có trong 1d, tính toán dựa trên intensity
+          const rainSum = v.precipitationAccumulationSum ?? ((v.precipitationIntensityAvg || 0) * 24);
+          
+          const d = new Date(item.startTime || '');
+          const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+          
+          return {
+            date: dateStr,
+            tempMin: Math.round(v.temperatureMin ?? v.temperatureAvg ?? 0),
+            tempMax: Math.round(v.temperatureMax ?? v.temperatureAvg ?? 0),
+            precipitationProbabilityMax: Math.round(v.precipitationProbabilityMax ?? v.precipitationProbabilityAvg ?? 0),
+            precipitationSum: parseFloat((rainSum || 0).toFixed(1)),
+            weatherCode: v.weatherCodeMax ?? v.weatherCode ?? 0,
+            weatherDescription: this.getWeatherDescription(v.weatherCodeMax ?? v.weatherCode ?? 0)
+          };
+        })
+        .filter(item => item.date >= todayStr); // Chỉ lấy từ ngày hôm nay trở đi
     } catch (error) {
-      console.error('Error fetching daily weather:', error);
-      throw error;
+      console.error('Error fetching daily weather from Tomorrow.io:', error);
+      return [];
     }
   }
 
@@ -163,26 +300,17 @@ class WeatherService {
       if (data.address) {
         const addr = data.address;
         const parts = [];
-        
-        // Cấp 1: Thôn, Ấp, Xóm, Kênh, Đường (Rural detail)
         if (addr.road) parts.push(addr.road);
         if (addr.hamlet) parts.push(addr.hamlet);
         if (addr.neighbourhood) parts.push(addr.neighbourhood);
         if (addr.village) parts.push(addr.village);
-        
-        // Cấp 2: Phường/Xã/Thị trấn (Commune level)
         if (addr.suburb) parts.push(addr.suburb);
         else if (addr.town) parts.push(addr.town);
-        
-        // Cấp 3: Quận/Huyện (District level)
         if (addr.city_district) parts.push(addr.city_district);
         else if (addr.county) parts.push(addr.county);
-        
-        // Cấp 4: Tỉnh/Thành phố (Province level)
         if (addr.city) parts.push(addr.city);
         else if (addr.state) parts.push(addr.state);
         
-        // Remove duplicates if any (e.g. city == state)
         const uniqueParts = Array.from(new Set(parts));
         return uniqueParts.length > 0 ? uniqueParts.join(', ') : 'Vị trí đã chọn';
       }

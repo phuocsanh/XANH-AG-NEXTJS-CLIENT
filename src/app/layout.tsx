@@ -5,6 +5,7 @@ import { Lexend } from "next/font/google"
 import RootProvider from "@/provider/root-provider"
 import Block from "./components/Block"
 import { FirebaseNotificationsProvider } from "./components/firebase-notifications-provider"
+import { RemoteConfigInitializer } from "@/components/remote-config-initializer"
 
 const lexend = Lexend({ subsets: ["latin"] })
 
@@ -44,6 +45,7 @@ export default function RootLayout({
         )}
       >
         <RootProvider>
+          <RemoteConfigInitializer />
           <FirebaseNotificationsProvider />
           <Block>{children}</Block>
         </RootProvider>

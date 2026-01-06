@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import { getRemoteConfig, fetchAndActivate, getValue, getAll } from "firebase/remote-config";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -13,6 +14,47 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
+export const remoteConfig = typeof window !== 'undefined' ? getRemoteConfig(app) : null;
+
+if (remoteConfig) {
+  // Khoảng thời gian fetch mặc định là 12 tiếng, set về 0 trong môi trường dev để cập nhật tức thì
+  remoteConfig.settings.minimumFetchIntervalMillis = process.env.NODE_ENV === 'development' ? 0 : 43200000;
+}
+
+/**
+ * Lấy giá trị từ Remote Config theo key
+ */
+export const getRemoteValue = async (key: string): Promise<string> => {
+  if (!remoteConfig) return "";
+  try {
+    await fetchAndActivate(remoteConfig);
+    const value = getValue(remoteConfig, key);
+    return value.asString();
+  } catch (error) {
+    console.error(`Error fetching remote config for ${key}:`, error);
+    return "";
+  }
+};
+
+/**
+ * Lấy tất cả giá trị từ Remote Config có prefix cụ thể
+ */
+export const getAllRemoteValues = async (prefix: string): Promise<string[]> => {
+  if (!remoteConfig) return [];
+  
+  try {
+    await fetchAndActivate(remoteConfig);
+    const allValues = getAll(remoteConfig);
+    
+    return Object.keys(allValues)
+      .filter(key => key.startsWith(prefix))
+      .map(key => allValues[key]?.asString())
+      .filter((val): val is string => !!val);
+  } catch (error) {
+    console.error(`❌ [getAllRemoteValues] Lỗi fetch prefix ${prefix}:`, error);
+    return [];
+  }
+};
 
 export const requestForToken = async () => {
   if (!messaging) return null;

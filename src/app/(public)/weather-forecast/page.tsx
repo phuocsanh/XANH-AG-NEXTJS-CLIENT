@@ -40,7 +40,7 @@ const DEFAULT_COORD = {
 
 /**
  * Weather Forecast Page
- * Trang dự báo thời tiết chi tiết 7 ngày
+ * Trang dự báo thời tiết chi tiết 6 ngày
  */
 export default function WeatherForecastPage() {
   const [dailyForecast, setDailyForecast] = useState<DailyWeatherData[]>([])
@@ -214,6 +214,15 @@ export default function WeatherForecastPage() {
     return <Cloud className={`${size} text-gray-400`} />
   }
 
+  // Hàm helper để lấy style dựa trên khả năng mưa (Cảnh báo: Xanh -> Vàng -> Cam -> Đỏ)
+  const getPopStyle = (popPercentage: number) => {
+    if (popPercentage === 0) return "bg-blue-50 text-blue-500 border-blue-100";
+    if (popPercentage <= 24) return "bg-yellow-50 text-yellow-600 border-yellow-200 font-bold";
+    if (popPercentage <= 49) return "bg-yellow-200 text-yellow-800 border-yellow-400 font-bold";
+    if (popPercentage <= 74) return "bg-orange-100 text-orange-600 border-orange-300 font-bold";
+    return "bg-red-100 text-red-600 border-red-300 font-bold";
+  };
+
   const selectedDay = dailyForecast[activeTab] || dailyForecast[0]
   const hourlyForSelectedDay = hourlyForecast.filter(h => {
     if (!selectedDay) return false
@@ -221,6 +230,30 @@ export default function WeatherForecastPage() {
     const hourlyDate = new Date(h.dt * 1000).toDateString()
     return dayDate === hourlyDate
   })
+
+  // Tính toán tóm tắt thực tế từ dữ liệu giờ để đảm bảo nhất quán (đặc biệt là cho ngày hôm nay khi có dữ liệu lịch sử)
+  const displaySummary = useMemo(() => {
+    if (!selectedDay || hourlyForSelectedDay.length === 0) return selectedDay;
+
+    const temps = hourlyForSelectedDay.map(h => h.main.temp);
+    const rainSum = hourlyForSelectedDay.reduce((sum, h) => sum + (h.rain?.['1h'] || 0), 0);
+    
+    // Tìm giờ có xác suất mưa cao nhất
+    let maxPopHour = null;
+    if (hourlyForSelectedDay.length > 0) {
+      const maxPopItem = hourlyForSelectedDay.reduce((prev, current) => (prev.pop > current.pop) ? prev : current);
+      maxPopHour = new Date(maxPopItem.dt * 1000).getHours();
+    }
+
+    return {
+      ...selectedDay,
+      tempMin: Math.round(Math.min(...temps)),
+      tempMax: Math.round(Math.max(...temps)),
+      precipitationSum: parseFloat(rainSum.toFixed(1)),
+      precipitationProbabilityMax: Math.round(Math.max(...hourlyForSelectedDay.map(h => h.pop)) * 100),
+      peakPrecipitationHour: maxPopHour
+    };
+  }, [selectedDay, hourlyForSelectedDay]);
 
   return (
     <div className="min-h-screen bg-agri-50/50 pb-10 sm:pb-20 overflow-x-hidden w-full relative">
@@ -243,7 +276,7 @@ export default function WeatherForecastPage() {
                 <div className="flex-1 min-w-0">
                   <p className="text-[9px] sm:text-[11px] font-black text-blue-500 uppercase tracking-widest sm:tracking-[0.3em] mb-1">Vị trí hiện tại</p>
                   <h1 className="text-lg sm:text-2xl md:text-3xl font-black text-gray-900 leading-tight break-words">
-                    {locationName}
+                    {locationName} | Dự báo 6 Ngày
                   </h1>
                   {/* <span className="inline-block mt-2 text-[9px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-100 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full">
                     GPS: {coords.latitude.toFixed(4)}, {coords.longitude.toFixed(4)}
@@ -272,14 +305,14 @@ export default function WeatherForecastPage() {
                 </button>
 
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogTrigger asChild>
+                  {/* <DialogTrigger asChild>
                     <button 
                       className="flex items-center gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-agri-600 text-white rounded-lg sm:rounded-2xl font-black text-[10px] sm:text-xs uppercase tracking-wider hover:bg-agri-700 transition-all active:scale-95 shadow-md"
                     >
                       <Search className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                       Tìm xã
                     </button>
-                  </DialogTrigger>
+                  </DialogTrigger> */}
                   <DialogContent className="w-[95vw] sm:max-w-[850px] max-h-[90vh] flex flex-col p-4 sm:p-8 overflow-hidden bg-white border-none shadow-2xl rounded-[1.5rem] sm:rounded-[3rem]">
                       <DialogHeader className="mb-4 sm:mb-6">
                         <DialogTitle className="text-xl sm:text-3xl font-black text-agri-800 flex items-center gap-2 sm:gap-3">
@@ -402,7 +435,16 @@ export default function WeatherForecastPage() {
                     <div className="p-3 sm:p-4 bg-blue-50 rounded-xl sm:rounded-2xl text-blue-600 shadow-sm flex-shrink-0"><Droplets className="w-5 h-5 sm:w-7 sm:h-7" /></div>
                     <div className="min-w-0 flex-1">
                       <p className="text-[9px] sm:text-xs text-gray-400 font-black uppercase tracking-widest truncate">Khả năng mưa</p>
-                      <p className="text-lg sm:text-2xl font-black text-gray-800">{selectedDay?.precipitationProbabilityMax ?? 0}%</p>
+                      <div className="flex items-baseline gap-2">
+                        <p className={`text-lg sm:text-2xl font-black px-2 py-0.5 rounded-lg ${getPopStyle(displaySummary?.precipitationProbabilityMax ?? 0)}`}>
+                          {displaySummary?.precipitationProbabilityMax ?? 0}%
+                        </p>
+                        {(displaySummary as any)?.peakPrecipitationHour !== null && (displaySummary as any)?.precipitationProbabilityMax > 0 && (
+                          <span className={`text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full ${getPopStyle(displaySummary?.precipitationProbabilityMax ?? 0)}`}>
+                            Lúc { (displaySummary as any).peakPrecipitationHour }h
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -410,7 +452,7 @@ export default function WeatherForecastPage() {
                     <div className="p-3 sm:p-4 bg-cyan-50 rounded-xl sm:rounded-2xl text-cyan-600 shadow-sm flex-shrink-0"><Wind className="w-5 h-5 sm:w-7 sm:h-7" /></div>
                     <div className="min-w-0 flex-1">
                       <p className="text-[9px] sm:text-xs text-gray-400 font-black uppercase tracking-widest truncate">Lượng mưa</p>
-                      <p className="text-lg sm:text-2xl font-black text-gray-800">{selectedDay?.precipitationSum ?? 0} mm</p>
+                      <p className="text-lg sm:text-2xl font-black text-gray-800">{displaySummary?.precipitationSum ?? 0} mm</p>
                     </div>
                   </div>
 
@@ -418,14 +460,14 @@ export default function WeatherForecastPage() {
                     <div className="p-3 sm:p-4 bg-orange-50 rounded-xl sm:rounded-2xl text-orange-600 shadow-sm flex-shrink-0"><Thermometer className="w-5 h-5 sm:w-7 sm:h-7" /></div>
                     <div className="min-w-0 flex-1">
                       <p className="text-[9px] sm:text-xs text-gray-400 font-black uppercase tracking-widest truncate">Khoảng nhiệt độ</p>
-                      <p className="text-lg sm:text-2xl font-black text-gray-800">{selectedDay?.tempMin ?? 0}° - {selectedDay?.tempMax ?? 0}°</p>
+                      <p className="text-lg sm:text-2xl font-black text-gray-800">{displaySummary?.tempMin ?? 0}° - {displaySummary?.tempMax ?? 0}°</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="mt-2 p-4 sm:p-6 bg-gradient-to-br from-agri-50 to-white rounded-2xl sm:rounded-3xl border border-agri-100 italic text-[11px] sm:text-sm text-agri-800 leading-relaxed font-medium shadow-inner w-full overflow-hidden">
                   <p className="break-words whitespace-normal w-full">
-                    💡 Lời khuyên nông vụ: {(selectedDay?.precipitationProbabilityMax ?? 0) > 50 
+                    💡 Lời khuyên nông vụ: {(displaySummary?.precipitationProbabilityMax ?? 0) > 50 
                       ? 'Khả năng mưa cao, bà con nên kiểm tra hệ thống thoát nước ruộng và tạm hoãn phun thuốc nông dược.' 
                       : 'Thời tiết thuận lợi, bà con có thể tiến hành bón phân hoặc phun thuốc theo kế hoạch.'}
                   </p>
@@ -493,8 +535,8 @@ export default function WeatherForecastPage() {
                             </p>
                             
                             {/* Khả năng mưa */}
-                            <div className="flex items-center gap-1.5 sm:gap-2 text-blue-700 bg-blue-100/70 w-fit px-3 sm:px-4 py-1 sm:py-1.5 rounded-full">
-                              <Droplets className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-blue-600/20 flex-shrink-0" />
+                            <div className={`flex items-center gap-1.5 sm:gap-2 w-fit px-3 sm:px-4 py-1 sm:py-1.5 rounded-full border transition-colors ${getPopStyle(Math.round((hour.pop ?? 0) * 100))}`}>
+                              <Droplets className={`w-3.5 h-3.5 sm:w-5 sm:h-5 flex-shrink-0 ${Math.round((hour.pop ?? 0) * 100) > 49 ? 'text-white' : ''}`} />
                               <span className="text-[10px] sm:text-[13px] font-black uppercase tracking-tight truncate">Mưa: {Math.round((hour.pop ?? 0) * 100)}%</span>
                             </div>
 
