@@ -257,7 +257,7 @@ export default function WeatherForecastPage() {
   return (
     <div className="min-h-screen bg-agri-50/50 pb-10 sm:pb-20 overflow-x-hidden w-full relative">
       {/* Header Banner - Agriculture Theme */}
-      <div className="bg-gradient-to-br from-agri-600 via-agri-700 to-agri-800 pt-8 sm:pt-10 pb-10 sm:pb-14 px-3 sm:px-4 overflow-hidden relative w-full">
+      <div className="bg-gradient-to-br from-agri-600 via-agri-700 to-agri-800 pt-10 sm:pt-12 pb-10 sm:pb-14 px-3 sm:px-4 overflow-hidden relative w-full">
         <div className="max-w-7xl mx-auto w-full">
           <Link href="/" className="inline-flex items-center gap-2 text-agri-100 hover:text-white mb-4 sm:mb-6 transition-colors font-bold text-sm sm:text-base">
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -385,11 +385,11 @@ export default function WeatherForecastPage() {
         </div>
       </div>
 
-      <div className="w-full max-w-[100vw] overflow-x-hidden px-3 sm:px-4 md:px-6 -mt-4 sm:-mt-10 lg:-mt-16 relative z-20">
+      <div className="w-full max-w-[100vw] overflow-x-hidden px-3 sm:px-4 md:px-6 -mt-4 sm:-mt-10 xl:-mt-16 relative z-20">
         <div className="max-w-7xl mx-auto w-full">
-          <div className="grid lg:grid-cols-4 gap-6 sm:gap-8 w-full">
+          <div className="grid xl:grid-cols-4 gap-6 sm:gap-8 w-full">
             {/* 1. Day Selector Tabs - First on Mobile, Sidebar-right on Desktop */}
-            <div className="lg:col-span-3 lg:col-start-2 order-1 lg:order-1 w-full overflow-hidden">
+            <div className="xl:col-span-3 xl:col-start-2 order-1 xl:order-1 w-full overflow-hidden">
               <div 
                 ref={scrollRef}
                 onMouseDown={handleMouseDown}
@@ -425,8 +425,8 @@ export default function WeatherForecastPage() {
             </div>
 
             {/* 2. Detailed Stats Column - Second on Mobile, Sidebar-left on Desktop */}
-            <div className="lg:col-span-1 lg:col-start-1 order-2 lg:order-1 w-full overflow-hidden">
-              <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 shadow-xl border border-agri-100 flex flex-col gap-5 sm:gap-8 lg:sticky  w-full">
+            <div className="xl:col-span-1 xl:col-start-1 order-2 xl:order-1 w-full overflow-hidden">
+              <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 shadow-xl border border-agri-100 flex flex-col gap-5 sm:gap-8 xl:sticky  w-full">
                 <h3 className="font-black text-gray-800 border-b border-gray-100 pb-3 sm:pb-4 text-base sm:text-xl tracking-tight">Chi tiết theo ngày</h3>
                 
                 <div className="flex flex-col gap-4 sm:gap-6 w-full">
@@ -475,7 +475,7 @@ export default function WeatherForecastPage() {
             </div>
 
             {/* 3. Hourly Details List - Third on Mobile, Main area on Desktop */}
-            <div className="lg:col-span-3 lg:col-start-2 order-3 lg:order-2 space-y-6 sm:space-y-8 w-full overflow-hidden">
+            <div className="xl:col-span-3 xl:col-start-2 order-3 xl:order-2 space-y-6 sm:space-y-8 w-full overflow-hidden">
               <div className="bg-white rounded-[2rem] sm:rounded-[3rem] p-5 sm:p-10 shadow-xl sm:shadow-2xl border border-agri-100 relative overflow-hidden w-full">
                  {loading && dailyForecast.length > 0 && (
                   <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-10 flex items-center justify-center">
