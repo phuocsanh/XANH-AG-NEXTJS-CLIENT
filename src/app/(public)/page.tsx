@@ -3,6 +3,24 @@ import ToolsSection from "./components/ToolsSection"
 import FeaturesSection from "./components/FeaturesSection"
 import ProductShowcase from "./components/ProductShowcase"
 import LatestNews from "./components/LatestNews"
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Xanh AG - Nông nghiệp thông minh | Vật tư nông nghiệp chất lượng',
+  description: 'Xanh AG cung cấp vật tư nông nghiệp chất lượng cao, dự báo thời tiết chính xác, lịch vạn niên và tư vấn kỹ thuật canh tác cho nông dân Việt Nam',
+  keywords: ['nông nghiệp', 'vật tư nông nghiệp', 'phân bón', 'thuốc trừ sâu', 'dự báo thời tiết', 'lịch vạn niên'],
+  openGraph: {
+    title: 'Xanh AG - Nông nghiệp thông minh',
+    description: 'Giải pháp nông nghiệp toàn diện cho nông dân Việt Nam',
+    url: 'https://xanhag.com',
+    siteName: 'Xanh AG',
+    locale: 'vi_VN',
+    type: 'website',
+  },
+  alternates: {
+    canonical: 'https://xanhag.com',
+  },
+}
 
 /**
  * Homepage của Xanh AG
@@ -10,7 +28,7 @@ import LatestNews from "./components/LatestNews"
 async function Page() {
   try {
     return (
-      <div className='min-h-screen'>
+      <main className='min-h-screen'>
         {/* Hero Section - Banner với gradient xanh nông nghiệp */}
         <HeroSection />
         
@@ -25,7 +43,7 @@ async function Page() {
         
          {/* Features Section - Giới thiệu về Xanh AG */}
         <FeaturesSection />
-      </div>
+      </main>
     )
   } catch (error) {
     console.error("Error in Page component:", error)

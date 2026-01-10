@@ -86,11 +86,12 @@ export default function Navbar() {
               href='/'
               className='text-sm md:text-lg font-semibold text-foreground truncate flex items-center'
             >
-              <div className='w-8 h-8 sm:w-16 sm:h-16'>
+              <div className='relative w-10 h-10 sm:w-12 sm:h-12 overflow-hidden'>
                 <Img
-                  alt=''
+                  alt='Xanh AG Logo'
                   src='/assets/logo3.png'
                   fill
+                  className='object-contain scale-150'
                 />
               </div>
             </Link>

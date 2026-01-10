@@ -1,6 +1,5 @@
 'use client'
 
-
 import Link from 'next/link'
 import { Phone, MapPin } from 'lucide-react'
 
@@ -10,7 +9,7 @@ import { Phone, MapPin } from 'lucide-react'
  */
 export default function HeroSection() {
   return (
-    <section className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] bg-gradient-agri overflow-hidden">
+    <section className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] bg-gradient-agri overflow-hidden" aria-label="Hero Banner">
       {/* Background pattern overlay */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{
@@ -30,24 +29,25 @@ export default function HeroSection() {
           CHUYÊN CUNG CẤP: THUỐC BẢO VỆ THỰC VẬT - PHÂN BÓN - HẠT GIỐNG - DUNG CỤ LÀM VƯỜN
         </p>
 
-        {/* Contact info */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8 text-white">
+        {/* Contact info - Dùng address tag */}
+        <address className="flex flex-col sm:flex-row gap-4 mb-8 text-white not-italic">
           <a 
-            href="tel:0987.383.606" 
+            href="tel:0987383606" 
             className="flex items-center gap-2 hover:text-green-200 transition-colors"
+            aria-label="Số điện thoại"
           >
-            <Phone className="w-5 h-5" />
+            <Phone className="w-5 h-5" aria-hidden="true" />
             <span className="font-semibold">0987.383.606</span>
           </a>
-          <div className="hidden sm:block text-green-300">|</div>
+          <div className="hidden sm:block text-green-300" aria-hidden="true">|</div>
           <div className="flex items-center gap-2">
-            <MapPin className="w-5 h-5" />
+            <MapPin className="w-5 h-5" aria-hidden="true" />
             <span className="text-sm">Số nhà 257, Tân Hòa A, Tân Hiệp - An Giang</span>
           </div>
-        </div>
+        </address>
 
-        {/* CTA Buttons */}
-        <div className="flex flex-row gap-4 pb-40 lg:pb-20">
+        {/* CTA Buttons - Dùng nav tag */}
+        <nav className="flex flex-row gap-4 pb-40 lg:pb-20" aria-label="Primary actions">
           <Link
             href="/products"
             className="text-sm lg:text-base bg-yellow-500 hover:bg-yellow-600 text-black px-5 py-3 rounded-lg font-bold transition-all transform hover:scale-105 shadow-xl max-w-[150px] lg:min-w-[180px] flex items-center justify-center"
@@ -60,7 +60,7 @@ export default function HeroSection() {
           >
             Khuyến mãi
           </Link>
-        </div>
+        </nav>
       </div>
 
       {/* Product images overlay - positioned at bottom */}
@@ -77,7 +77,7 @@ export default function HeroSection() {
               className="w-24 md:w-36 h-32 md:h-48 bg-white/20 backdrop-blur-md rounded-t-2xl border-x border-t border-white/30 shadow-2xl transform translate-y-4 hover:translate-y-0 transition-transform duration-500"
               style={{ transitionDelay: `${i * 100}ms` }}
             >
-              <img src={url} alt="Product" className="w-full h-full object-cover rounded-t-2xl opacity-80" />
+              <img src={url} alt={`Sản phẩm nông nghiệp ${i + 1}`} className="w-full h-full object-cover rounded-t-2xl opacity-80" />
             </div>
           ))}
         </div>

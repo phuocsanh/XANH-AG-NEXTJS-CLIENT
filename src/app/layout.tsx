@@ -6,6 +6,7 @@ import RootProvider from "@/provider/root-provider"
 import Block from "./components/Block"
 import { FirebaseNotificationsProvider } from "./components/firebase-notifications-provider"
 import { RemoteConfigInitializer } from "@/components/remote-config-initializer"
+import { JsonLd } from "@/components/JsonLd"
 
 const lexend = Lexend({ subsets: ["latin"] })
 
@@ -31,19 +32,44 @@ export const viewport = {
   themeColor: "#16a34a",
 }
 
+// Organization Schema cho SEO
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Xanh AG',
+  url: 'https://xanhag.com',
+  logo: 'https://xanhag.com/assets/logo3.png',
+  description: 'Ứng dụng quản lý nông nghiệp thông minh cho nông dân Việt Nam',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: '+84-987-383-606',
+    contactType: 'Customer Service',
+    areaServed: 'VN',
+    availableLanguage: 'Vietnamese',
+  },
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Số nhà 257, Tân Hòa A',
+    addressLocality: 'Tân Hiệp',
+    addressRegion: 'An Giang',
+    addressCountry: 'VN',
+  },
+}
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang='en' suppressHydrationWarning>
+    <html lang='vi' suppressHydrationWarning>
       <body
         className={cn(
           lexend.className,
           "min-h-screen bg-background antialiased"
         )}
       >
+        <JsonLd data={organizationSchema} />
         <RootProvider>
           <RemoteConfigInitializer />
           <FirebaseNotificationsProvider />
