@@ -2,6 +2,7 @@
 
 import { Gift, Calendar, ArrowRight, Tag } from 'lucide-react'
 import Link from 'next/link'
+import Img from '@/app/components/Img'
 
 interface Promotion {
   id: number
@@ -43,10 +44,10 @@ const promotions: Promotion[] = [
 ]
 
 /**
- * Promotions Page
+ * Promotions Client Component
  * Trang hiển thị các chương trình khuyến mãi đang diễn ra
  */
-export default function PromotionsPage() {
+export default function PromotionsClient() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
@@ -80,10 +81,10 @@ export default function PromotionsPage() {
               >
                 {/* Image */}
                 <div className="lg:w-1/2 relative h-64 lg:h-auto overflow-hidden">
-                  <img 
+                  <Img 
                     src={promo.image} 
                     alt={promo.title}
-                    className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-700"
+                    className="object-cover transform hover:scale-110 transition-transform duration-700"
                   />
                   <div className={`absolute top-6 left-6 ${promo.color} text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg flex items-center gap-2`}>
                     <Tag className="w-4 h-4" />

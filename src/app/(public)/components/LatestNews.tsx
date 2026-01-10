@@ -2,6 +2,7 @@
 
 import { Calendar, User, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import Img from '@/app/components/Img'
 
 interface NewsItem {
   id: number
@@ -84,10 +85,10 @@ export default function LatestNews() {
             >
               {/* Image */}
               <div className="relative h-48 md:h-56 overflow-hidden">
-                <img
+                <Img
                   src={news.image}
                   alt={news.title}
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                  className="object-cover transform group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute top-4 left-4">
                   <span className="bg-accent-gold text-white px-3 py-1 rounded-full text-xs font-semibold">

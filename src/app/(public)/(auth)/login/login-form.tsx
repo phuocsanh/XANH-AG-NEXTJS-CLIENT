@@ -16,7 +16,7 @@ import { LoginBody, LoginBodyType } from "@/schemaValidations/auth.schema"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Phone, Lock, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { handleErrorApi } from "@/lib/utils"
 import { useAppStore } from "@/stores"
@@ -36,6 +36,19 @@ const LoginForm = () => {
       user_password: "",
     },
   })
+
+  // Load saved credentials khi component mount
+  useEffect(() => {
+    const savedAccount = localStorage.getItem("savedAccount")
+    const savedPassword = localStorage.getItem("savedPassword")
+    const wasRemembered = localStorage.getItem("rememberMe") === "true"
+
+    if (wasRemembered && savedAccount && savedPassword) {
+      form.setValue("user_account", savedAccount)
+      form.setValue("user_password", savedPassword)
+      setRememberMe(true)
+    }
+  }, [form])
 
   const onSubmit = async (data: LoginBodyType, e?: React.BaseSyntheticEvent) => {
     if (e) {
@@ -76,18 +89,33 @@ const LoginForm = () => {
       const tokens = result.data || result // Fallback nếu không có .data wrapper
       
       if (rememberMe) {
+        // Lưu tokens
         localStorage.setItem("accessToken", tokens.access_token)
         localStorage.setItem("refreshToken", tokens.refresh_token)
-        localStorage.setItem("user", JSON.stringify(tokens.user)) // Lưu thông tin user
+        localStorage.setItem("user", JSON.stringify(tokens.user))
+        
+        // Lưu credentials để auto-fill lần sau
+        localStorage.setItem("savedAccount", data.user_account)
+        localStorage.setItem("savedPassword", data.user_password)
+        localStorage.setItem("rememberMe", "true")
+        
         console.log("✅ Saved to localStorage:", {
           accessToken: localStorage.getItem("accessToken")?.substring(0, 20) + "...",
           refreshToken: localStorage.getItem("refreshToken")?.substring(0, 20) + "...",
-          user: tokens.user?.account
+          user: tokens.user?.account,
+          savedCredentials: true
         })
       } else {
+        // Lưu tokens vào sessionStorage
         sessionStorage.setItem("accessToken", tokens.access_token)
         sessionStorage.setItem("refreshToken", tokens.refresh_token)
-        sessionStorage.setItem("user", JSON.stringify(tokens.user)) // Lưu thông tin user
+        sessionStorage.setItem("user", JSON.stringify(tokens.user))
+        
+        // Xóa saved credentials nếu không chọn "Nhớ mật khẩu"
+        localStorage.removeItem("savedAccount")
+        localStorage.removeItem("savedPassword")
+        localStorage.removeItem("rememberMe")
+        
         console.log("✅ Saved to sessionStorage:", {
           accessToken: sessionStorage.getItem("accessToken")?.substring(0, 20) + "...",
           refreshToken: sessionStorage.getItem("refreshToken")?.substring(0, 20) + "...",

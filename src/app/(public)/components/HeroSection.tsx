@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Phone, MapPin } from 'lucide-react'
+import Img from '@/app/components/Img'
 
 /**
  * Hero Section Component
@@ -74,10 +75,14 @@ export default function HeroSection() {
           ].map((url, i) => (
             <div 
               key={i}
-              className="w-24 md:w-36 h-32 md:h-48 bg-white/20 backdrop-blur-md rounded-t-2xl border-x border-t border-white/30 shadow-2xl transform translate-y-4 hover:translate-y-0 transition-transform duration-500"
+              className="w-24 md:w-36 h-32 md:h-48 bg-white/20 backdrop-blur-md rounded-t-2xl border-x border-t border-white/30 shadow-2xl transform translate-y-4 hover:translate-y-0 transition-transform duration-500 relative overflow-hidden"
               style={{ transitionDelay: `${i * 100}ms` }}
             >
-              <img src={url} alt={`Sản phẩm nông nghiệp ${i + 1}`} className="w-full h-full object-cover rounded-t-2xl opacity-80" />
+              <Img 
+                src={url} 
+                alt={`Sản phẩm nông nghiệp ${i + 1}`} 
+                className="object-cover opacity-80"
+              />
             </div>
           ))}
         </div>

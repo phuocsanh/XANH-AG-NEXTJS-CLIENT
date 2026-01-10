@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Leaf, Search, ChevronDown } from 'lucide-react'
 import ProductDetailModal from '../components/ProductDetailModal'
 import { Skeleton } from '@/components/ui/skeleton'
+import Img from '@/app/components/Img'
 
 interface ProductType {
   id: number
@@ -44,10 +45,10 @@ interface ProductsByType {
 const PRODUCTS_PER_PAGE = 10 // Số sản phẩm hiển thị ban đầu cho mỗi loại
 
 /**
- * Products Page
- * Trang hiển thị tất cả sản phẩm, phân theo từng loại với pagination
+ * Products Client Component
+ * Trang hiển thị tất cả sản phẩm
  */
-export default function ProductsPage() {
+export default function ProductsClient() {
   const [productsByType, setProductsByType] = useState<ProductsByType[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -251,19 +252,19 @@ export default function ProductsPage() {
 
                           {/* Product image */}
                           <div className="relative w-full h-40 md:h-48 bg-gray-50 overflow-hidden">
-                            {product.pictures && product.pictures.length > 0 ? (
-                              <img
-                                src={product.pictures[0]}
-                                alt={product.name}
-                                className="w-full h-full object-contain"
-                              />
-                            ) : product.thumb ? (
-                              <img
-                                src={product.thumb}
-                                alt={product.name}
-                                className="w-full h-full object-contain"
-                              />
-                            ) : (
+                             {product.pictures && product.pictures.length > 0 ? (
+                               <Img
+                                 src={product.pictures[0] || ''}
+                                 alt={product.name}
+                                 className="object-contain"
+                               />
+                             ) : product.thumb ? (
+                               <Img
+                                 src={product.thumb || ''}
+                                 alt={product.name}
+                                 className="object-contain"
+                               />
+                             ) : (
                               <>
                                 <div className="absolute inset-0 flex items-center justify-center">
                                   <Leaf className="w-16 h-16 text-gray-200" />

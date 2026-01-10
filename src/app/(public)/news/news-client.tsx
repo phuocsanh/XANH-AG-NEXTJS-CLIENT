@@ -2,6 +2,7 @@
 
 import { Calendar, ArrowRight, Search } from 'lucide-react'
 import Link from 'next/link'
+import Img from '@/app/components/Img'
 
 interface NewsItem {
   id: number
@@ -53,10 +54,10 @@ const allNews: NewsItem[] = [
 ]
 
 /**
- * News Listing Page
+ * News Client Component
  * Trang hiển thị danh sách tất cả tin tức
  */
-export default function NewsPage() {
+export default function NewsClient() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -77,10 +78,10 @@ export default function NewsPage() {
               {allNews.map((news) => (
                 <article key={news.id} className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all group flex flex-col md:flex-row">
                   <div className="md:w-2/5 relative h-56 md:h-auto overflow-hidden">
-                    <img 
+                    <Img 
                       src={news.image} 
                       alt={news.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
                   <div className="md:w-3/5 p-6 flex flex-col justify-between">

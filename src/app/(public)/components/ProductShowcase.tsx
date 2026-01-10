@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-
 import Link from 'next/link'
 import { Leaf } from 'lucide-react'
 import ProductDetailModal from './ProductDetailModal'
+import Img from '@/app/components/Img'
 
 interface ProductType {
   id: number
@@ -203,32 +203,40 @@ export default function ProductShowcase() {
                     {product.pictures && product.pictures.length > 0 ? (
                       <>
                         {/* Background Blurred Image */}
-                        <img
-                          src={product.pictures[0]}
-                          alt=""
-                          className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50"
-                        />
+                        <div className="absolute inset-0 w-full h-full blur-xl scale-110 opacity-50">
+                          <Img
+                            src={product.pictures[0] || ''}
+                            alt=""
+                            className="object-cover"
+                          />
+                        </div>
                         {/* Foreground Original Image */}
-                        <img
-                          src={product.pictures[0]}
-                          alt={product.name}
-                          className="relative z-10 w-full h-full object-cover"
-                        />
+                        <div className="relative z-10 w-full h-full">
+                          <Img
+                            src={product.pictures[0] || ''}
+                            alt={product.name}
+                            className="object-cover"
+                          />
+                        </div>
                       </>
                     ) : product.thumb ? (
                       <>
                         {/* Background Blurred Image */}
-                        <img
-                          src={product.thumb}
-                          alt=""
-                          className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50"
-                        />
+                        <div className="absolute inset-0 w-full h-full blur-xl scale-110 opacity-50">
+                          <Img
+                            src={product.thumb || ''}
+                            alt=""
+                            className="object-cover"
+                          />
+                        </div>
                         {/* Foreground Original Image */}
-                        <img
-                          src={product.thumb}
-                          alt={product.name}
-                          className="relative z-10 w-full h-full object-cover"
-                        />
+                        <div className="relative z-10 w-full h-full">
+                          <Img
+                            src={product.thumb || ''}
+                            alt={product.name}
+                            className="object-cover"
+                          />
+                        </div>
                       </>
                     ) : (
                       <>

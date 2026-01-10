@@ -2,6 +2,7 @@
 
 import { X } from 'lucide-react'
 import { useEffect } from 'react'
+import Img from '@/app/components/Img'
 
 interface Product {
   id: number
@@ -100,17 +101,21 @@ export default function ProductDetailModal({
                     >
                       <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden border border-agri-100 shadow-inner">
                         {/* Background Blurred Image */}
-                        <img
-                          src={pic}
-                          alt=""
-                          className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-30"
-                        />
+                        <div className="absolute inset-0 w-full h-full blur-xl scale-110 opacity-30">
+                          <Img
+                            src={pic || ''}
+                            alt=""
+                            className="object-cover"
+                          />
+                        </div>
                         {/* Foreground Original Image */}
-                        <img
-                          src={pic}
-                          alt={`${product.name} - Ảnh ${index + 1}`}
-                          className="relative z-10 w-full h-full object-cover"
-                        />
+                        <div className="relative z-10 w-full h-full">
+                          <Img
+                            src={pic || ''}
+                            alt={`${product.name} - Ảnh ${index + 1}`}
+                            className="object-cover"
+                          />
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -124,17 +129,21 @@ export default function ProductDetailModal({
             ) : product.thumb ? (
               <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden border border-agri-100 shadow-inner max-w-md mx-auto">
                 {/* Background Blurred Image */}
-                <img
-                  src={product.thumb}
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-30"
-                />
+                <div className="absolute inset-0 w-full h-full blur-xl scale-110 opacity-30">
+                  <Img
+                    src={product.thumb || ''}
+                    alt=""
+                    className="object-cover"
+                  />
+                </div>
                 {/* Foreground Original Image */}
-                <img
-                  src={product.thumb}
-                  alt={product.name}
-                  className="relative z-10 w-full h-full object-cover"
-                />
+                <div className="relative z-10 w-full h-full">
+                  <Img
+                    src={product.thumb || ''}
+                    alt={product.name}
+                    className="object-cover"
+                  />
+                </div>
               </div>
             ) : (
               <div className="relative aspect-square bg-gradient-to-br from-agri-50 to-agri-100 rounded-lg overflow-hidden border-2 border-agri-200 max-w-md mx-auto">
