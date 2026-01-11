@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "Xanh AG",
   },
   icons: {
@@ -28,7 +28,8 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#16a34a",
+  themeColor: "#059669",
+  viewportFit: "cover",
 }
 
 // Organization Schema cho SEO

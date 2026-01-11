@@ -77,8 +77,11 @@ export default function Navbar() {
 
   return (
     <nav 
-      className='sticky top-0 w-full z-50 h-auto backdrop-blur-xl border-b border-emerald-700/50 shadow-md'
-      style={{background: 'linear-gradient(180deg, #059669 0%, #047857 100%)'}}
+      className='sticky top-0 w-full z-50 backdrop-blur-xl border-b border-emerald-700/50 shadow-md'
+      style={{
+        background: 'linear-gradient(180deg, #059669 0%, #047857 100%)',
+        paddingTop: 'calc(env(safe-area-inset-top, 0px))'
+      }}
     >
       <div className='px-4 py-3 flex items-center justify-between'>
           <div className='flex items-center space-x-4 sm:space-x-8'>
