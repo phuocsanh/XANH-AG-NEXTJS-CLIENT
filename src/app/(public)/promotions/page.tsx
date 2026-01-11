@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import PromotionsClient from './promotions-client'
+import Block from "@/app/components/Block"
 
 export const metadata: Metadata = {
   title: 'Khuyến mãi - Ưu đãi đặc biệt | Xanh AG',
@@ -23,5 +24,9 @@ export const metadata: Metadata = {
  * Trang hiển thị các chương trình khuyến mãi
  */
 export default function PromotionsPage() {
-  return <PromotionsClient />
+  return (
+    <Block>
+      <PromotionsClient />
+    </Block>
+  )
 }

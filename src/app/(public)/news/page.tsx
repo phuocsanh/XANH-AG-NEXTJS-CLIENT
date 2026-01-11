@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import NewsClient from './news-client'
+import Block from "@/app/components/Block"
 
 export const metadata: Metadata = {
   title: 'Tin tức nông nghiệp | Xanh AG',
@@ -23,5 +24,9 @@ export const metadata: Metadata = {
  * Trang hiển thị danh sách tin tức nông nghiệp
  */
 export default function NewsPage() {
-  return <NewsClient />
+  return (
+    <Block>
+      <NewsClient />
+    </Block>
+  )
 }

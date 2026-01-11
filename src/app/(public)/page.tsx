@@ -4,6 +4,7 @@ import FeaturesSection from "./components/FeaturesSection"
 import ProductShowcase from "./components/ProductShowcase"
 import LatestNews from "./components/LatestNews"
 import { Metadata } from 'next'
+import Block from "@/app/components/Block"
 
 export const metadata: Metadata = {
   title: 'Xanh AG - Nông nghiệp thông minh | Vật tư nông nghiệp chất lượng',
@@ -29,20 +30,22 @@ async function Page() {
   try {
     return (
       <main className='min-h-screen'>
-        {/* Hero Section - Banner với gradient xanh nông nghiệp */}
+        {/* Hero Section - Banner với gradient xanh nông nghiệp - FULL WIDTH */}
         <HeroSection />
         
-        {/* Tools Section - Dự báo thời tiết và Lịch vạn niên */}
-        <ToolsSection />
+        <Block>
+          {/* Tools Section - Dự báo thời tiết và Lịch vạn niên */}
+          <ToolsSection />
 
-        {/* Product Showcase - Tab danh mục và danh sách sản phẩm nổi bật */}
-        <ProductShowcase />
+          {/* Product Showcase - Tab danh mục và danh sách sản phẩm nổi bật */}
+          <ProductShowcase />
 
-        {/* Latest News - Tin tức nông nghiệp mới nhất */}
-        <LatestNews />
-        
-         {/* Features Section - Giới thiệu về Xanh AG */}
-        <FeaturesSection />
+          {/* Latest News - Tin tức nông nghiệp mới nhất */}
+          <LatestNews />
+          
+           {/* Features Section - Giới thiệu về Xanh AG */}
+          <FeaturesSection />
+        </Block>
       </main>
     )
   } catch (error) {

@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import LunarClient from './lunar-client'
+import Block from "@/app/components/Block"
 
 export const metadata: Metadata = {
   title: 'Lịch vạn niên - Tra cứu âm dương | Xanh AG',
@@ -23,5 +24,9 @@ export const metadata: Metadata = {
  * Trang lịch vạn niên chi tiết
  */
 export default function LunarCalendarPage() {
-  return <LunarClient />
+  return (
+    <Block>
+      <LunarClient />
+    </Block>
+  )
 }

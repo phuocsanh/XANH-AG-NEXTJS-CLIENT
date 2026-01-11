@@ -51,6 +51,8 @@ export default function ProductShowcase() {
   const [productsLoading, setProductsLoading] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  // State để track lỗi khi fetch data
+  const [error, setError] = useState<string | null>(null)
 
   // Fetch product types khi component mount
   useEffect(() => {
@@ -70,6 +72,7 @@ export default function ProductShowcase() {
         }
       } catch (error) {
         console.error('Error fetching product types:', error)
+        setError('Không thể tải danh mục sản phẩm. Vui lòng thử lại sau.')
       } finally {
         setLoading(false)
       }
@@ -97,6 +100,7 @@ export default function ProductShowcase() {
       } catch (error) {
         console.error('Error fetching products:', error)
         setProducts([])
+        setError('Không thể tải sản phẩm. Vui lòng thử lại sau.')
       } finally {
         setProductsLoading(false)
       }
@@ -105,6 +109,7 @@ export default function ProductShowcase() {
     fetchProducts()
   }, [activeTypeId])
 
+  // Hiển thị loading state
   if (loading) {
     return (
       <section className="py-16 md:py-20 bg-white">
@@ -115,6 +120,11 @@ export default function ProductShowcase() {
         </div>
       </section>
     )
+  }
+
+  // Không hiển thị gì nếu có lỗi hoặc không có danh mục sản phẩm
+  if (error || productTypes.length === 0) {
+    return null
   }
 
   return (

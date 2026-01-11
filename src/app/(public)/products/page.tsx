@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import ProductsClient from './products-client'
+import Block from "@/app/components/Block"
 
 export const metadata: Metadata = {
   title: 'Sản phẩm vật tư nông nghiệp | Xanh AG',
@@ -23,5 +24,9 @@ export const metadata: Metadata = {
  * Trang hiển thị tất cả sản phẩm, phân theo từng loại
  */
 export default function ProductsPage() {
-  return <ProductsClient />
+  return (
+    <Block>
+      <ProductsClient />
+    </Block>
+  )
 }

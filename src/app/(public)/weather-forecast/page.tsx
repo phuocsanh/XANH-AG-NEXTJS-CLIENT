@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import WeatherClient from './weather-client'
+import Block from "@/app/components/Block"
 
 export const metadata: Metadata = {
   title: 'Dự báo thời tiết nông nghiệp | Xanh AG',
@@ -23,5 +24,9 @@ export const metadata: Metadata = {
  * Trang dự báo thời tiết chi tiết 7 ngày
  */
 export default function WeatherForecastPage() {
-  return <WeatherClient />
+  return (
+    <Block>
+      <WeatherClient />
+    </Block>
+  )
 }

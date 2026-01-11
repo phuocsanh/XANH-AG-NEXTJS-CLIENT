@@ -1,8 +1,105 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Phone, MapPin } from 'lucide-react'
 import Img from '@/app/components/Img'
+
+const StarField = () => {
+  const [mounted, setMounted] = useState(false)
+  const [starProps, setStarProps] = useState<{
+    twinkle: boolean;
+    delay: number;
+    duration: number;
+    opacity: number;
+    size: number;
+  }[]>([])
+  
+  useEffect(() => {
+    // Tổng số ngôi sao trong mạng lưới
+    const totalStars = 2000
+    // Khởi tạo tất cả là sao tĩnh
+    const props = Array.from({ length: totalStars }).map(() => ({
+      twinkle: false,
+      delay: 0,
+      duration: 60000, // Chu kỳ 1 phút
+      opacity: 0.1 + Math.random() * 0.15,
+      size: 10 + Math.random() * 4
+    }))
+
+    // Chọn ngẫu nhiên 150 vị trí để làm sao nhấp nháy
+    const indices: number[] = Array.from({ length: totalStars }, (_, i) => i)
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      const temp = indices[i]
+      if (temp !== undefined) {
+        indices[i] = indices[j] as number
+        indices[j] = temp
+      }
+    }
+
+    const numTwinklingStars = 300
+    for (let i = 0; i < numTwinklingStars; i++) {
+        const idx = indices[i]
+        if (idx !== undefined && props[idx]) {
+          const star = props[idx]
+          if (star) {
+            star.twinkle = true
+            star.delay = Math.random() * 20000 
+            star.duration = 5000 + Math.random() * 5000 // Chu kỳ 5s - 10s
+            star.size = 12 + Math.random() * 6
+          }
+        }
+    }
+
+    setStarProps(props)
+    setMounted(true)
+  }, [])
+
+  if (!mounted || starProps.length === 0) return null
+
+  return (
+    <div className="absolute inset-0 pointer-events-none select-none" style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, 30px)',
+      gridAutoRows: '30px',
+      padding: '4px 0 0 6px',
+      opacity: 0.4
+    }}>
+      {starProps.map((prop, i) => (
+        <div
+          key={i}
+          className={`flex items-center justify-center text-white ${prop.twinkle ? 'animate-twinkle' : ''}`}
+          style={{
+            animationDelay: prop.twinkle ? `${prop.delay}ms` : undefined,
+            animationDuration: prop.twinkle ? `${prop.duration}ms` : undefined,
+            fontSize: `${prop.size}px`,
+            opacity: prop.twinkle ? undefined : prop.opacity
+          }}
+        >
+          +
+        </div>
+      ))}
+      <style jsx global>{`
+        @keyframes twinkle {
+          0%, 35%, 65%, 100% { 
+            opacity: 0.2; 
+            transform: scale(0.9);
+            text-shadow: none;
+          }
+          45%, 55% { 
+            opacity: 1; 
+            transform: scale(1.6);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 1), 0 0 30px rgba(255, 255, 255, 0.6);
+          }
+        }
+        .animate-twinkle {
+          animation: twinkle ease-in-out infinite;
+        }
+      `}</style>
+    </div>
+  )
+}
 
 /**
  * Hero Section Component
@@ -11,12 +108,8 @@ import Img from '@/app/components/Img'
 export default function HeroSection() {
   return (
     <section className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] bg-gradient-agri overflow-hidden" aria-label="Hero Banner">
-      {/* Background pattern overlay */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0" style={{
-          backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-        }} />
-      </div>
+      {/* Background pattern overlay with Twinkling Stars */}
+      <StarField />
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-center items-center text-center">

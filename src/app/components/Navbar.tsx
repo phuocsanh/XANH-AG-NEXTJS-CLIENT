@@ -19,7 +19,6 @@ import {
 import { IoMdArrowDropdown } from "react-icons/io"
 import { useAppStore } from "@/stores"
 import Img from "./Img"
-import Block from "./Block"
 import { useState, useEffect } from "react"
 import { useCurrentUser } from "@/hooks/use-user-profile"
 
@@ -77,9 +76,11 @@ export default function Navbar() {
   }
 
   return (
-    <nav className='sticky top-0 w-full z-50 h-auto bg-white/90 backdrop-blur-xl border-b border-green-200/50 shadow-sm'>
-      <Block className='px-0'>
-        <div className='px-2 sm:px-8 py-3 flex items-center justify-between'>
+    <nav 
+      className='sticky top-0 w-full z-50 h-auto backdrop-blur-xl border-b border-emerald-700/50 shadow-md'
+      style={{background: 'linear-gradient(180deg, #059669 0%, #047857 100%)'}}
+    >
+      <div className='px-4 py-3 flex items-center justify-between'>
           <div className='flex items-center space-x-4 sm:space-x-8'>
             {/* Logo */}
             <Link
@@ -100,14 +101,14 @@ export default function Navbar() {
             <div className='hidden sm:flex items-center space-x-6'>
               <Link
                 href='/'
-                className='text-foreground hover:text-primary font-medium'
+                className='text-white hover:text-yellow-300 font-medium transition-colors'
               >
                 Trang chủ
               </Link>
               <div className='relative group'>
                 <Link
                   href='/products'
-                  className='text-foreground hover:text-primary font-medium flex items-center'
+                  className='text-white hover:text-yellow-300 font-medium flex items-center transition-colors'
                 >
                   Sản phẩm
                   <IoMdArrowDropdown className='w-5 h-5 ml-1 transition-transform duration-300 transform group-hover:rotate-180' />
@@ -137,7 +138,7 @@ export default function Navbar() {
               </div>
               <Link
                 href='/promotions'
-                className='text-foreground hover:text-primary font-medium'
+                className='text-white hover:text-yellow-300 font-medium transition-colors'
               >
                 Khuyến mãi
               </Link>
@@ -150,19 +151,19 @@ export default function Navbar() {
               </Link> */}
               <Link
                 href='/weather-forecast'
-                className='text-foreground hover:text-primary font-medium'
+                className='text-white hover:text-yellow-300 font-medium transition-colors'
               >
                 Thời tiết
               </Link>
               <Link
                 href='/lunar-calendar'
-                className='text-foreground hover:text-primary font-medium'
+                className='text-white hover:text-yellow-300 font-medium transition-colors'
               >
                 Lịch vạn niên
               </Link>
               <Link
                 href='/contact'
-                className='text-foreground hover:text-primary font-medium'
+                className='text-white hover:text-yellow-300 font-medium transition-colors'
               >
                 Liên hệ
               </Link>
@@ -173,7 +174,7 @@ export default function Navbar() {
             {/* Mobile menu button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className='sm:hidden p-1 text-foreground hover:text-primary'
+              className='sm:hidden p-1 text-white hover:text-yellow-300 transition-colors'
             >
               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -182,7 +183,7 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div className="flex items-center gap-2 cursor-pointer hover:opacity-80">
-                  <Avatar className='h-8 w-8 sm:h-10 sm:w-10 border-2 border-green-500'>
+                  <Avatar className='h-8 w-8 sm:h-10 sm:w-10 border-2 border-white'>
                     <AvatarFallback className="bg-gradient-to-br from-green-500 to-green-600 text-white font-bold">
                       {userInitial}
                     </AvatarFallback>
@@ -217,45 +218,45 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {isMobileMenuOpen && (
-          <div className='sm:hidden bg-background border-t'>
+          <div className='sm:hidden border-t border-emerald-700/30' style={{background: 'linear-gradient(180deg, #10b981 0%, #059669 100%)'}}>
             <div className='px-4 py-2 space-y-1'>
               <Link
                 href='/'
-                className='block py-2 text-foreground hover:text-primary font-medium text-sm'
+                className='block py-2 text-white hover:text-yellow-300 font-medium text-sm transition-colors'
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Trang chủ
               </Link>
               <div className='relative'>
-                <button className='w-full py-2 text-left text-foreground hover:text-primary font-medium text-sm flex items-center justify-between'>
+                <button className='w-full py-2 text-left text-white hover:text-yellow-300 font-medium text-sm flex items-center justify-between transition-colors'>
                   Sản phẩm
                   <IoMdArrowDropdown className='w-4 h-4' />
                 </button>
               </div>
               <Link
-                href='/'
-                className='block py-2 text-foreground hover:text-primary font-medium text-sm'
+                href='/promotions'
+                className='block py-2 text-white hover:text-yellow-300 font-medium text-sm transition-colors'
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Khuyến mãi
               </Link>
               <Link
                 href='/weather-forecast'
-                className='block py-2 text-foreground hover:text-primary font-medium text-sm'
+                className='block py-2 text-white hover:text-yellow-300 font-medium text-sm transition-colors'
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Thời tiết
               </Link>
               <Link
                 href='/lunar-calendar'
-                className='block py-2 text-foreground hover:text-primary font-medium text-sm'
+                className='block py-2 text-white hover:text-yellow-300 font-medium text-sm transition-colors'
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Lịch vạn niên
               </Link>
               <Link
                 href='/contact'
-                className='block py-2 text-foreground hover:text-primary font-medium text-sm'
+                className='block py-2 text-white hover:text-yellow-300 font-medium text-sm transition-colors'
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Liên hệ
@@ -263,7 +264,6 @@ export default function Navbar() {
             </div>
           </div>
         )}
-      </Block>
     </nav>
   )
 }
