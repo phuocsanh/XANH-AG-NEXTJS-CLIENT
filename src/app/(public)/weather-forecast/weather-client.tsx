@@ -426,8 +426,13 @@ export default function WeatherForecastPage() {
 
             {/* 2. Detailed Stats Column - Second on Mobile, Sidebar-left on Desktop */}
             <div className="xl:col-span-1 xl:col-start-1 order-2 xl:order-1 w-full overflow-hidden">
-              <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 shadow-xl border border-agri-100 flex flex-col gap-5 sm:gap-8 xl:sticky  w-full">
-                <h3 className="font-black text-gray-800 border-b border-gray-100 pb-3 sm:pb-4 text-base sm:text-xl tracking-tight">Chi tiết theo ngày</h3>
+              <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 shadow-xl border border-agri-100 flex flex-col gap-5 sm:gap-8 xl:sticky top-24 w-full">
+                <div className="border-b border-gray-100 pb-3 sm:pb-4">
+                  <h3 className="font-black text-gray-800 text-base sm:text-xl tracking-tight">Chi tiết theo ngày</h3>
+                  <p className="text-[10px] sm:text-xs font-bold text-agri-600 mt-1 uppercase tracking-wider">
+                    {selectedDay ? new Date(selectedDay.date).toLocaleDateString('vi', { weekday: 'long', day: 'numeric', month: 'long' }) : ''}
+                  </p>
+                </div>
                 
                 <div className="flex flex-col gap-4 sm:gap-6 w-full">
                   <div className="flex items-center gap-3 sm:gap-5 w-full">
