@@ -29,11 +29,12 @@ export default function Footer() {
           <div className="space-y-6">
             <Link href="/" className="inline-block">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white rounded-full p-2">
+                <div className="w-16 h-16 bg-white rounded-full p-1 overflow-hidden">
                   <Img
                     alt="Xanh AG Logo"
-                    src="https://cdn-icons-png.flaticon.com/128/8044/8044419.png"
+                    src="/assets/logo3.png"
                     fill
+                    classNameImg="object-contain scale-150"
                   />
                 </div>
                 <span className="text-2xl font-bold tracking-tight text-white uppercase">
