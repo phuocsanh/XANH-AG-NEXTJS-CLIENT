@@ -56,6 +56,16 @@ export default function InvoiceDetailModal({
     return map[status] || "default"
   }
 
+  const getPaymentMethodText = (method: string) => {
+    const map: Record<string, string> = {
+      cash: "Tiền mặt",
+      debt: "Công nợ",
+      transfer: "Chuyển khoản",
+      card: "Thẻ",
+    }
+    return map[method?.toLowerCase()] || method || "Tiền mặt"
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
@@ -98,7 +108,7 @@ export default function InvoiceDetailModal({
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <div className="h-4 w-4" /> {/* Spacer */}
                 <span className="font-medium text-foreground">Phương thức:</span>
-                <span className="text-foreground uppercase">{data.payment_method || 'Tiền mặt'}</span>
+                <span className="text-foreground font-medium">{getPaymentMethodText(data.payment_method)}</span>
               </div>
             </div>
           </div>

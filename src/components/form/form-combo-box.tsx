@@ -83,7 +83,7 @@ export function FormComboBox<T extends FieldValues>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("flex flex-col", className)}>
+        <FormItem className={className}>
           {label && <FormLabel>{label}</FormLabel>}
           <Popover open={open} onOpenChange={setOpen} modal={modal}>
             <PopoverTrigger asChild>
