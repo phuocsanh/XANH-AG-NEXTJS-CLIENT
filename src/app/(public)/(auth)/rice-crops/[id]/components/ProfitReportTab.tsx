@@ -24,9 +24,10 @@ import { convertCurrency } from "@/lib/utils"
 
 interface ProfitReportTabProps {
   riceCropId: number
+  amountOfLand?: number
 }
 
-export default function ProfitReportTab({ riceCropId }: ProfitReportTabProps) {
+export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: ProfitReportTabProps) {
   const { data: report, isLoading } = useProfitReport(riceCropId)
 
   if (isLoading) {
@@ -56,47 +57,55 @@ export default function ProfitReportTab({ riceCropId }: ProfitReportTabProps) {
   } = report
 
   const isProfitable = net_profit >= 0
+  const costPerLand = amountOfLand > 0 ? total_cost / amountOfLand : 0
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
-          <CardHeader className="py-4">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase flex items-center gap-2">
+          <CardHeader className="py-4 px-4">
+            <CardTitle className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-success" /> Tổng doanh thu
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{convertCurrency(total_revenue)}</div>
+          <CardContent className="px-4 pb-4">
+            <div className="text-xl font-bold">{convertCurrency(total_revenue)}</div>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="py-4">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase flex items-center gap-2">
+          <CardHeader className="py-4 px-4">
+            <CardTitle className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-2">
               <TrendingDown className="h-4 w-4 text-destructive" /> Tổng chi phí
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{convertCurrency(total_cost)}</div>
+          <CardContent className="px-4 pb-4">
+            <div className="text-xl font-bold">{convertCurrency(total_cost)}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="py-4 px-4">
+            <CardTitle className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-orange-500" /> Chi phí / Công
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
+            <div className="text-xl font-bold text-orange-600">{convertCurrency(costPerLand)}</div>
           </CardContent>
         </Card>
         <Card className={isProfitable ? "bg-green-50/50 dark:bg-green-950/20" : "bg-red-50/50 dark:bg-red-950/20"}>
-          <CardHeader className="py-4">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase flex items-center gap-2">
+          <CardHeader className="py-4 px-4">
+            <CardTitle className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-2">
               <DollarSign className="h-4 w-4" /> Lợi nhuận ròng
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${isProfitable ? "text-success" : "text-destructive"}`}>
+          <CardContent className="px-4 pb-4">
+            <div className={`text-xl font-bold ${isProfitable ? "text-success" : "text-destructive"}`}>
               {convertCurrency(net_profit)}
             </div>
             <div className="mt-1 flex items-center gap-2">
-              <Badge variant={isProfitable ? "success" : "destructive"} className="text-[10px]">
+              <Badge variant={isProfitable ? "success" : "destructive"} className="text-[9px] px-1 py-0">
                 ROI: {roi.toFixed(1)}%
               </Badge>
-              <span className="text-[10px] text-muted-foreground italic">
-                {isProfitable ? "(Tỉ suất lợi nhuận trên vốn)" : "(Tỉ lệ lỗ trên vốn)"}
-              </span>
             </div>
           </CardContent>
         </Card>

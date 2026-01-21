@@ -242,7 +242,7 @@ export default function RiceCropDetailPage() {
             </TabsContent>
 
             <TabsContent value="profit" className="p-6">
-              <ProfitReportTab riceCropId={riceCrop.id} />
+              <ProfitReportTab riceCropId={riceCrop.id} amountOfLand={Number(riceCrop.amount_of_land)} />
             </TabsContent>
           </Tabs>
         </CardContent>

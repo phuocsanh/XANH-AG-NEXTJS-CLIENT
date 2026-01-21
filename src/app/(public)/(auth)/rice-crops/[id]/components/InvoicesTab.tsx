@@ -18,7 +18,8 @@ import {
   Loader2, 
   ShoppingCart, 
   FileText,
-  AlertCircle
+  AlertCircle,
+  Eye
 } from "lucide-react"
 import dayjs from "dayjs"
 import { 
@@ -28,6 +29,7 @@ import {
 import { convertCurrency } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import CreateExternalPurchaseModal from "@/app/(public)/(auth)/rice-crops/[id]/components/CreateExternalPurchaseModal"
+import InvoiceDetailModal from "@/app/(public)/(auth)/rice-crops/[id]/components/InvoiceDetailModal"
 import type { MergedPurchase } from "@/models/rice-farming"
 
 interface InvoicesTabProps {
@@ -37,7 +39,9 @@ interface InvoicesTabProps {
 export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
   const { toast } = useToast()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<MergedPurchase | null>(null)
+  const [viewingItem, setViewingItem] = useState<MergedPurchase | null>(null)
 
   const { data: purchases, isLoading } = useMergedPurchases(riceCropId)
   const deleteMutation = useDeleteExternalPurchase()
@@ -47,6 +51,11 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
   const handleEdit = (item: MergedPurchase) => {
     setEditingItem(item)
     setIsModalOpen(true)
+  }
+
+  const handleView = (item: MergedPurchase) => {
+    setViewingItem(item)
+    setIsDetailOpen(true)
   }
 
   const handleDelete = async (id: number | string) => {
@@ -111,17 +120,20 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
           <TableHeader>
             <TableRow>
               <TableHead>Nguồn</TableHead>
-              <TableHead>Mã HĐ / Nhà CC</TableHead>
+              <TableHead>Nhà cung cấp</TableHead>
               <TableHead>Ngày</TableHead>
-              <TableHead className="text-right">Tổng cộng</TableHead>
+              <TableHead className="text-center">Sản phẩm</TableHead>
+              <TableHead className="text-right">Tổng tiền</TableHead>
+              <TableHead className="text-right">Đã trả</TableHead>
+              <TableHead className="text-right">Còn nợ</TableHead>
               <TableHead className="text-center">Trạng thái</TableHead>
               <TableHead className="text-right">Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
+             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={9} className="h-24 text-center">
                   <div className="flex items-center justify-center">
                     <Loader2 className="h-6 w-6 animate-spin mr-2" />
                     Đang tải dữ liệu...
@@ -144,13 +156,22 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col">
-                      <span className="font-medium">{item.code}</span>
-                      <span className="text-xs text-muted-foreground">{item.supplier}</span>
+                      <span className="font-medium">{item.supplier}</span>
+                      <span className="text-xs text-muted-foreground">{item.code}</span>
                     </div>
                   </TableCell>
                   <TableCell>{item.date ? dayjs(item.date).format("DD/MM/YYYY") : "-"}</TableCell>
+                  <TableCell className="text-center font-medium text-blue-600 bg-blue-50/30">
+                    {item.items?.length || 0} SP
+                  </TableCell>
                   <TableCell className="text-right font-bold">
                     {convertCurrency(item.total_amount)}
+                  </TableCell>
+                  <TableCell className="text-right text-success font-medium">
+                    {convertCurrency(item.paid_amount)}
+                  </TableCell>
+                  <TableCell className="text-right text-destructive font-bold">
+                    {convertCurrency(item.remaining_amount)}
                   </TableCell>
                   <TableCell className="text-center">
                     <Badge variant={getPaymentStatusVariant(item.status)}>
@@ -159,6 +180,16 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleView(item)}
+                        title="Xem chi tiết"
+                        className="hover:bg-primary/10 hover:text-primary"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      
                       {item.source === 'external' && (
                         <>
                           <Button
@@ -166,6 +197,7 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
                             size="icon"
                             onClick={() => handleEdit(item)}
                             title="Chỉnh sửa"
+                            className="hover:bg-sky-100 hover:text-sky-600"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -180,23 +212,13 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
                           </Button>
                         </>
                       )}
-                      {item.source === 'system' && (
-                         <Button
-                            variant="ghost"
-                            size="icon"
-                            title="Chỉ có thể xem chi tiết"
-                            disabled
-                          >
-                            <AlertCircle className="h-4 w-4 text-muted-foreground" />
-                          </Button>
-                      )}
                     </div>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground italic">
+                <TableCell colSpan={9} className="h-24 text-center text-muted-foreground italic">
                   Chưa có hóa đơn nào
                 </TableCell>
               </TableRow>
@@ -210,6 +232,12 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
         onClose={() => setIsModalOpen(false)}
         initialData={editingItem}
         riceCropId={riceCropId}
+      />
+      
+      <InvoiceDetailModal
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        data={viewingItem}
       />
     </div>
   )
