@@ -1,5 +1,10 @@
 "use client"
 
+/**
+ * Component hiển thị danh sách hóa đơn mua hàng (từ hệ thống và tự nhập)
+ * Liên quan đến vụ mùa lúa của nông dân
+ */
+
 import React, { useState } from "react"
 import {
   Table,
@@ -18,7 +23,6 @@ import {
   Loader2, 
   ShoppingCart, 
   FileText,
-  AlertCircle,
   Eye
 } from "lucide-react"
 import dayjs from "dayjs"
@@ -36,6 +40,7 @@ interface InvoicesTabProps {
   riceCropId: number
 }
 
+// Component chính hiển thị tab hóa đơn
 export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
   const { toast } = useToast()
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -48,16 +53,19 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
 
 
 
+  // Xử lý khi nhấn nút sửa hóa đơn
   const handleEdit = (item: MergedPurchase) => {
     setEditingItem(item)
     setIsModalOpen(true)
   }
 
+  // Xử lý khi nhấn nút xem chi tiết hóa đơn
   const handleView = (item: MergedPurchase) => {
     setViewingItem(item)
     setIsDetailOpen(true)
   }
 
+  // Xử lý xóa hóa đơn (chỉ áp dụng cho hóa đơn tự nhập)
   const handleDelete = async (id: number | string) => {
     if (typeof id === 'string' && id.startsWith('ext-')) {
       if (!confirm("Bạn có chắc chắn muốn xóa hóa đơn này?")) return
