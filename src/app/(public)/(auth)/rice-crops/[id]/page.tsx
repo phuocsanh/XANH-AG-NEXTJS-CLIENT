@@ -28,11 +28,13 @@ import CostItemsTab from "./components/CostItemsTab"
 import InvoicesTab from "./components/InvoicesTab"
 import HarvestRecordsTab from "./components/HarvestRecordsTab"
 import ProfitReportTab from "./components/ProfitReportTab"
+import EditRiceCropModal from "./components/EditRiceCropModal"
 
 export default function RiceCropDetailPage() {
   const params = useParams()
   const router = useRouter()
   const id = params.id ? parseInt(params.id as string, 10) : null
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false)
   
   const { data: riceCrop, isLoading } = useRiceCrop(id)
 
@@ -112,7 +114,7 @@ export default function RiceCropDetailPage() {
             </p>
           </div>
         </div>
-        <Button className="w-full sm:w-auto">
+        <Button className="w-full sm:w-auto" onClick={() => setIsEditModalOpen(true)}>
           <Edit className="h-4 w-4 mr-2" />
           Chỉnh sửa thông tin
         </Button>
@@ -249,6 +251,14 @@ export default function RiceCropDetailPage() {
           </Tabs>
         </CardContent>
       </Card>
+
+      {riceCrop && (
+        <EditRiceCropModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          riceCrop={riceCrop}
+        />
+      )}
     </div>
   )
 }
