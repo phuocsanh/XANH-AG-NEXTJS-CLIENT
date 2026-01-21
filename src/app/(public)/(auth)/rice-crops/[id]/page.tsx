@@ -121,7 +121,7 @@ export default function RiceCropDetailPage() {
       {/* Main Content with Tabs */}
       <Card>
         <CardContent className="p-0">
-          <Tabs defaultValue="info" className="w-full">
+          <Tabs defaultValue="profit" className="w-full">
             <div className="border-b px-4 overflow-x-auto">
               <TabsList className="h-12 bg-transparent gap-6 inline-flex whitespace-nowrap">
                  <TabsTrigger 
@@ -179,7 +179,7 @@ export default function RiceCropDetailPage() {
             </div>
 
             <TabsContent value="info" className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+              <div className="border rounded-xl overflow-hidden grid grid-cols-1 md:grid-cols-2 divide-y divide-x-0 md:divide-x divide-border shadow-sm bg-card">
                 <DetailItem 
                   label="Mùa vụ" 
                   value={riceCrop.season ? `${riceCrop.season.name} (${riceCrop.season.year})` : "-"} 
@@ -255,9 +255,13 @@ export default function RiceCropDetailPage() {
 
 function DetailItem({ label, value, className }: { label: string; value: React.ReactNode; className?: string }) {
   return (
-    <div className={cn("grid grid-cols-2 py-3 border-b border-muted last:border-0 md:last:border-b", className)}>
-      <span className="text-muted-foreground font-medium">{label}</span>
-      <span className="text-foreground">{value || "-"}</span>
+    <div className={cn("flex flex-col sm:flex-row min-h-[48px] items-stretch", className)}>
+      <div className="w-full sm:w-[160px] md:w-[180px] shrink-0 font-medium text-muted-foreground bg-muted/30 flex items-center px-4 py-3 sm:border-r border-border">
+        {label}
+      </div>
+      <div className="flex-1 px-4 py-3 text-foreground font-semibold flex items-center min-h-[44px]">
+        {value || "-"}
+      </div>
     </div>
   )
 }
