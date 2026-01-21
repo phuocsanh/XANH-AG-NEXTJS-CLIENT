@@ -124,6 +124,20 @@ export default function RiceCropDetailPage() {
           <Tabs defaultValue="info" className="w-full">
             <div className="border-b px-4 overflow-x-auto">
               <TabsList className="h-12 bg-transparent gap-6 inline-flex whitespace-nowrap">
+                 <TabsTrigger 
+                   value="profit" 
+                   className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-12 px-0"
+                >
+                  <span className="mr-2">📈</span>
+                  Báo cáo chi phí lợi nhuận
+                </TabsTrigger>
+                 <TabsTrigger 
+                   value="invoices" 
+                   className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-12 px-0"
+                >
+                  <span className="mr-2">🧾</span>
+                  Hóa đơn mua hàng
+                </TabsTrigger>
                 <TabsTrigger 
                    value="info" 
                    className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-12 px-0"
@@ -152,13 +166,7 @@ export default function RiceCropDetailPage() {
                   <span className="mr-2">💰</span>
                   Chi phí canh tác
                 </TabsTrigger>
-                <TabsTrigger 
-                   value="invoices" 
-                   className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-12 px-0"
-                >
-                  <span className="mr-2">🧾</span>
-                  Hóa đơn mua hàng
-                </TabsTrigger>
+               
                 <TabsTrigger 
                    value="harvest" 
                    className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-12 px-0"
@@ -166,13 +174,7 @@ export default function RiceCropDetailPage() {
                   <span className="mr-2">🌾</span>
                   Thu hoạch
                 </TabsTrigger>
-                <TabsTrigger 
-                   value="profit" 
-                   className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-12 px-0"
-                >
-                  <span className="mr-2">📈</span>
-                  Báo cáo lợi nhuận
-                </TabsTrigger>
+               
               </TabsList>
             </div>
 
