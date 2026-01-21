@@ -93,7 +93,7 @@ export default function RiceCropDetailPage() {
   }
 
   return (
-    <div className="space-y-6 mt-6">
+    <div className="container mx-auto px-4 space-y-6 mt-6 pb-10">
       {/* Header & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
