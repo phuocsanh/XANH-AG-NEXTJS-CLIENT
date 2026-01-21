@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Leaf, Search, ChevronDown } from 'lucide-react'
+import { Leaf, Search, ChevronDown, Loader2 } from 'lucide-react'
 import ProductDetailModal from '../components/ProductDetailModal'
 import { Skeleton } from '@/components/ui/skeleton'
 import Img from '@/app/components/Img'
@@ -56,11 +56,12 @@ export default function ProductsClient() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   
   // State để track số sản phẩm hiển thị cho mỗi type
-  const [visibleCounts, setVisibleCounts] = useState<Record<number, number>>({})
+  const [paginationInfo, setPaginationInfo] = useState<Record<number, { total: number, page: number }>>({})
+  const [loadingMore, setLoadingMore] = useState<Record<number, boolean>>({})
 
-  // Fetch all product types and their products
+  // Fetch all product types and their products (Page 1)
   useEffect(() => {
-    async function fetchAllProducts() {
+    async function fetchInitialProducts() {
       try {
         // 1. Fetch product types
         const typesResponse = await fetch('/api/product-types')
@@ -71,29 +72,33 @@ export default function ProductsClient() {
         if (typesData.success && typesData.data) {
           const types: ProductType[] = typesData.data
           
-          // 2. Fetch products for each type
+          // 2. Fetch products for each type (Chỉ lấy trang 1)
           const productsPromises = types.map(async (type) => {
-            const productsResponse = await fetch(`/api/products/by-type/${type.id}`)
-            if (!productsResponse.ok) return { type, products: [] }
+            const productsResponse = await fetch(`/api/products/by-type/${type.id}?page=1&limit=${PRODUCTS_PER_PAGE}`)
+            if (!productsResponse.ok) return { type, products: [], pagination: { total: 0, page: 1 } }
             
             const productsData = await productsResponse.json()
             return {
               type,
-              products: productsData.success && productsData.data ? productsData.data : []
+              products: productsData.success && productsData.data ? productsData.data : [],
+              pagination: productsData.pagination || { total: 0, page: 1 }
             }
           })
           
           const results = await Promise.all(productsPromises)
           // Chỉ hiển thị các type có sản phẩm
           const filteredResults = results.filter(r => r.products.length > 0)
-          setProductsByType(filteredResults)
+          setProductsByType(filteredResults.map(r => ({ type: r.type, products: r.products })))
           
-          // Initialize visible counts
-          const initialCounts: Record<number, number> = {}
+          // Initialize pagination info
+          const initialPagination: Record<number, { total: number, page: number }> = {}
           filteredResults.forEach(r => {
-            initialCounts[r.type.id] = PRODUCTS_PER_PAGE
+            initialPagination[r.type.id] = { 
+              total: r.pagination.total || r.products.length, 
+              page: 1 
+            }
           })
-          setVisibleCounts(initialCounts)
+          setPaginationInfo(initialPagination)
         }
       } catch (error) {
         console.error('Error fetching products:', error)
@@ -102,7 +107,7 @@ export default function ProductsClient() {
       }
     }
 
-    fetchAllProducts()
+    fetchInitialProducts()
   }, [])
 
   // Filter products by search query
@@ -110,16 +115,70 @@ export default function ProductsClient() {
     ...group,
     products: group.products.filter(product =>
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.code.toLowerCase().includes(searchQuery.toLowerCase())
+      product.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (product.trade_name || '').toLowerCase().includes(searchQuery.toLowerCase())
     )
   })).filter(group => group.products.length > 0)
 
-  // Handle show more for a specific type
-  const handleShowMore = (typeId: number) => {
-    setVisibleCounts(prev => ({
-      ...prev,
-      [typeId]: (prev[typeId] || PRODUCTS_PER_PAGE) + PRODUCTS_PER_PAGE
-    }))
+  // Handle show more for a specific type - Fetching next page from API
+  const handleShowMore = async (typeId: number) => {
+    if (loadingMore[typeId]) return
+
+    const currentInfo = paginationInfo[typeId]
+    if (!currentInfo) return
+
+    const nextPage = currentInfo.page + 1
+    
+    setLoadingMore(prev => ({ ...prev, [typeId]: true }))
+    
+    try {
+      const response = await fetch(`/api/products/by-type/${typeId}?page=${nextPage}&limit=${PRODUCTS_PER_PAGE}`)
+      if (!response.ok) throw new Error('Failed to fetch more products')
+      
+      const data = await response.json()
+      
+      if (data.success && data.data && data.data.length > 0) {
+        // Cập nhật danh sách sản phẩm cho type này
+        setProductsByType(prev => prev.map(group => {
+          if (group.type.id === typeId) {
+            return {
+              ...group,
+              products: [...group.products, ...data.data]
+            }
+          }
+          return group
+        }))
+        
+        // Cập nhật pagination info
+        setPaginationInfo(prev => {
+          const updated = { ...prev }
+          if (updated[typeId]) {
+            updated[typeId] = {
+              ...updated[typeId],
+              page: nextPage
+            }
+          }
+          return updated
+        })
+      } else {
+        // Nếu không có thêm sản phẩm, có thể cập nhật để không hiển thị nút xem thêm nữa
+        // bằng cách set total bằng số lượng hiện có
+        setPaginationInfo(prev => {
+          const updated = { ...prev }
+          if (updated[typeId]) {
+            updated[typeId] = {
+              ...updated[typeId],
+              total: productsByType.find(g => g.type.id === typeId)?.products.length || 0
+            }
+          }
+          return updated
+        })
+      }
+    } catch (error) {
+      console.error('Error loading more products:', error)
+    } finally {
+      setLoadingMore(prev => ({ ...prev, [typeId]: false }))
+    }
   }
 
   if (loading) {
@@ -206,10 +265,10 @@ export default function ProductsClient() {
           </div>
         ) : (
           <div className="space-y-16">
-            {filteredProductsByType.map((group) => {
-              const visibleCount = visibleCounts[group.type.id] || PRODUCTS_PER_PAGE
-              const displayedProducts = group.products.slice(0, visibleCount)
-              const hasMore = visibleCount < group.products.length
+            {filteredProductsByType.map((group: any) => {
+              const info = paginationInfo[group.type.id]
+              const hasMore = info ? group.products.length < info.total : false
+              const isLoadingMore = loadingMore[group.type.id]
 
               return (
                 <div key={group.type.id} className="scroll-mt-20" id={`type-${group.type.id}`}>
@@ -223,14 +282,14 @@ export default function ProductsClient() {
                         <div className="h-1 w-20 bg-accent-gold rounded-full" />
                       </div>
                       <span className="text-sm text-gray-500">
-                        {group.products.length} sản phẩm
+                        {info?.total || group.products.length} sản phẩm
                       </span>
                     </div>
                   </div>
 
                   {/* Products Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-                    {displayedProducts.map((product) => (
+                    {group.products.map((product: any) => (
                       <button
                         key={product.id}
                         onClick={() => {
@@ -301,10 +360,20 @@ export default function ProductsClient() {
                     <div className="flex justify-center mt-8">
                       <button
                         onClick={() => handleShowMore(group.type.id)}
-                        className="flex items-center gap-2 bg-white hover:bg-agri-50 text-agri-700 px-6 py-3 rounded-lg font-semibold border-2 border-agri-500 transition-all transform hover:scale-105 shadow-md"
+                        disabled={isLoadingMore}
+                        className="flex items-center gap-2 bg-white hover:bg-agri-50 text-agri-700 px-6 py-3 rounded-lg font-semibold border-2 border-agri-500 transition-all transform hover:scale-105 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <span>Xem thêm ({group.products.length - visibleCount} sản phẩm)</span>
-                        <ChevronDown className="w-5 h-5" />
+                        {isLoadingMore ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <span>Đang tải...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Xem thêm ({info ? info.total - group.products.length : 0} sản phẩm)</span>
+                            <ChevronDown className="w-5 h-5" />
+                          </>
+                        )}
                       </button>
                     </div>
                   )}

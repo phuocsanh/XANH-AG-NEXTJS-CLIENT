@@ -15,18 +15,31 @@ export async function GET(
     // Next.js 15 requires awaiting params
     const { typeId } = await params
     
-    console.log(`[API] Fetching products for type: ${typeId}`)
+    // Lấy page và limit từ query parameters
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const keyword = searchParams.get('keyword') || ''
+    
+    console.log(`[API] Fetching products for type: ${typeId}, page: ${page}, limit: ${limit}`)
 
-    // Gọi backend để lấy products theo type
-    const url = `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/products/type/${typeId}`
-    console.log(`[API] Calling backend: ${url}`)
+    // Sử dụng endpoint /products/search của backend vì nó hỗ trợ phân trang tốt hơn
+    const url = `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/products/search`
+    console.log(`[API] Calling backend search: ${url}`)
     
     const response = await fetch(url, {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      cache: 'no-store', // Không cache để luôn lấy data mới
+      body: JSON.stringify({
+        type_id: parseInt(typeId),
+        page,
+        limit,
+        keyword: keyword || undefined,
+        status: 'active' // Chỉ lấy sản phẩm đang hoạt động
+      }),
+      cache: 'no-store',
     })
 
     console.log(`[API] Backend response status: ${response.status}`)
@@ -34,22 +47,18 @@ export async function GET(
     if (!response.ok) {
       const errorText = await response.text()
       console.error(`[API] Failed to fetch products for type ${typeId}:`, response.status, response.statusText)
-      console.error(`[API] Error response:`, errorText)
       return NextResponse.json(
         { 
           success: false,
           error: 'Failed to fetch products', 
-          details: errorText,
-          status: response.status 
+          details: errorText
         },
         { status: response.status }
       )
     }
 
     const data = await response.json()
-    console.log(`[API] Backend response data:`, JSON.stringify(data).substring(0, 200))
-    
-    // Backend trả về { success, data, meta }
+    // Trả về dữ liệu bao gồm cả pagination info nếu có
     return NextResponse.json(data)
   } catch (error) {
     console.error('[API] Error fetching products:', error)
