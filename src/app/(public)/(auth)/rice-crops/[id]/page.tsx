@@ -180,8 +180,8 @@ export default function RiceCropDetailPage() {
               </TabsList>
             </div>
 
-            <TabsContent value="info" className="p-6">
-              <div className="border rounded-xl overflow-hidden grid grid-cols-1 md:grid-cols-2 divide-y divide-x-0 md:divide-x divide-border shadow-sm bg-card">
+            <TabsContent value="info" className="p-3 sm:p-6">
+              <div className="border rounded-xl font-medium overflow-hidden grid grid-cols-1 md:grid-cols-2 divide-y divide-x-0 md:divide-x divide-border shadow-sm bg-card text-sm">
                 <DetailItem 
                   label="Mùa vụ" 
                   value={riceCrop.season ? `${riceCrop.season.name} (${riceCrop.season.year})` : "-"} 
@@ -225,27 +225,27 @@ export default function RiceCropDetailPage() {
               </div>
             </TabsContent>
 
-            <TabsContent value="schedule" className="p-6">
+            <TabsContent value="schedule" className="p-3 sm:p-6">
               <FarmingSchedulesTab riceCropId={riceCrop.id} />
             </TabsContent>
             
-            <TabsContent value="tracking" className="p-6">
+            <TabsContent value="tracking" className="p-3 sm:p-6">
               <GrowthTrackingTab riceCropId={riceCrop.id} />
             </TabsContent>
 
-            <TabsContent value="costs" className="p-6">
+            <TabsContent value="costs" className="p-3 sm:p-6">
               <CostItemsTab riceCropId={riceCrop.id} />
             </TabsContent>
 
-            <TabsContent value="invoices" className="p-6">
+            <TabsContent value="invoices" className="p-3 sm:p-6">
               <InvoicesTab riceCropId={riceCrop.id} />
             </TabsContent>
 
-            <TabsContent value="harvest" className="p-6">
+            <TabsContent value="harvest" className="p-3 sm:p-6">
               <HarvestRecordsTab riceCropId={riceCrop.id} />
             </TabsContent>
 
-            <TabsContent value="profit" className="p-6">
+            <TabsContent value="profit" className="p-3 sm:p-6">
               <ProfitReportTab riceCropId={riceCrop.id} amountOfLand={Number(riceCrop.amount_of_land)} />
             </TabsContent>
           </Tabs>

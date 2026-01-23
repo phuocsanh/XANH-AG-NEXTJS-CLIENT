@@ -69,18 +69,20 @@ export default function InvoiceDetailModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <span>Chi tiết hóa đơn {data.code}</span>
-            {data.source === 'external' ? (
-              <Badge variant="outline" className="gap-1">
-                <FileText className="h-3 w-3" /> Tự nhập
-              </Badge>
-            ) : (
-              <Badge variant="secondary" className="gap-1 bg-blue-100 text-blue-700">
-                <ShoppingCart className="h-3 w-3" /> Hệ thống
-              </Badge>
-            )}
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="flex flex-col sm:flex-row sm:items-center gap-2 text-lg sm:text-xl">
+            <span className="truncate pr-8 sm:pr-0">Chi tiết hóa đơn {data.code}</span>
+            <div className="flex items-center gap-2">
+              {data.source === 'external' ? (
+                <Badge variant="outline" className="gap-1 font-normal">
+                  <FileText className="h-3 w-3" /> Tự nhập
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="gap-1 bg-blue-50 text-blue-600 border-blue-100 font-normal">
+                  <ShoppingCart className="h-3 w-3" /> Hệ thống
+                </Badge>
+              )}
+            </div>
           </DialogTitle>
         </DialogHeader>
 
@@ -116,41 +118,41 @@ export default function InvoiceDetailModal({
           {/* Danh sách sản phẩm */}
           <div className="space-y-3">
             <h3 className="font-semibold text-base px-1">Danh sách sản phẩm</h3>
-            <div className="border rounded-md overflow-hidden">
-              <Table>
+            <div className="border rounded-md overflow-x-auto">
+              <Table className="min-w-[500px] sm:min-w-full">
                 <TableHeader className="bg-muted/50">
                   <TableRow>
-                    <TableHead className="w-[50px] text-center">STT</TableHead>
-                    <TableHead>Tên sản phẩm</TableHead>
-                    <TableHead className="text-center">Số lượng</TableHead>
-                    <TableHead className="text-right">Đơn giá</TableHead>
-                    <TableHead className="text-right">Thành tiền</TableHead>
+                    <TableHead className="w-[40px] px-2 text-center">STT</TableHead>
+                    <TableHead className="px-2">Tên sản phẩm</TableHead>
+                    <TableHead className="px-2 text-center">SL</TableHead>
+                    <TableHead className="px-2 text-right">Đơn giá</TableHead>
+                    <TableHead className="px-2 text-right">Thành tiền</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {data.items && data.items.length > 0 ? (
                     data.items.map((item, index) => (
                       <TableRow key={index}>
-                        <TableCell className="text-center text-muted-foreground">{index + 1}</TableCell>
-                        <TableCell>
-                          <div className="font-medium">
+                        <TableCell className="px-2 text-center text-muted-foreground text-xs">{index + 1}</TableCell>
+                        <TableCell className="px-2 py-3">
+                          <div className="font-medium text-sm leading-tight">
                             {data.source === 'system' 
                               ? (item.product?.trade_name || item.product?.name || 'Sản phẩm hệ thống') 
                               : (item.product_name || 'Sản phẩm')}
                           </div>
                           {data.source === 'system' && item.product?.name && item.product?.name !== item.product?.trade_name && (
-                            <div className="text-[10px] text-muted-foreground italic">
+                            <div className="text-[10px] text-muted-foreground italic leading-tight mt-0.5">
                               {item.product.name}
                             </div>
                           )}
                         </TableCell>
-                        <TableCell className="text-center">
+                        <TableCell className="px-2 text-center text-sm whitespace-nowrap">
                           {item.quantity} {item.unit || item.product?.unit_name || ''}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="px-2 text-right text-sm whitespace-nowrap">
                           {convertCurrency(Number(item.unit_price || item.price || 0))}
                         </TableCell>
-                        <TableCell className="text-right font-medium">
+                        <TableCell className="px-2 text-right font-medium text-sm whitespace-nowrap">
                           {convertCurrency(Number(item.total_price || (item.quantity * (item.price || 0))))}
                         </TableCell>
                       </TableRow>

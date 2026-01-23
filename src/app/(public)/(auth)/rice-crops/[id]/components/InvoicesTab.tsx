@@ -92,97 +92,97 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="py-4">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase">Tổng tiền hàng</CardTitle>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <Card className="shadow-sm">
+          <CardHeader className="py-3 px-4">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tổng tiền hàng</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{convertCurrency(totalAmount)}</div>
+          <CardContent className="px-4 pb-4">
+            <div className="text-xl sm:text-2xl font-bold">{convertCurrency(totalAmount)}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="py-4">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase">Đã thanh toán</CardTitle>
+        <Card className="shadow-sm">
+          <CardHeader className="py-3 px-4">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Đã thanh toán</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">{convertCurrency(totalPaid)}</div>
+          <CardContent className="px-4 pb-4">
+            <div className="text-xl sm:text-2xl font-bold text-success">{convertCurrency(totalPaid)}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="py-4">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase">Còn nợ</CardTitle>
+        <Card className="shadow-sm">
+          <CardHeader className="py-3 px-4">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Còn nợ</CardTitle>
           </CardHeader>
-          <CardContent className="flex justify-between items-center">
-            <div className="text-2xl font-bold text-destructive">{convertCurrency(totalRemaining)}</div>
-            {/* <Button size="sm" onClick={handleAdd}>
-              <Plus className="h-4 w-4 mr-2" />
-              Tự nhập HĐ
-            </Button> */}
+          <CardContent className="px-4 pb-4 flex justify-between items-center gap-1">
+            <div className="text-xl sm:text-2xl font-bold text-destructive">{convertCurrency(totalRemaining)}</div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="border rounded-md overflow-x-auto">
-        <Table>
-          <TableHeader>
+      <div className="border rounded-lg overflow-x-auto shadow-sm">
+        <Table className="min-w-max md:w-full">
+          <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead>Nguồn</TableHead>
-              <TableHead>Nhà cung cấp</TableHead>
-              <TableHead>Ngày</TableHead>
-              <TableHead className="text-center">Sản phẩm</TableHead>
-              <TableHead className="text-right">Tổng tiền</TableHead>
-              <TableHead className="text-right">Đã trả</TableHead>
-              <TableHead className="text-right">Còn nợ</TableHead>
-              <TableHead className="text-center">Trạng thái</TableHead>
-              <TableHead className="text-right">Hành động</TableHead>
+              <TableHead className="px-3 py-3 text-xs uppercase font-bold">Nguồn</TableHead>
+              <TableHead className="px-3 py-3 text-xs uppercase font-bold text-left">Nhà cung cấp</TableHead>
+              <TableHead className="px-3 py-3 text-xs uppercase font-bold text-left">Ngày</TableHead>
+              <TableHead className="px-3 py-3 text-xs uppercase font-bold text-center">Sản phẩm</TableHead>
+              <TableHead className="px-3 py-3 text-xs uppercase font-bold text-right">Tổng tiền</TableHead>
+              <TableHead className="px-3 py-3 text-xs uppercase font-bold text-right">Đã trả</TableHead>
+              <TableHead className="px-3 py-3 text-xs uppercase font-bold text-right">Còn nợ</TableHead>
+              <TableHead className="px-3 py-3 text-xs uppercase font-bold text-center">Trạng thái</TableHead>
+              <TableHead className="px-3 py-3 text-xs uppercase font-bold text-right">Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
              {isLoading ? (
               <TableRow>
-                <TableCell colSpan={9} className="h-24 text-center">
-                  <div className="flex items-center justify-center">
-                    <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                    Đang tải dữ liệu...
+                <TableCell colSpan={9} className="h-32 text-center">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <span className="text-sm font-medium text-muted-foreground">Đang tải dữ liệu...</span>
                   </div>
                 </TableCell>
               </TableRow>
             ) : purchases && purchases.length > 0 ? (
               purchases.map((item) => (
-                <TableRow key={item.id.toString()}>
-                  <TableCell>
+                <TableRow key={item.id.toString()} className="hover:bg-muted/30">
+                  <TableCell className="px-3 py-4">
                     {item.source === 'external' ? (
-                      <Badge variant="outline" className="gap-1">
-                        <FileText className="h-3 w-3" /> Tự nhập
+                      <Badge variant="outline" className="gap-1 font-normal text-[10px] py-0 h-5">
+                        <FileText className="h-2.5 w-2.5" /> Tự nhập
                       </Badge>
                     ) : (
-                      <Badge variant="secondary" className="gap-1 bg-blue-100 text-blue-700">
-                        <ShoppingCart className="h-3 w-3" /> Hệ thống
+                      <Badge variant="secondary" className="gap-1 bg-blue-50 text-blue-600 border-blue-100 font-normal text-[10px] py-0 h-5">
+                        <ShoppingCart className="h-2.5 w-2.5" /> Hệ thống
                       </Badge>
                     )}
                   </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{item.supplier}</span>
-                      <span className="text-xs text-muted-foreground">{item.code}</span>
+                  <TableCell className="px-3 py-4 text-left">
+                    <div className="flex flex-col min-w-[120px]">
+                      <span className="font-semibold text-sm">{item.supplier}</span>
+                      <span className="text-[10px] text-muted-foreground leading-tight tracking-tight mt-0.5">{item.code}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{item.date ? dayjs(item.date).format("DD/MM/YYYY") : "-"}</TableCell>
-                  <TableCell className="text-center font-medium text-blue-600 bg-blue-50/30">
-                    {item.items?.length || 0} SP
+                  <TableCell className="px-3 py-4 text-left whitespace-nowrap text-sm">
+                    {item.date ? dayjs(item.date).format("DD/MM/YYYY") : "-"}
                   </TableCell>
-                  <TableCell className="text-right font-bold">
+                  <TableCell className="px-3 py-4 text-center">
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                      {item.items?.length || 0} SP
+                    </span>
+                  </TableCell>
+                  <TableCell className="px-3 py-4 text-right font-bold text-sm whitespace-nowrap">
                     {convertCurrency(item.total_amount)}
                   </TableCell>
-                  <TableCell className="text-right text-success font-medium">
+                  <TableCell className="px-3 py-4 text-right text-success font-semibold text-sm whitespace-nowrap">
                     {convertCurrency(item.paid_amount)}
                   </TableCell>
-                  <TableCell className="text-right text-destructive font-bold">
+                  <TableCell className="px-3 py-4 text-right text-destructive font-bold text-sm whitespace-nowrap">
                     {convertCurrency(item.remaining_amount)}
                   </TableCell>
-                  <TableCell className="text-center">
-                    <Badge variant={getPaymentStatusVariant(item.status)}>
+                  <TableCell className="px-3 py-4 text-center">
+                    <Badge variant={getPaymentStatusVariant(item.status)} className="font-medium text-[10px] py-0.5 whitespace-nowrap">
                       {getPaymentStatusText(item.status)}
                     </Badge>
                   </TableCell>
