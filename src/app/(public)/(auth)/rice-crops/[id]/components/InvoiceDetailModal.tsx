@@ -68,66 +68,72 @@ export default function InvoiceDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-[700px] max-h-[95vh] overflow-y-auto p-4 sm:p-6">
-        <DialogHeader className="space-y-3 pr-6">
-          <DialogTitle className="flex flex-col gap-1.5 text-lg sm:text-xl">
-            <span className="break-all leading-snug">Chi tiết hóa đơn {data.code}</span>
-            <div className="flex items-center gap-2 mt-1">
-              {data.source === 'external' ? (
-                <Badge variant="outline" className="gap-1 font-normal py-0">
-                  <FileText className="h-3 w-3" /> Tự nhập
-                </Badge>
-              ) : (
-                <Badge variant="secondary" className="gap-1 bg-blue-50 text-blue-600 border-blue-100 font-normal py-0">
-                  <ShoppingCart className="h-3 w-3" /> Hệ thống
-                </Badge>
-              )}
-            </div>
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="w-[95vw] max-w-[700px] max-h-[96vh] p-0 flex flex-col gap-0 border shadow-2xl overflow-hidden translate-x-[-50%] translate-y-[-50%]">
+        {/* Header cố định */}
+        <div className="p-4 sm:p-6 pb-2 sm:pb-3 border-b bg-card w-full">
+          <DialogHeader className="pr-10 w-full overflow-hidden">
+            <DialogTitle className="text-left w-full">
+              <div className="text-base sm:text-xl font-bold break-all leading-tight mb-2 w-full max-w-full overflow-hidden">
+                Chi tiết hóa đơn {data.code}
+              </div>
+              <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                {data.source === 'external' ? (
+                  <Badge variant="outline" className="gap-1 font-normal bg-background text-[10px] py-0">
+                    <FileText className="h-3 w-3" /> Tự nhập
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="gap-1 bg-blue-50 text-blue-600 border-blue-100 font-normal text-[10px] py-0">
+                    <ShoppingCart className="h-3 w-3" /> Hệ thống
+                  </Badge>
+                )}
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+        </div>
 
-        <div className="py-2 sm:py-4 space-y-5 sm:space-y-6">
+        <div className="flex-1 min-w-0 w-full overflow-y-auto overflow-x-hidden p-3 sm:p-6 space-y-4 sm:space-y-6">
           {/* Thông tin chung */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 bg-muted/30 p-3 sm:p-4 rounded-lg border">
-            <div className="space-y-2 sm:space-y-3">
-              <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                <Store className="h-4 w-4 mt-0.5 shrink-0" />
-                <div className="flex flex-col sm:flex-row sm:gap-2">
-                  <span className="font-medium text-foreground whitespace-nowrap">Nhà cung cấp:</span>
-                  <span className="text-foreground break-words">{data.supplier}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-6 bg-muted/20 p-3 sm:p-4 rounded-xl border w-full">
+            <div className="space-y-3 min-w-0">
+              <div className="flex items-start gap-3 text-sm">
+                <Store className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
+                <div className="min-w-0 flex-1">
+                  <span className="block font-medium text-muted-foreground text-[10px] uppercase mb-0.5">Nhà cung cấp</span>
+                  <span className="text-foreground font-semibold break-words block text-sm">{data.supplier}</span>
                 </div>
               </div>
-              <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4 mt-0.5 shrink-0" />
-                <div className="flex flex-col sm:flex-row sm:gap-2">
-                  <span className="font-medium text-foreground whitespace-nowrap">Ngày mua:</span>
-                  <span className="text-foreground">{dayjs(data.date).format("DD/MM/YYYY HH:mm")}</span>
+              <div className="flex items-start gap-3 text-sm">
+                <Calendar className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
+                <div className="min-w-0 flex-1">
+                  <span className="block font-medium text-muted-foreground text-[10px] uppercase mb-0.5">Ngày mua</span>
+                  <span className="text-foreground font-semibold block text-sm">{dayjs(data.date).format("DD/MM/YYYY HH:mm")}</span>
                 </div>
               </div>
             </div>
-            <div className="space-y-2 sm:space-y-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CreditCard className="h-4 w-4 shrink-0" />
-                <span className="font-medium text-foreground whitespace-nowrap">Trạng thái:</span>
-                <Badge variant={getStatusVariant(data.status)} className="px-2 py-0 h-5 text-[10px] sm:text-xs">
-                  {getStatusText(data.status)}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground pl-6">
-                <span className="font-medium text-foreground whitespace-nowrap">Phương thức:</span>
-                <span className="text-foreground font-semibold">{getPaymentMethodText(data.payment_method)}</span>
+            <div className="space-y-3 min-w-0">
+              <div className="flex items-start gap-3 text-sm">
+                <CreditCard className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
+                <div className="min-w-0 flex-1">
+                  <span className="block font-medium text-muted-foreground text-[10px] uppercase mb-0.5">Trạng thái & Thanh toán</span>
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
+                    <Badge variant={getStatusVariant(data.status)} className="px-1.5 py-0 h-4.5 text-[9px] font-bold">
+                      {getStatusText(data.status)}
+                    </Badge>
+                    <span className="text-foreground font-bold text-sm">{getPaymentMethodText(data.payment_method)}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Danh sách sản phẩm */}
-          <div className="space-y-3">
+          <div className="space-y-3 w-full">
             <h3 className="font-semibold text-base px-1">Danh sách sản phẩm</h3>
-            <div className="border rounded-md overflow-x-auto bg-card">
-              <Table className="min-w-[450px] sm:min-w-full">
+            <div className="w-full overflow-x-auto border rounded-lg bg-card shadow-inner">
+              <Table className="min-w-[400px] sm:min-w-full">
                 <TableHeader className="bg-muted/50">
                   <TableRow>
-                    <TableHead className="w-[35px] px-1 text-center">#</TableHead>
+                    <TableHead className="w-[30px] px-1 text-center text-[10px] uppercase font-bold">#</TableHead>
                     <TableHead className="px-2">Sản phẩm</TableHead>
                     <TableHead className="px-1 text-center">SL</TableHead>
                     <TableHead className="px-2 text-right">Giá</TableHead>
