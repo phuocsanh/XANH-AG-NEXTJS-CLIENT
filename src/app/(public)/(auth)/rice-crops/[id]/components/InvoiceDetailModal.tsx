@@ -206,8 +206,8 @@ export default function InvoiceDetailModal({
           )}
         </div>
 
-        <DialogFooter className="mt-4">
-          <Button type="button" onClick={onClose} className="w-full sm:w-auto">
+        <DialogFooter className="p-4 sm:p-6 pt-0 sm:pt-0">
+          <Button type="button" onClick={onClose} className="w-full sm:w-auto shadow-sm">
             Đóng
           </Button>
         </DialogFooter>
