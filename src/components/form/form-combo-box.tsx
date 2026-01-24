@@ -30,6 +30,7 @@ export interface ComboBoxOption {
   value: string | number
   label: string
   disabled?: boolean
+  subLabel?: string
   [key: string]: any
 }
 
@@ -51,8 +52,7 @@ interface FormComboBoxProps<T extends FieldValues> {
 }
 
 /**
- * Component FormComboBox Cao Cấp
- * Tích hợp tìm kiếm, async loading, và giao diện đẹp mắt đồng bộ với bản Admin.
+ * Component FormComboBox - Sửa lỗi không chọn được item khi đặt trong Dialog
  */
 export function FormComboBox<T extends FieldValues>({
   control,
@@ -65,7 +65,7 @@ export function FormComboBox<T extends FieldValues>({
   onSearch,
   disabled,
   className,
-  modal = false,
+  modal = true, // Mặc định là true để hoạt động tốt trong Dialog
   emptyText = "Không tìm thấy kết quả.",
   required,
   rules,
@@ -75,7 +75,6 @@ export function FormComboBox<T extends FieldValues>({
 
   const finalOptions = data || options
 
-  // Debounce search
   React.useEffect(() => {
     if (onSearch) {
       const timer = setTimeout(() => {
@@ -106,7 +105,7 @@ export function FormComboBox<T extends FieldValues>({
                   aria-expanded={open}
                   disabled={disabled}
                   className={cn(
-                    "w-full h-10 justify-between font-normal border-agri-200 focus:ring-agri-500 transition-all",
+                    "w-full h-10 justify-between font-normal border-agri-200 focus:ring-agri-500 transition-all text-left px-3",
                     !field.value && "text-muted-foreground"
                   )}
                 >
@@ -122,8 +121,10 @@ export function FormComboBox<T extends FieldValues>({
               </FormControl>
             </PopoverTrigger>
             <PopoverContent 
-              className="w-[--radix-popover-trigger-width] p-0 bg-white shadow-xl border-agri-100 overflow-hidden"
+              className="w-[--radix-popover-trigger-width] p-0 bg-white shadow-xl border-agri-100 overflow-hidden z-[150]"
               align="start"
+              onPointerDownOutside={(e) => e.preventDefault()}
+              onFocusOutside={(e) => e.preventDefault()}
             >
               <Command shouldFilter={!onSearch}>
                 <CommandInput 
@@ -152,6 +153,7 @@ export function FormComboBox<T extends FieldValues>({
                             onSelect={() => {
                               field.onChange(option.value)
                               setOpen(false)
+                              setSearchQuery("")
                             }}
                             className="py-2.5 px-3 aria-selected:bg-agri-50 aria-selected:text-agri-700 cursor-pointer transition-colors"
                           >

@@ -25,9 +25,7 @@ interface DatePickerProps {
 }
 
 /**
- * Component DatePicker - Phiên bản Tiếng Việt
- * Đã sửa lỗi không chọn được ngày bằng cách sử dụng Date object chuẩn 
- * và xử lý sự kiện onSelect chính xác hơn.
+ * Component DatePicker - Sửa lỗi triệt để việc không chọn được ngày trong Dialog
  */
 export function DatePicker({
   value,
@@ -40,7 +38,6 @@ export function DatePicker({
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
   
-  // Chuyển đổi value sang Date object một cách an toàn
   const dateValue = React.useMemo(() => {
     if (!value) return undefined
     const d = dayjs(value)
@@ -49,7 +46,6 @@ export function DatePicker({
 
   const handleSelect = (date: Date | undefined) => {
     if (onChange) {
-      // Luôn trả về định dạng YYYY-MM-DD để đồng bộ với backend/schema
       const formattedDate = date ? dayjs(date).format("YYYY-MM-DD") : ""
       onChange(formattedDate)
     }
@@ -57,7 +53,7 @@ export function DatePicker({
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
@@ -67,7 +63,7 @@ export function DatePicker({
             className
           )}
           disabled={disabled}
-          type="button" // Đảm bảo không submit form khi nhấn
+          type="button"
         >
           <CalendarIcon className="mr-2 h-4 w-4 text-agri-600" />
           {dateValue ? (
@@ -78,9 +74,11 @@ export function DatePicker({
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-auto p-0 bg-white shadow-xl z-[100]" 
+        className="w-auto p-0 bg-white shadow-2xl z-[150]" 
         align="start"
-        onFocusOutside={(e) => e.preventDefault()} // Ngăn chặn xung đột focus với Dialog
+        // Sửa lỗi focus & click event trong Radix Dialog
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onFocusOutside={(e) => e.preventDefault()}
       >
         <Calendar
           mode="single"

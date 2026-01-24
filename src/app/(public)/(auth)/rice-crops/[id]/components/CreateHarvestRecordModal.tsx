@@ -48,10 +48,13 @@ export default function CreateHarvestRecordModal({
       quality_grade: "",
       buyer: "",
       notes: "",
-      total_revenue: 0
+      total_revenue: 0,
+      yield_amount: 0,
+      selling_price_per_unit: 0
     },
   })
 
+  // Watch các giá trị để tính thành tiền tự động
   const yieldAmount = form.watch("yield_amount")
   const price = form.watch("selling_price_per_unit")
   const unit = form.watch("yield_unit")
@@ -115,7 +118,7 @@ export default function CreateHarvestRecordModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>{initialData ? "Sửa đợt thu hoạch" : "Thêm đợt thu hoạch mới"}</DialogTitle>
         </DialogHeader>
@@ -138,29 +141,26 @@ export default function CreateHarvestRecordModal({
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex gap-2 items-start">
-                <FormNumberInput
-                  control={form.control}
-                  name="yield_amount"
-                  label="Sản lượng"
-                  className="flex-1"
-                  placeholder="0"
-                  decimalScale={3}
-                  required
-                />
-                <FormComboBox
-                  control={form.control}
-                  name="yield_unit"
-                  label="Đơn vị"
-                  className="w-24"
-                  options={[
-                    { value: "tan", label: "Tấn" },
-                    { value: "kg", label: "kg" }
-                  ]}
-                  required
-                />
-              </div>
+            {/* Layout 3 cột cho Sản lượng, Đơn vị, Giá bán */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormNumberInput
+                control={form.control}
+                name="yield_amount"
+                label="Sản lượng"
+                placeholder="0"
+                decimalScale={3}
+                required
+              />
+              <FormComboBox
+                control={form.control}
+                name="yield_unit"
+                label="Đơn vị"
+                options={[
+                  { value: "tan", label: "Tấn" },
+                  { value: "kg", label: "kg" }
+                ]}
+                required
+              />
               <FormNumberInput
                 control={form.control}
                 name="selling_price_per_unit"
@@ -173,8 +173,8 @@ export default function CreateHarvestRecordModal({
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-agri-800">Thành tiền (Dự kiến)</label>
-              <div className="bg-agri-50 border border-agri-100 p-3 rounded-lg text-xl font-bold text-agri-700 text-center">
+              <label className="text-sm font-semibold text-agri-800 uppercase tracking-wider">Thành tiền (Dự kiến)</label>
+              <div className="bg-agri-50 border border-agri-100 p-4 rounded-xl text-2xl font-black text-agri-700 text-center shadow-inner">
                 {convertCurrency(form.watch("total_revenue"))}
               </div>
             </div>
@@ -201,15 +201,15 @@ export default function CreateHarvestRecordModal({
               placeholder="Nhập ghi chú thu hoạch..."
             />
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>
+            <DialogFooter className="pt-4 border-t border-agri-50">
+              <Button type="button" variant="outline" onClick={onClose} className="rounded-lg px-6">
                 Hủy
               </Button>
-              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-agri-600 hover:bg-agri-700">
+              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-agri-600 hover:bg-agri-700 rounded-lg px-8 shadow-md transition-all active:scale-95">
                 {(createMutation.isPending || updateMutation.isPending) && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                {initialData ? "Cập nhật" : "Lưu"}
+                {initialData ? "Cập nhật" : "Lưu dữ liệu"}
               </Button>
             </DialogFooter>
           </form>
