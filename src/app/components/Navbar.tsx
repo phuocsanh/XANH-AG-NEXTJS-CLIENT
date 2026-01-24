@@ -159,6 +159,12 @@ export default function Navbar() {
                 Thời tiết
               </Link>
               <Link
+                href='/disease-warning'
+                className='text-white hover:text-yellow-300 font-medium transition-colors'
+              >
+                Dịch bệnh
+              </Link>
+              <Link
                 href='/lunar-calendar'
                 className='text-white hover:text-yellow-300 font-medium transition-colors'
               >
@@ -249,6 +255,13 @@ export default function Navbar() {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Thời tiết
+              </Link>
+              <Link
+                href='/disease-warning'
+                className='block py-2 text-white hover:text-yellow-300 font-medium text-sm transition-colors'
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Dịch bệnh
               </Link>
               <Link
                 href='/lunar-calendar'

@@ -15,6 +15,7 @@ interface ApiQueryOptions<TData> {
   onError?: (error: Error) => void
   staleTime?: number
   gcTime?: number
+  refetchInterval?: number | false
 }
 
 interface ApiMutationOptions<TData, TVariables> {
@@ -105,6 +106,7 @@ export const useApiQuery = <TData>(
     retry: 1,
     staleTime: options.staleTime ?? 1000 * 60, // Mặc định 1 phút
     gcTime: options.gcTime ?? 1000 * 60 * 5, // Mặc định 5 phút
+    refetchInterval: options.refetchInterval,
   })
 }
 

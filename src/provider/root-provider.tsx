@@ -5,6 +5,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import AppProviderTanStack from "./app-provider-tanstack";
 
+import { TooltipProvider } from "@/components/ui/tooltip";
+
 export default function RootProvider({
   children,
 }: {
@@ -18,7 +20,9 @@ export default function RootProvider({
       disableTransitionOnChange
     >
       <AppProviderTanStack>
-        {children}
+        <TooltipProvider>
+          {children}
+        </TooltipProvider>
       </AppProviderTanStack>
       <Toaster />
     </ThemeProvider>

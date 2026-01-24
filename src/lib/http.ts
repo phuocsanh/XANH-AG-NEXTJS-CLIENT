@@ -6,6 +6,7 @@ import { redirect } from "next/navigation"
 interface CustomOptions extends Omit<RequestInit, "method"> {
   baseUrl?: string
   accessToken?: string // Cho phép inject token từ server-side (Next.js API routes)
+  timeout?: number
 }
 
 // Backend response format từ ResponseInterceptor
@@ -283,11 +284,18 @@ class HttpClient {
     }
     // Server-side mà không có accessToken trong options: không attach token
 
+    // Xử lý timeout nếu có
+    let signal: AbortSignal | undefined
+    if (options?.timeout) {
+      signal = AbortSignal.timeout(options.timeout)
+    }
+
     let response = await fetch(fullUrl, {
       ...options,
       headers: { ...baseHeaders, ...options?.headers },
       body,
       method,
+      signal: signal || options?.signal,
     })
 
     console.log("Response status:", response.status)
