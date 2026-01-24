@@ -52,3 +52,19 @@ export const CreateGrowthTrackingBody = z.object({
 
 export type CreateGrowthTrackingBodyType = z.TypeOf<typeof CreateGrowthTrackingBody>
 
+
+// Schema cho Ruộng lúa
+export const UpdateRiceCropBody = z.object({
+  field_area: z.number().min(0, "Diện tích không được âm"),
+  rice_variety: z.string().min(1, "Vui lòng nhập giống lúa"),
+  seed_source: z.string().optional(),
+  location: z.string().optional(),
+  growth_stage: z.string().min(1, "Vui lòng chọn giai đoạn"),
+  status: z.string().min(1, "Vui lòng chọn trạng thái"),
+  sowing_date: z.string().optional(),
+  transplanting_date: z.string().optional(),
+  expected_harvest_date: z.string().optional(),
+  actual_harvest_date: z.string().optional(),
+})
+
+export type UpdateRiceCropBodyType = z.TypeOf<typeof UpdateRiceCropBody>

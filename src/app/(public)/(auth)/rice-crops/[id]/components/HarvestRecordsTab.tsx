@@ -1,25 +1,7 @@
 "use client"
 
 import React, { useState } from "react"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Loader2, 
-  TrendingUp,
-  Scale
-} from "lucide-react"
+import { Plus, TrendingUp, Scale } from "lucide-react"
 import dayjs from "dayjs"
 import { 
   useHarvestRecords, 
@@ -29,6 +11,9 @@ import { convertCurrency } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { useConfirm } from "@/hooks/use-confirm"
 import CreateHarvestRecordModal from "@/app/(public)/(auth)/rice-crops/[id]/components/CreateHarvestRecordModal"
+import { ResponsiveDataTable, DataColumn } from "@/components/common/responsive-data-table"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import type { HarvestRecord } from "@/models/rice-farming"
 
 interface HarvestRecordsTabProps {
@@ -54,7 +39,7 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
     setIsModalOpen(true)
   }
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (item: HarvestRecord) => {
     const isConfirmed = await confirm({
       title: "Xác nhận xóa",
       description: "Bạn có chắc chắn muốn xóa bản ghi thu hoạch này không? Hành động này không thể hoàn tác.",
@@ -66,14 +51,13 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
     if (!isConfirmed) return
 
     try {
-      await deleteMutation.mutateAsync({ id, cropId: riceCropId })
+      await deleteMutation.mutateAsync({ id: item.id, cropId: riceCropId })
       toast({ title: "Thành công", description: "Đã xóa bản ghi thu hoạch" })
     } catch {
       toast({ title: "Lỗi", description: "Có lỗi xảy ra khi xóa", variant: "destructive" })
     }
   }
 
-  // Tính tổng sản lượng quy đổi về kg
   const totalYieldInKg = (records || []).reduce((sum, item) => {
     const isKg = !item.yield_unit || item.yield_unit === 'kg'
     const amountInKg = isKg ? Number(item.yield_amount) : Number(item.yield_amount) * 1000
@@ -82,117 +66,94 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
 
   const totalRevenue = (records || []).reduce((sum, item) => sum + Number(item.total_revenue || 0), 0)
 
+  const columns: DataColumn<HarvestRecord>[] = [
+    {
+      title: "Ngày thu hoạch",
+      key: "harvest_date",
+      render: (val) => dayjs(val).format("DD/MM/YYYY"),
+      priority: "high",
+    },
+    {
+      title: "Sản lượng",
+      key: "yield_amount",
+      render: (_, record) => (
+        <span className="font-bold">
+          {record.yield_amount.toLocaleString("vi-VN")} {record.yield_unit === 'tan' ? 'Tấn' : 'kg'}
+        </span>
+      ),
+      priority: "high",
+    },
+    {
+      title: "Chất lượng / Độ ẩm",
+      key: "quality",
+      render: (_, record) => (
+        <div className="flex flex-col">
+          <span className="text-sm">{record.quality_grade || "-"}</span>
+          {record.moisture_content && (
+            <span className="text-[10px] text-muted-foreground uppercase">Độ ẩm: {record.moisture_content}%</span>
+          )}
+        </div>
+      ),
+      priority: "medium",
+    },
+    {
+      title: "Giá bán",
+      key: "selling_price_per_unit",
+      render: (val) => `${val.toLocaleString("vi-VN")} đ/kg`,
+      priority: "medium",
+      className: "text-right",
+    },
+    {
+      title: "Thành tiền",
+      key: "total_revenue",
+      render: (val) => (
+        <span className="font-bold text-emerald-600">{convertCurrency(val)}</span>
+      ),
+      priority: "high",
+      className: "text-right",
+    }
+  ]
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader className="py-4">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase flex items-center gap-2">
-              <Scale className="h-4 w-4" /> Tổng sản lượng
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+        <Card className="bg-gradient-to-br from-blue-50 to-white border-blue-100 shadow-sm">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 mb-1">
+              <Scale className="h-4 w-4 text-blue-600" />
+              <p className="text-xs font-bold text-blue-600 uppercase tracking-widest">Tổng sản lượng</p>
+            </div>
+            <div className="text-3xl font-black text-blue-700">
               {totalYieldInKg < 1000 
                 ? `${totalYieldInKg.toLocaleString("vi-VN")} kg` 
                 : `${(totalYieldInKg / 1000).toLocaleString("vi-VN", { maximumFractionDigits: 2 })} Tấn`}
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="py-4">
-            <CardTitle className="text-sm font-medium text-muted-foreground uppercase flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" /> Tổng doanh thu
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex justify-between items-center">
-            <div className="text-2xl font-bold text-success">{convertCurrency(totalRevenue)}</div>
-            <Button onClick={handleAdd}>
-              <Plus className="h-4 w-4 mr-2" />
-              Thêm đợt thu hoạch
+        <Card className="bg-gradient-to-br from-emerald-50 to-white border-emerald-100 shadow-sm">
+          <CardContent className="pt-6 flex justify-between items-center">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <TrendingUp className="h-4 w-4 text-emerald-600" />
+                <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest">Tổng doanh thu</p>
+              </div>
+              <div className="text-3xl font-black text-emerald-700">{convertCurrency(totalRevenue)}</div>
+            </div>
+            <Button onClick={handleAdd} className="bg-emerald-600 hover:bg-emerald-700 shadow-md">
+              <Plus className="h-4 w-4 mr-2" /> Ghi nhận mới
             </Button>
           </CardContent>
         </Card>
       </div>
 
-      <div className="border rounded-md overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="min-w-[120px]">Ngày thu hoạch</TableHead>
-              <TableHead className="min-w-[120px]">Sản lượng</TableHead>
-              <TableHead className="min-w-[150px]">Chất lượng / Độ ẩm</TableHead>
-              <TableHead className="text-right min-w-[120px]">Giá bán (đ/kg)</TableHead>
-              <TableHead className="text-right min-w-[120px]">Thành tiền</TableHead>
-              <TableHead className="text-right min-w-[120px]">Hành động</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
-                  <div className="flex items-center justify-center">
-                    <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                    Đang tải dữ liệu...
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : records && records.length > 0 ? (
-              records.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">
-                    {dayjs(item.harvest_date).format("DD/MM/YYYY")}
-                  </TableCell>
-                  <TableCell>
-                    {item.yield_amount.toLocaleString("vi-VN")} {item.yield_unit === 'tan' ? 'Tấn' : 'kg'}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col">
-                      <span>{item.quality_grade || "-"}</span>
-                      {item.moisture_content && (
-                        <span className="text-xs text-muted-foreground">Độ ẩm: {item.moisture_content}%</span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {item.selling_price_per_unit.toLocaleString("vi-VN")} đ
-                  </TableCell>
-                  <TableCell className="text-right font-bold text-success">
-                    {convertCurrency(item.total_revenue)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEdit(item)}
-                        title="Chỉnh sửa"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDelete(item.id)}
-                        title="Xóa"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground italic">
-                  Chưa có bản ghi thu hoạch nào
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <ResponsiveDataTable
+        columns={columns}
+        data={records || []}
+        isLoading={isLoading}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        emptyText="Chưa có bản ghi thu hoạch nào được ghi nhận."
+      />
 
       <CreateHarvestRecordModal
         isOpen={isModalOpen}

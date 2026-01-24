@@ -1,10 +1,8 @@
 "use client"
 
-/**
- * Modal chỉnh sửa thông tin Ruộng lúa cho Farmer
- */
-
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import {
   Dialog,
   DialogContent,
@@ -13,45 +11,22 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Form } from "@/components/ui/form"
+import { Loader2 } from "lucide-react"
+import dayjs from "dayjs"
+import { useUpdateRiceCrop } from "@/hooks/use-rice-crops"
 import { 
-  useUpdateRiceCrop 
-} from "@/hooks/use-rice-crops"
-import { 
-  GrowthStage, 
-  CropStatus, 
-  RiceCrop,
-  getGrowthStageText,
-  getCropStatusText 
+  type RiceCrop,
 } from "@/models/rice-farming"
 import { useToast } from "@/hooks/use-toast"
-import dayjs from "dayjs"
+import { UpdateRiceCropBody, UpdateRiceCropBodyType } from "@/schemaValidations/rice-farming.schema"
+import { FormDatePicker, FormComboBox, FormFieldWrapper, FormNumberInput } from "@/components/form"
 
 interface EditRiceCropModalProps {
   isOpen: boolean
   onClose: () => void
   riceCrop: RiceCrop
 }
-
-const growthStages: GrowthStage[] = [
-  "seedling",
-  "tillering",
-  "panicle",
-  "heading",
-  "grain_filling",
-  "ripening",
-  "harvested"
-]
-
-const cropStatuses: CropStatus[] = ["active", "harvested", "failed"]
 
 export default function EditRiceCropModal({
   isOpen,
@@ -61,51 +36,47 @@ export default function EditRiceCropModal({
   const { toast } = useToast()
   const updateMutation = useUpdateRiceCrop()
 
-  const [formData, setFormData] = useState({
-    field_area: riceCrop.field_area,
-    rice_variety: riceCrop.rice_variety,
-    seed_source: riceCrop.seed_source || "",
-    location: riceCrop.location || "",
-    growth_stage: riceCrop.growth_stage,
-    status: riceCrop.status,
-    sowing_date: riceCrop.sowing_date || "",
-    transplanting_date: riceCrop.transplanting_date || "",
-    expected_harvest_date: riceCrop.expected_harvest_date || "",
-    actual_harvest_date: riceCrop.actual_harvest_date || "",
+  const form = useForm<UpdateRiceCropBodyType>({
+    resolver: zodResolver(UpdateRiceCropBody),
+    defaultValues: {
+      field_area: riceCrop.field_area,
+      rice_variety: riceCrop.rice_variety,
+      seed_source: riceCrop.seed_source || "",
+      location: riceCrop.location || "",
+      growth_stage: riceCrop.growth_stage,
+      status: riceCrop.status,
+      sowing_date: riceCrop.sowing_date || undefined,
+      transplanting_date: riceCrop.transplanting_date || undefined,
+      expected_harvest_date: riceCrop.expected_harvest_date || undefined,
+      actual_harvest_date: riceCrop.actual_harvest_date || undefined,
+    },
   })
 
   useEffect(() => {
     if (isOpen) {
-      setFormData({
+      form.reset({
         field_area: riceCrop.field_area,
         rice_variety: riceCrop.rice_variety,
         seed_source: riceCrop.seed_source || "",
         location: riceCrop.location || "",
         growth_stage: riceCrop.growth_stage,
         status: riceCrop.status,
-        sowing_date: riceCrop.sowing_date || "",
-        transplanting_date: riceCrop.transplanting_date || "",
-        expected_harvest_date: riceCrop.expected_harvest_date || "",
-        actual_harvest_date: riceCrop.actual_harvest_date || "",
+        sowing_date: riceCrop.sowing_date || undefined,
+        transplanting_date: riceCrop.transplanting_date || undefined,
+        expected_harvest_date: riceCrop.expected_harvest_date || undefined,
+        actual_harvest_date: riceCrop.actual_harvest_date || undefined,
       })
     }
-  }, [isOpen, riceCrop])
+  }, [isOpen, riceCrop, form])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+  const onSubmit = async (values: UpdateRiceCropBodyType) => {
     try {
       const dto = {
-        field_area: Number(formData.field_area),
-        rice_variety: formData.rice_variety,
-        seed_source: formData.seed_source || undefined,
-        location: formData.location || undefined,
-        growth_stage: formData.growth_stage,
-        status: formData.status,
-        sowing_date: formData.sowing_date ? dayjs(formData.sowing_date).format("YYYY-MM-DD") : undefined,
-        transplanting_date: formData.transplanting_date ? dayjs(formData.transplanting_date).format("YYYY-MM-DD") : undefined,
-        expected_harvest_date: formData.expected_harvest_date ? dayjs(formData.expected_harvest_date).format("YYYY-MM-DD") : undefined,
-        actual_harvest_date: formData.actual_harvest_date ? dayjs(formData.actual_harvest_date).format("YYYY-MM-DD") : undefined,
+        ...values,
+        sowing_date: values.sowing_date ? dayjs(values.sowing_date).format("YYYY-MM-DD") : undefined,
+        transplanting_date: values.transplanting_date ? dayjs(values.transplanting_date).format("YYYY-MM-DD") : undefined,
+        expected_harvest_date: values.expected_harvest_date ? dayjs(values.expected_harvest_date).format("YYYY-MM-DD") : undefined,
+        actual_harvest_date: values.actual_harvest_date ? dayjs(values.actual_harvest_date).format("YYYY-MM-DD") : undefined,
       }
 
       await updateMutation.mutateAsync({ id: riceCrop.id, dto })
@@ -118,143 +89,113 @@ export default function EditRiceCropModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Chỉnh sửa thông tin Ruộng lúa</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-agri-900">Chỉnh sửa thông tin Ruộng lúa</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="field_area">Diện tích (m²) *</Label>
-              <Input
-                id="field_area"
-                type="number"
-                value={formData.field_area}
-                onChange={(e) => setFormData({ ...formData, field_area: Number(e.target.value) })}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormNumberInput
+                control={form.control}
+                name="field_area"
+                label="Diện tích (m²)"
+                placeholder="VD: 5000"
+                required
+              />
+              <FormFieldWrapper
+                control={form.control}
+                name="rice_variety"
+                label="Giống lúa"
+                placeholder="Ví dụ: Đài Thơm 8"
                 required
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="rice_variety">Giống lúa *</Label>
-              <Input
-                id="rice_variety"
-                value={formData.rice_variety}
-                onChange={(e) => setFormData({ ...formData, rice_variety: e.target.value })}
-                placeholder="Ví dụ: OM 18"
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="seed_source">Nguồn giống</Label>
-              <Input
-                id="seed_source"
-                value={formData.seed_source}
-                onChange={(e) => setFormData({ ...formData, seed_source: e.target.value })}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormFieldWrapper
+                control={form.control}
+                name="seed_source"
+                label="Nguồn giống"
                 placeholder="Nhập nguồn giống"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="location">Vị trí</Label>
-              <Input
-                id="location"
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                placeholder="Nhập vị trí"
+              <FormFieldWrapper
+                control={form.control}
+                name="location"
+                label="Vị trí"
+                placeholder="Nhập vị trí ruộng"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="growth_stage">Giai đoạn sinh trưởng *</Label>
-              <Select
-                value={formData.growth_stage}
-                onValueChange={(value) => setFormData({ ...formData, growth_stage: value as GrowthStage })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {growthStages.map((stage) => (
-                    <SelectItem key={stage} value={stage}>
-                      {getGrowthStageText(stage)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="status">Trạng thái *</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => setFormData({ ...formData, status: value as CropStatus })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {cropStatuses.map((status) => (
-                    <SelectItem key={status} value={status}>
-                      {getCropStatusText(status)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="sowing_date">Ngày gieo</Label>
-              <Input
-                id="sowing_date"
-                type="date"
-                value={formData.sowing_date}
-                onChange={(e) => setFormData({ ...formData, sowing_date: e.target.value })}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormComboBox
+                control={form.control}
+                name="growth_stage"
+                label="Giai đoạn sinh trưởng"
+                options={[
+                  { value: "seedling", label: "Giai đoạn mạ" },
+                  { value: "tillering", label: "Đẻ nhánh" },
+                  { value: "panicle", label: "Làm đòng" },
+                  { value: "heading", label: "Trổ bông" },
+                  { value: "grain_filling", label: "Vô gạo" },
+                  { value: "ripening", label: "Chín" },
+                  { value: "harvested", label: "Đã thu hoạch" }
+                ]}
+                required
+              />
+              <FormComboBox
+                control={form.control}
+                name="status"
+                label="Trạng thái"
+                options={[
+                  { value: "active", label: "Đang canh tác" },
+                  { value: "harvested", label: "Đã thu hoạch xong" },
+                  { value: "failed", label: "Thất thu/Hủy vụ" }
+                ]}
+                required
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="transplanting_date">Ngày cấy</Label>
-              <Input
-                id="transplanting_date"
-                type="date"
-                value={formData.transplanting_date}
-                onChange={(e) => setFormData({ ...formData, transplanting_date: e.target.value })}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 border-agri-50">
+              <FormDatePicker
+                control={form.control}
+                name="sowing_date"
+                label="Ngày gieo"
+              />
+              <FormDatePicker
+                control={form.control}
+                name="transplanting_date"
+                label="Ngày cấy"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="expected_harvest_date">Ngày thu hoạch dự kiến</Label>
-              <Input
-                id="expected_harvest_date"
-                type="date"
-                value={formData.expected_harvest_date}
-                onChange={(e) => setFormData({ ...formData, expected_harvest_date: e.target.value })}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormDatePicker
+                control={form.control}
+                name="expected_harvest_date"
+                label="Ngày thu hoạch dự kiến"
+              />
+              <FormDatePicker
+                control={form.control}
+                name="actual_harvest_date"
+                label="Ngày thu hoạch thực tế"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="actual_harvest_date">Ngày thu hoạch thực tế</Label>
-              <Input
-                id="actual_harvest_date"
-                type="date"
-                value={formData.actual_harvest_date}
-                onChange={(e) => setFormData({ ...formData, actual_harvest_date: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <DialogFooter className="gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Hủy
-            </Button>
-            <Button type="submit" disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? "Đang cập nhật..." : "Cập nhật"}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter className="pt-4 border-t border-agri-100">
+              <Button type="button" variant="outline" onClick={onClose} className="px-6 rounded-lg">
+                Hủy
+              </Button>
+              <Button type="submit" disabled={updateMutation.isPending} className="bg-agri-600 hover:bg-agri-700 px-8 rounded-lg shadow-md font-bold transition-all active:scale-95">
+                {updateMutation.isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Cập nhật thông tin
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   )
