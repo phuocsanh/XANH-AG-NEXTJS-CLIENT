@@ -10,16 +10,9 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 
 interface DailyDataTableProps {
   data: any[]
-  loading?: boolean
   diseaseType?: 'rice-blast' | 'bacterial-blight' | 'stem-borer' | 'gall-midge' | 'brown-plant-hopper' | 'sheath-blight' | 'grain-discoloration'
 }
 

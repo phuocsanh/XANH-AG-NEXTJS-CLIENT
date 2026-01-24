@@ -326,7 +326,6 @@ function DiseaseTabPanel({
                 <DailyDataTable 
                   data={data.daily_data} 
                   diseaseType={slug} 
-                  loading={analyzing} 
                 />
               </CardContent>
             </Card>
