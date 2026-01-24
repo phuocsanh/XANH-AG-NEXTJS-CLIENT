@@ -413,7 +413,16 @@ class HttpClient {
       }
     }
 
-    return response.json()
+    if (response.status === 204) {
+      return {} as T
+    }
+
+    const contentType = response.headers.get("content-type")
+    if (contentType && contentType.includes("application/json")) {
+      return response.json()
+    }
+
+    return (await response.text()) as any as T
   }
 
   get<T>(url: string, options?: Omit<CustomOptions, "body">) {
