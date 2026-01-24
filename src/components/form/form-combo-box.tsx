@@ -25,7 +25,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { FieldValues, Path, Control } from "react-hook-form"
-import { ScrollArea } from "@/components/ui/scroll-area"
 
 export interface ComboBoxOption {
   value: string | number
@@ -114,7 +113,7 @@ export function FormComboBox<T extends FieldValues>({
                   value={searchQuery}
                   onValueChange={setSearchQuery}
                 />
-                <CommandList>
+                <CommandList className="max-h-[200px] overflow-y-auto overflow-x-hidden">
                   {isLoading ? (
                     <div className="py-6 text-center text-sm text-muted-foreground">
                       <Loader2 className="mx-auto h-4 w-4 animate-spin" />
@@ -124,10 +123,9 @@ export function FormComboBox<T extends FieldValues>({
                     <>
                       <CommandEmpty>{emptyText}</CommandEmpty>
                       <CommandGroup>
-                        <ScrollArea className="h-max-[200px]">
                         {finalOptions.map((option) => (
                           <CommandItem
-                            value={String(option.label)} // Use label for command filtering if local
+                            value={String(option.label)} 
                             key={option.value}
                             onSelect={() => {
                               field.onChange(option.value)
@@ -145,7 +143,6 @@ export function FormComboBox<T extends FieldValues>({
                             {option.label}
                           </CommandItem>
                         ))}
-                        </ScrollArea>
                       </CommandGroup>
                     </>
                   )}

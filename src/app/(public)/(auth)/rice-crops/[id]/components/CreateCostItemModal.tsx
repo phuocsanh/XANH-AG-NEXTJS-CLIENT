@@ -148,6 +148,7 @@ export default function CreateCostItemModal({
                   label: cat.name,
                 }))}
                 isLoading={isLoadingCategories}
+                modal={true}
               />
 
               <FormNumberInput

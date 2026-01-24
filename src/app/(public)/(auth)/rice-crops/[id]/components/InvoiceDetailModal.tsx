@@ -106,7 +106,7 @@ export default function InvoiceDetailModal({
                 <Calendar className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
                 <div className="min-w-0 flex-1">
                   <span className="block font-medium text-muted-foreground text-[10px] uppercase mb-0.5">Ngày mua</span>
-                  <span className="text-foreground font-semibold block text-sm">{dayjs(data.date).format("DD/MM/YYYY HH:mm")}</span>
+                  <span className="text-foreground font-semibold block text-sm">{dayjs(data.date).format("DD/MM/YYYY")}</span>
                 </div>
               </div>
             </div>
