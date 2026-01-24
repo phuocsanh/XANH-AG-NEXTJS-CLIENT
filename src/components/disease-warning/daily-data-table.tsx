@@ -48,79 +48,74 @@ export const DailyDataTable: React.FC<DailyDataTableProps> = ({
   if (!data || data.length === 0) return null
 
   return (
-    <div className="rounded-md border overflow-hidden">
-      <div className="overflow-x-auto">
-        <Table>
+    <div className="rounded-2xl border border-emerald-100 overflow-hidden bg-white shadow-sm">
+      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-emerald-100">
+        <Table className="min-w-[800px] w-full">
           <TableHeader>
-            <TableRow className="bg-muted/50">
-              <TableHead className="w-[100px]">Ngày</TableHead>
-              <TableHead className="w-[150px]">Nhiệt độ (°C)</TableHead>
-              <TableHead className="w-[100px]">Độ ẩm (%)</TableHead>
+            <TableRow className="bg-emerald-50/50 hover:bg-emerald-50/50">
+              <TableHead className="min-w-[80px] font-bold text-emerald-900">Ngày</TableHead>
+              <TableHead className="min-w-[120px] font-bold text-emerald-900 text-center">Nhiệt độ (°C)</TableHead>
+              <TableHead className="min-w-[80px] font-bold text-emerald-900 text-center">Độ ẩm (%)</TableHead>
               
               {/* Specific Columns */}
               {diseaseType === 'rice-blast' && (
                 <>
-                  <TableHead className="w-[120px]">Lá ướt (giờ)</TableHead>
-                  <TableHead className="w-[120px]">Mưa</TableHead>
-                  <TableHead className="w-[100px]">Sương mù</TableHead>
+                  <TableHead className="min-w-[100px] font-bold text-emerald-900 text-center">Lá ướt (giờ)</TableHead>
+                  <TableHead className="min-w-[100px] font-bold text-emerald-900 text-center">Mưa</TableHead>
+                  <TableHead className="min-w-[100px] font-bold text-emerald-900 text-center">Sương mù</TableHead>
                 </>
               )}
               
               {diseaseType === 'bacterial-blight' && (
                 <>
-                  <TableHead className="w-[120px]">Mưa</TableHead>
-                  <TableHead className="w-[120px]">Gió (km/h)</TableHead>
-                  <TableHead className="w-[120px]">Mưa 3 ngày</TableHead>
+                  <TableHead className="min-w-[100px] font-bold text-emerald-900 text-center">Mưa</TableHead>
+                  <TableHead className="min-w-[100px] font-bold text-emerald-900 text-center">Gió (km/h)</TableHead>
+                  <TableHead className="min-w-[120px] font-bold text-emerald-900 text-center">Mưa 3 ngày</TableHead>
                 </>
               )}
 
               {diseaseType === 'stem-borer' && (
-                <TableHead className="w-[100px]">Nắng (giờ)</TableHead>
+                <TableHead className="min-w-[100px] font-bold text-emerald-900 text-center">Nắng (giờ)</TableHead>
               )}
 
               {diseaseType === 'gall-midge' && (
-                <TableHead className="w-[120px]">Mây che phủ (%)</TableHead>
+                <TableHead className="min-w-[120px] font-bold text-emerald-900 text-center">Mây che phủ (%)</TableHead>
               )}
 
               {diseaseType === 'brown-plant-hopper' && (
                 <>
-                  <TableHead className="w-[120px]">Gió TB (km/h)</TableHead>
-                  <TableHead className="w-[100px]">Mưa (mm)</TableHead>
+                  <TableHead className="min-w-[100px] font-bold text-emerald-900 text-center">Gió TB</TableHead>
+                  <TableHead className="min-w-[100px] font-bold text-emerald-900 text-center">Mưa (mm)</TableHead>
                 </>
               )}
 
               {diseaseType === 'grain-discoloration' && (
                 <>
-                  <TableHead className="w-[100px]">Mưa (mm)</TableHead>
-                  <TableHead className="w-[120px]">Gió TB (km/h)</TableHead>
+                  <TableHead className="min-w-[100px] font-bold text-emerald-900 text-center">Mưa (mm)</TableHead>
+                  <TableHead className="min-w-[100px] font-bold text-emerald-900 text-center">Gió TB</TableHead>
                 </>
               )}
 
-              <TableHead className="w-[120px]">Điểm nguy cơ</TableHead>
-              <TableHead className="w-[120px]">Mức độ</TableHead>
+              <TableHead className="min-w-[100px] font-bold text-emerald-900 text-center">Điểm rủi ro</TableHead>
+              <TableHead className="min-w-[120px] font-bold text-emerald-900 text-center">Mức độ</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.map((record, index) => (
-              <TableRow key={index} className="hover:bg-muted/30">
-                <TableCell>
-                  <div className="font-medium text-sm">{record.date}</div>
-                  <div className="text-[11px] text-muted-foreground">{record.dayOfWeek}</div>
+              <TableRow key={index} className="hover:bg-emerald-50/30 transition-colors">
+                <TableCell className="py-4">
+                  <div className="font-black text-sm text-gray-900">{record.date}</div>
+                  <div className="text-[10px] font-bold text-emerald-600 uppercase">{record.dayOfWeek}</div>
                 </TableCell>
-                <TableCell>
-                  <div className="text-xs">
+                <TableCell className="text-center">
+                  <div className="text-xs font-bold text-gray-700">
                     {record.tempMin !== undefined && record.tempMax !== undefined
-                      ? `${record.tempMin.toFixed(1)} - ${record.tempMax.toFixed(1)}`
-                      : (record.tempAvg !== undefined ? `TB: ${record.tempAvg.toFixed(2)}` : '-')}
+                      ? `${record.tempMin.toFixed(0)}° - ${record.tempMax.toFixed(0)}°`
+                      : (record.tempAvg !== undefined ? `TB: ${record.tempAvg.toFixed(1)}°` : '-')}
                   </div>
-                  {record.tempMin !== undefined && record.tempAvg !== undefined && (
-                    <div className="text-[11px] text-muted-foreground">
-                      TB: {record.tempAvg.toFixed(1)}
-                    </div>
-                  )}
                 </TableCell>
-                <TableCell>
-                  <div className="text-sm">
+                <TableCell className="text-center">
+                  <div className="text-sm font-bold text-gray-700">
                     {record.humidityAvg !== undefined ? `${Math.round(record.humidityAvg)}%` : '-'}
                   </div>
                 </TableCell>
@@ -128,23 +123,15 @@ export const DailyDataTable: React.FC<DailyDataTableProps> = ({
                 {/* Specific Data Cells */}
                 {diseaseType === 'rice-blast' && (
                   <>
-                    <TableCell>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className={`text-sm ${record.lwdHours >= 14 ? 'font-bold text-red-500' : ''}`}>
-                              {record.lwdHours} giờ
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>Số giờ lá ướt</TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                    <TableCell className="text-center">
+                      <span className={`text-sm font-bold ${record.lwdHours >= 14 ? 'text-red-600 bg-red-50 px-2 py-0.5 rounded' : 'text-gray-700'}`}>
+                        {record.lwdHours} giờ
+                      </span>
                     </TableCell>
-                    <TableCell>
-                      <div className="text-xs">{record.rainTotal?.toFixed(1)} mm</div>
-                      <div className="text-[11px] text-muted-foreground">{record.rainHours} giờ</div>
+                    <TableCell className="text-center">
+                      <div className="text-xs font-bold text-gray-700">{record.rainTotal?.toFixed(1)} mm</div>
                     </TableCell>
-                    <TableCell className="text-sm">
+                    <TableCell className="text-center font-bold text-gray-700 text-sm">
                       {record.fogHours} giờ
                     </TableCell>
                   </>
@@ -152,16 +139,14 @@ export const DailyDataTable: React.FC<DailyDataTableProps> = ({
 
                 {diseaseType === 'bacterial-blight' && (
                   <>
-                    <TableCell>
-                      <div className="text-xs">{record.rainTotal?.toFixed(1)} mm</div>
-                      <div className="text-[11px] text-muted-foreground">{record.rainHours} giờ</div>
+                    <TableCell className="text-center font-bold text-gray-700 text-xs">
+                      {record.rainTotal?.toFixed(1)} mm
                     </TableCell>
-                    <TableCell>
-                      <div className="text-xs">Max: {record.windSpeedMax?.toFixed(1)}</div>
-                      <div className="text-[11px] text-muted-foreground">TB: {record.windSpeedAvg?.toFixed(1)}</div>
+                    <TableCell className="text-center">
+                      <div className="text-xs font-bold text-gray-700">{record.windSpeedMax?.toFixed(1)}</div>
                     </TableCell>
-                    <TableCell>
-                      <span className={`text-sm ${record.rain3Days >= 100 ? 'font-bold text-red-500' : ''}`}>
+                    <TableCell className="text-center">
+                      <span className={`text-sm font-bold ${record.rain3Days >= 100 ? 'text-red-500' : 'text-gray-700'}`}>
                         {record.rain3Days?.toFixed(1)} mm
                       </span>
                     </TableCell>
@@ -169,41 +154,34 @@ export const DailyDataTable: React.FC<DailyDataTableProps> = ({
                 )}
 
                 {diseaseType === 'stem-borer' && (
-                  <TableCell className="text-sm">{record.sunHours} giờ</TableCell>
+                  <TableCell className="text-center font-bold text-gray-700 text-sm">{record.sunHours} giờ</TableCell>
                 )}
 
                 {diseaseType === 'gall-midge' && (
-                  <TableCell className="text-sm">{Math.round(record.cloudAvg)}%</TableCell>
+                  <TableCell className="text-center font-bold text-gray-700 text-sm">{Math.round(record.cloudAvg)}%</TableCell>
                 )}
 
                 {diseaseType === 'brown-plant-hopper' && (
                   <>
-                    <TableCell className="text-sm">{record.windSpeedAvg?.toFixed(1)}</TableCell>
-                    <TableCell className="text-sm">{record.rainTotal?.toFixed(1)}</TableCell>
+                    <TableCell className="text-center font-bold text-gray-700 text-sm">{record.windSpeedAvg?.toFixed(1)}</TableCell>
+                    <TableCell className="text-center font-bold text-gray-700 text-sm">{record.rainTotal?.toFixed(1)}</TableCell>
                   </>
                 )}
 
                 {diseaseType === 'grain-discoloration' && (
                   <>
-                    <TableCell className="text-sm">{record.rainTotal?.toFixed(1)}</TableCell>
-                    <TableCell className="text-sm">{record.windSpeedAvg?.toFixed(1)}</TableCell>
+                    <TableCell className="text-center font-bold text-gray-700 text-sm">{record.rainTotal?.toFixed(1)} mm</TableCell>
+                    <TableCell className="text-center font-bold text-gray-700 text-sm">{record.windSpeedAvg?.toFixed(1)}</TableCell>
                   </>
                 )}
 
-                <TableCell>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className={`text-sm ${record.riskScore >= 80 ? 'font-bold text-red-500' : ''}`}>
-                          {record.riskScore}/100
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>Điểm rủi ro AI</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                <TableCell className="text-center">
+                   <span className={`text-sm font-black ${record.riskScore >= 80 ? 'text-red-600' : 'text-gray-800'}`}>
+                     {record.riskScore}
+                   </span>
                 </TableCell>
-                <TableCell>
-                  <Badge className={`text-[10px] px-2 py-0 h-5 text-white border-none ${getRiskColor(record.riskLevel)}`}>
+                <TableCell className="text-center">
+                  <Badge className={`text-[10px] px-3 py-1 font-black text-white border-none whitespace-nowrap shadow-sm min-w-[80px] justify-center ${getRiskColor(record.riskLevel)}`}>
                     {record.riskLevel}
                   </Badge>
                 </TableCell>
