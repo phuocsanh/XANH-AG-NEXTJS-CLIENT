@@ -1,6 +1,8 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import {
   Dialog,
   DialogContent,
@@ -9,44 +11,24 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
+import { Form } from "@/components/ui/form"
 import { Loader2 } from "lucide-react"
 import dayjs from "dayjs"
-import { DatePicker } from "@/components/ui/date-picker"
 import { 
   useCreateHarvestRecord, 
   useUpdateHarvestRecord 
 } from "@/hooks/use-harvest-record"
 import { useToast } from "@/hooks/use-toast"
 import { convertCurrency } from "@/lib/utils"
-import type { HarvestRecord, CreateHarvestRecordDto } from "@/models/rice-farming"
+import { CreateHarvestRecordBody, CreateHarvestRecordBodyType } from "@/schemaValidations/rice-farming.schema"
+import { FormDatePicker, FormNumberInput, FormComboBox, FormTextarea, FormFieldWrapper } from "@/components/form"
+import type { HarvestRecord } from "@/models/rice-farming"
 
 interface CreateHarvestRecordModalProps {
   isOpen: boolean
   onClose: () => void
   initialData: HarvestRecord | null
   riceCropId: number
-}
-
-interface HarvestRecordFormData {
-  harvest_date: string
-  yield_amount: number | string | undefined
-  yield_unit: string
-  moisture_content: number | string | undefined
-  quality_grade: string
-  selling_price_per_unit: number | string | undefined
-  total_revenue: number
-  buyer: string
-  notes: string
 }
 
 export default function CreateHarvestRecordModal({
@@ -56,81 +38,75 @@ export default function CreateHarvestRecordModal({
   riceCropId,
 }: CreateHarvestRecordModalProps) {
   const { toast } = useToast()
-  const [formData, setFormData] = useState<HarvestRecordFormData>({
-    harvest_date: dayjs().format("YYYY-MM-DD"),
-    yield_amount: undefined,
-    yield_unit: "tan",
-    moisture_content: undefined,
-    quality_grade: "",
-    selling_price_per_unit: undefined,
-    total_revenue: 0,
-    buyer: "",
-    notes: "",
+  
+  const form = useForm<CreateHarvestRecordBodyType>({
+    resolver: zodResolver(CreateHarvestRecordBody),
+    defaultValues: {
+      rice_crop_id: riceCropId,
+      harvest_date: dayjs().format("YYYY-MM-DD"),
+      yield_unit: "tan",
+      quality_grade: "",
+      buyer: "",
+      notes: "",
+      total_revenue: 0
+    },
   })
 
-  useEffect(() => {
-    if (initialData) {
-      setFormData({
-        harvest_date: dayjs(initialData.harvest_date).format("YYYY-MM-DD"),
-        yield_amount: initialData.yield_amount,
-        yield_unit: initialData.yield_unit || "kg",
-        moisture_content: initialData.moisture_content,
-        quality_grade: initialData.quality_grade,
-        selling_price_per_unit: initialData.selling_price_per_unit,
-        total_revenue: initialData.total_revenue,
-        buyer: initialData.buyer || "",
-        notes: initialData.notes || "",
-      })
-    } else {
-      setFormData({
-        harvest_date: dayjs().format("YYYY-MM-DD"),
-        yield_amount: undefined,
-        yield_unit: "tan",
-        moisture_content: undefined,
-        quality_grade: "",
-        selling_price_per_unit: undefined,
-        total_revenue: 0,
-        buyer: "",
-        notes: "",
-      })
-    }
-  }, [initialData, isOpen])
+  const yieldAmount = form.watch("yield_amount")
+  const price = form.watch("selling_price_per_unit")
+  const unit = form.watch("yield_unit")
 
-  // Tự động tính Thành tiền
   useEffect(() => {
-    const amount = Number(formData.yield_amount) || 0
-    const price = Number(formData.selling_price_per_unit) || 0
-    const unit = formData.yield_unit
-    
+    const amount = Number(yieldAmount) || 0
+    const uprice = Number(price) || 0
     const quantityInKg = unit === 'tan' ? amount * 1000 : amount
-    setFormData(prev => ({ ...prev, total_revenue: quantityInKg * price }))
-  }, [formData.yield_amount, formData.selling_price_per_unit, formData.yield_unit])
+    form.setValue("total_revenue", quantityInKg * uprice)
+  }, [yieldAmount, price, unit, form])
+
+  useEffect(() => {
+    if (isOpen) {
+      if (initialData) {
+        form.reset({
+          rice_crop_id: riceCropId,
+          harvest_date: dayjs(initialData.harvest_date).format("YYYY-MM-DD"),
+          yield_amount: initialData.yield_amount,
+          yield_unit: initialData.yield_unit || "kg",
+          moisture_content: initialData.moisture_content,
+          quality_grade: initialData.quality_grade || "",
+          selling_price_per_unit: initialData.selling_price_per_unit,
+          total_revenue: initialData.total_revenue,
+          buyer: initialData.buyer || "",
+          notes: initialData.notes || "",
+        })
+      } else {
+        form.reset({
+          rice_crop_id: riceCropId,
+          harvest_date: dayjs().format("YYYY-MM-DD"),
+          yield_amount: 0,
+          yield_unit: "tan",
+          moisture_content: undefined,
+          quality_grade: "",
+          selling_price_per_unit: 0,
+          total_revenue: 0,
+          buyer: "",
+          notes: "",
+        })
+      }
+    }
+  }, [initialData, isOpen, riceCropId, form])
 
   const createMutation = useCreateHarvestRecord()
   const updateMutation = useUpdateHarvestRecord()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+  const onSubmit = async (values: CreateHarvestRecordBodyType) => {
     try {
-      const dto: CreateHarvestRecordDto = {
-        ...formData,
-        rice_crop_id: riceCropId,
-        yield_amount: Number(formData.yield_amount),
-        selling_price_per_unit: Number(formData.selling_price_per_unit),
-        total_revenue: Number(formData.total_revenue),
-        moisture_content: formData.moisture_content ? Number(formData.moisture_content) : undefined,
-        payment_status: "paid" // Mặc định trong Client
-      }
-
       if (initialData) {
-        await updateMutation.mutateAsync({ id: initialData.id, dto })
+        await updateMutation.mutateAsync({ id: initialData.id, dto: values as any })
         toast({ title: "Thành công", description: "Cập nhật bản ghi thu hoạch thành công" })
       } else {
-        await createMutation.mutateAsync(dto)
+        await createMutation.mutateAsync(values as any)
         toast({ title: "Thành công", description: "Thêm bản ghi thu hoạch thành công" })
       }
-
       onClose()
     } catch {
       toast({ title: "Lỗi", description: "Có lỗi xảy ra", variant: "destructive" })
@@ -143,117 +119,101 @@ export default function CreateHarvestRecordModal({
         <DialogHeader>
           <DialogTitle>{initialData ? "Sửa đợt thu hoạch" : "Thêm đợt thu hoạch mới"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2 flex flex-col">
-              <Label htmlFor="harvest_date">Ngày thu hoạch</Label>
-              <DatePicker
-                value={formData.harvest_date}
-                onChange={(date) => setFormData({ ...formData, harvest_date: date })}
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormDatePicker
+                control={form.control}
+                name="harvest_date"
+                label="Ngày thu hoạch"
+                required
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="moisture_content">Độ ẩm (%)</Label>
-              <Input
-                id="moisture_content"
-                type="number"
-                step="0.1"
-                value={formData.moisture_content}
-                onChange={(e) => setFormData({ ...formData, moisture_content: e.target.value })}
+              <FormNumberInput
+                control={form.control}
+                name="moisture_content"
+                label="Độ ẩm (%)"
                 placeholder="VD: 14.5"
+                decimalScale={1}
               />
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="yield_amount">Sản lượng</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="yield_amount"
-                  type="number"
-                  step="0.001"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex gap-2 items-start">
+                <FormNumberInput
+                  control={form.control}
+                  name="yield_amount"
+                  label="Sản lượng"
                   className="flex-1"
-                  value={formData.yield_amount}
-                  onChange={(e) => setFormData({ ...formData, yield_amount: e.target.value })}
+                  placeholder="0"
+                  decimalScale={3}
                   required
                 />
-                <Select
-                  value={formData.yield_unit}
-                  onValueChange={(value) => setFormData({ ...formData, yield_unit: value })}
-                >
-                  <SelectTrigger className="w-24">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="tan">Tấn</SelectItem>
-                    <SelectItem value="kg">kg</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FormComboBox
+                  control={form.control}
+                  name="yield_unit"
+                  label="Đơn vị"
+                  className="w-24"
+                  options={[
+                    { value: "tan", label: "Tấn" },
+                    { value: "kg", label: "kg" }
+                  ]}
+                  required
+                />
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="selling_price_per_unit">Giá bán (đ/kg)</Label>
-              <Input
-                id="selling_price_per_unit"
-                type="number"
-                value={formData.selling_price_per_unit}
-                onChange={(e) => setFormData({ ...formData, selling_price_per_unit: e.target.value })}
+              <FormNumberInput
+                control={form.control}
+                name="selling_price_per_unit"
+                label="Giá bán (đ/kg)"
+                placeholder="0"
+                suffix=" ₫"
+                decimalScale={0}
                 required
               />
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label>Thành tiền (Dự kiến)</Label>
-            <div className="bg-muted p-2 rounded-md text-lg font-bold text-success text-center">
-              {convertCurrency(formData.total_revenue)}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="quality_grade">Chất lượng lúa</Label>
-              <Input
-                id="quality_grade"
-                value={formData.quality_grade}
-                onChange={(e) => setFormData({ ...formData, quality_grade: e.target.value })}
+              <label className="text-sm font-semibold text-agri-800">Thành tiền (Dự kiến)</label>
+              <div className="bg-agri-50 border border-agri-100 p-3 rounded-lg text-xl font-bold text-agri-700 text-center">
+                {convertCurrency(form.watch("total_revenue"))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormFieldWrapper
+                control={form.control}
+                name="quality_grade"
+                label="Chất lượng lúa"
                 placeholder="VD: OM18, Loại 1..."
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="buyer">Người mua</Label>
-              <Input
-                id="buyer"
-                value={formData.buyer}
-                onChange={(e) => setFormData({ ...formData, buyer: e.target.value })}
+              <FormFieldWrapper
+                control={form.control}
+                name="buyer"
+                label="Người mua"
                 placeholder="Tên thương lái..."
               />
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="notes">Ghi chú</Label>
-            <Textarea
-              id="notes"
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              rows={2}
+            <FormTextarea
+              control={form.control}
+              name="notes"
+              label="Ghi chú"
+              placeholder="Nhập ghi chú thu hoạch..."
             />
-          </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Hủy
-            </Button>
-            <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
-              {(createMutation.isPending || updateMutation.isPending) && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              {initialData ? "Cập nhật" : "Lưu"}
-            </Button>
-          </DialogFooter>
-        </form>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={onClose}>
+                Hủy
+              </Button>
+              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-agri-600 hover:bg-agri-700">
+                {(createMutation.isPending || updateMutation.isPending) && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                {initialData ? "Cập nhật" : "Lưu"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   )

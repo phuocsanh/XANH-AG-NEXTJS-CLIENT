@@ -11,23 +11,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Textarea } from "@/components/ui/textarea"
+import { Form } from "@/components/ui/form"
 import { Loader2 } from "lucide-react"
 import dayjs from "dayjs"
 import { useCreateCostItem, useUpdateCostItem } from "@/hooks/use-cost-item"
 import { useCostItemCategories } from "@/hooks/use-cost-item-category"
 import { useToast } from "@/hooks/use-toast"
 import { CreateCostItemBody, CreateCostItemBodyType } from "@/schemaValidations/rice-farming.schema"
-import { FormNumberInput, FormComboBox, FormDatePicker } from "@/components/form"
+import { FormNumberInput, FormComboBox, FormDatePicker, FormFieldWrapper, FormTextarea } from "@/components/form"
 import type { CostItem } from "@/models/rice-farming"
 
 interface CreateCostItemModalProps {
@@ -45,7 +36,6 @@ export default function CreateCostItemModal({
 }: CreateCostItemModalProps) {
   const { toast } = useToast()
   
-  // React Hook Form
   const form = useForm<CreateCostItemBodyType>({
     resolver: zodResolver(CreateCostItemBody),
     defaultValues: {
@@ -57,11 +47,9 @@ export default function CreateCostItemModal({
     },
   })
 
-  // Lấy danh sách loại chi phí từ Database
   const { data: categoryData, isLoading: isLoadingCategories } = useCostItemCategories({ limit: 100 })
   const categories = categoryData?.data || []
 
-  // Reset form khi mở modal hoặc có data mới
   useEffect(() => {
     if (isOpen) {
       if (initialData) {
@@ -94,16 +82,15 @@ export default function CreateCostItemModal({
       if (initialData) {
         await updateMutation.mutateAsync({ 
           id: initialData.id, 
-          dto: { ...values, unit_price: values.total_cost } 
+          dto: { ...values, unit_price: values.total_cost } as any
         })
         toast({ title: "Thành công", description: "Cập nhật chi phí thành công" })
       } else {
-        // Đảm bảo rice_crop_id được set và thêm unit_price mặc định
         await createMutation.mutateAsync({ 
           ...values, 
           rice_crop_id: riceCropId,
           unit_price: values.total_cost 
-        })
+        } as any)
         toast({ title: "Thành công", description: "Thêm chi phí thành công" })
       }
       onClose()
@@ -121,18 +108,12 @@ export default function CreateCostItemModal({
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
-            <FormField
+            <FormFieldWrapper
               control={form.control}
               name="item_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tên chi phí <span className="text-red-500">*</span></FormLabel>
-                  <FormControl>
-                    <Input placeholder="VD: Phân Urê, Thuốc trừ sâu..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Tên chi phí"
+              placeholder="VD: Phân Urê, Thuốc trừ sâu..."
+              required
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -152,10 +133,11 @@ export default function CreateCostItemModal({
               <FormNumberInput
                 control={form.control}
                 name="total_cost"
-                label="Tổng tiền (VNĐ)"
+                label="Tổng tiền"
                 placeholder="0"
                 suffix=" ₫"
                 decimalScale={0}
+                required
               />
             </div>
 
@@ -163,36 +145,25 @@ export default function CreateCostItemModal({
               control={form.control}
               name="expense_date"
               label="Ngày chi"
+              required
             />
 
-            <FormField
+            <FormTextarea
               control={form.control}
               name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Ghi chú</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Ghi chú thêm..." 
-                      className="resize-none" 
-                      rows={3} 
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Ghi chú"
+              placeholder="Ghi chú thêm..."
             />
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={onClose}>
                 Hủy
               </Button>
-              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-agri-600 hover:bg-agri-700">
                 {(createMutation.isPending || updateMutation.isPending) && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                {initialData ? "Cập nhật" : "Lưu"}
+                {initialData ? "Cập nhật" : "Lưu chi phí"}
               </Button>
             </DialogFooter>
           </form>

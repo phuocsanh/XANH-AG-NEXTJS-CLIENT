@@ -26,7 +26,8 @@ interface DatePickerProps {
 
 /**
  * Component DatePicker - Phiên bản Tiếng Việt
- * Đồng bộ ngôn ngữ và định dạng với bản Admin.
+ * Đã sửa lỗi không chọn được ngày bằng cách sử dụng Date object chuẩn 
+ * và xử lý sự kiện onSelect chính xác hơn.
  */
 export function DatePicker({
   value,
@@ -38,13 +39,21 @@ export function DatePicker({
   maxDate,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
-  const dateValue = value ? new Date(value) : undefined
+  
+  // Chuyển đổi value sang Date object một cách an toàn
+  const dateValue = React.useMemo(() => {
+    if (!value) return undefined
+    const d = dayjs(value)
+    return d.isValid() ? d.toDate() : undefined
+  }, [value])
 
   const handleSelect = (date: Date | undefined) => {
     if (onChange) {
-      onChange(date ? dayjs(date).format("YYYY-MM-DD") : "")
+      // Luôn trả về định dạng YYYY-MM-DD để đồng bộ với backend/schema
+      const formattedDate = date ? dayjs(date).format("YYYY-MM-DD") : ""
+      onChange(formattedDate)
     }
-    setOpen(false) // Tự động đóng sau khi chọn
+    setOpen(false)
   }
 
   return (
@@ -58,16 +67,21 @@ export function DatePicker({
             className
           )}
           disabled={disabled}
+          type="button" // Đảm bảo không submit form khi nhấn
         >
           <CalendarIcon className="mr-2 h-4 w-4 text-agri-600" />
-          {value ? (
-            format(dateValue!, "dd/MM/yyyy", { locale: vi })
+          {dateValue ? (
+            format(dateValue, "dd/MM/yyyy", { locale: vi })
           ) : (
             <span>{placeholder}</span>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0 bg-white" align="start">
+      <PopoverContent 
+        className="w-auto p-0 bg-white shadow-xl z-[100]" 
+        align="start"
+        onFocusOutside={(e) => e.preventDefault()} // Ngăn chặn xung đột focus với Dialog
+      >
         <Calendar
           mode="single"
           selected={dateValue}
@@ -77,7 +91,7 @@ export function DatePicker({
             (maxDate ? date > maxDate : false)
           }
           initialFocus
-          locale={vi} // Chuyển lịch sang Tiếng Việt
+          locale={vi}
         />
       </PopoverContent>
     </Popover>

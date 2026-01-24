@@ -45,7 +45,6 @@ export default function CreateExternalPurchaseModal({
 }: CreateExternalPurchaseModalProps) {
   const { toast } = useToast()
   
-  
   interface PurchaseItem {
     product_name: string
     quantity: number
@@ -72,16 +71,13 @@ export default function CreateExternalPurchaseModal({
 
   useEffect(() => {
     if (initialData && initialData.source === 'external') {
-      // Vì MergedPurchase không chứa chi tiết các item như ExternalPurchase gốc nên có thể cần fetch chi tiết
-      // Tuy nhiên trong demo này, chúng ta giả định items được map sơ bộ từ initialData 
-      // Hoặc fetch chi tiết external purchase bằng id
       setFormData({
         supplier_name: initialData.supplier,
         purchase_date: dayjs(initialData.date).format("YYYY-MM-DD"),
         payment_status: initialData.status,
         paid_amount: initialData.paid_amount,
         notes: initialData.notes || "",
-        items: initialData.items || [{ product_name: "", quantity: 1, unit_price: 0, total_price: 0 }]
+        items: (initialData as any).items || [{ product_name: "", quantity: 1, unit_price: 0, total_price: 0 }]
       })
     } else {
       setFormData({
@@ -114,9 +110,8 @@ export default function CreateExternalPurchaseModal({
   const updateItem = (index: number, field: string, value: string | number) => {
     const newItems = [...formData.items]
     const currentItem = newItems[index]
-    if (!currentItem) return // Guard clause để tránh undefined
+    if (!currentItem) return
     
-    // Cập nhật field với kiểu dữ liệu đúng
     if (field === "product_name") {
       newItems[index] = { ...currentItem, product_name: String(value) } as PurchaseItem
     } else if (field === "quantity") {
@@ -184,18 +179,18 @@ export default function CreateExternalPurchaseModal({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="supplier_name">Nhà cung cấp / Cửa hàng</Label>
+            <div className="space-y-1.5 flex flex-col">
+              <Label className="text-sm font-semibold text-agri-800">Nhà cung cấp / Cửa hàng <span className="text-red-500">*</span></Label>
               <Input
-                id="supplier_name"
                 value={formData.supplier_name}
                 onChange={(e) => setFormData({ ...formData, supplier_name: e.target.value })}
                 placeholder="VD: Cửa hàng BVTV Kim Anh"
+                className="h-10 border-agri-200 focus-visible:ring-agri-500"
                 required
               />
             </div>
-            <div className="space-y-2 flex flex-col">
-              <Label htmlFor="purchase_date">Ngày mua</Label>
+            <div className="space-y-1.5 flex flex-col">
+              <Label className="text-sm font-semibold text-agri-800">Ngày mua <span className="text-red-500">*</span></Label>
               <DatePicker
                 value={formData.purchase_date}
                 onChange={(date) => setFormData({ ...formData, purchase_date: date })}
@@ -204,13 +199,13 @@ export default function CreateExternalPurchaseModal({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="payment_status">Thanh toán</Label>
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold text-agri-800">Thanh toán</Label>
               <Select
                 value={formData.payment_status}
                 onValueChange={(value) => setFormData({ ...formData, payment_status: value })}
               >
-                <SelectTrigger id="payment_status">
+                <SelectTrigger className="h-10 border-agri-200 focus:ring-agri-500">
                   <SelectValue placeholder="Chọn trạng thái" />
                 </SelectTrigger>
                 <SelectContent>
@@ -221,67 +216,67 @@ export default function CreateExternalPurchaseModal({
               </Select>
             </div>
             {formData.payment_status === 'partial' && (
-              <div className="space-y-2">
-                <Label htmlFor="paid_amount">Số tiền đã trả</Label>
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold text-agri-800">Số tiền đã trả <span className="text-red-500">*</span></Label>
                 <Input
-                  id="paid_amount"
                   type="number"
                   value={formData.paid_amount}
                   onChange={(e) => setFormData({ ...formData, paid_amount: Number(e.target.value) })}
+                  className="h-10 border-agri-200 focus:ring-agri-500"
                   required
                 />
               </div>
             )}
           </div>
 
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <Label>Danh sách sản phẩm</Label>
-              <Button type="button" variant="outline" size="sm" onClick={addItem}>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center border-b border-agri-100 pb-2">
+              <Label className="text-base font-bold text-agri-900">Danh sách sản phẩm</Label>
+              <Button type="button" variant="outline" size="sm" onClick={addItem} className="text-agri-700 border-agri-200 hover:bg-agri-50 hover:text-agri-800 transition-colors">
                 <Plus className="h-4 w-4 mr-1" /> Thêm dòng
               </Button>
             </div>
-            <div className="space-y-3 border rounded-md p-3 bg-muted/50">
+            <div className="space-y-3">
               {formData.items.map((item: PurchaseItem, index: number) => (
-                <div key={index} className="grid grid-cols-12 gap-2 items-end">
-                  <div className="col-span-4 space-y-1">
-                    <Label className="text-[10px]">Tên SP</Label>
+                <div key={index} className="grid grid-cols-12 gap-2 items-end bg-agri-50/30 p-3 rounded-lg border border-agri-100/50">
+                  <div className="col-span-5 space-y-1.5">
+                    <Label className="text-[11px] font-bold text-agri-700 uppercase tracking-wider">Tên sản phẩm</Label>
                     <Input
                       placeholder="Sản phẩm"
                       value={item.product_name}
                       onChange={(e) => updateItem(index, "product_name", e.target.value)}
+                      className="h-9 bg-white border-agri-200"
                       required
                     />
                   </div>
-                  <div className="col-span-2 space-y-1">
-                    <Label className="text-[10px]">SL</Label>
+                  <div className="col-span-2 space-y-1.5">
+                    <Label className="text-[11px] font-bold text-agri-700 uppercase tracking-wider">SL</Label>
                     <Input
                       type="number"
                       placeholder="SL"
                       value={item.quantity}
                       onChange={(e) => updateItem(index, "quantity", e.target.value)}
+                      className="h-9 bg-white border-agri-200"
                       required
                     />
                   </div>
-                  <div className="col-span-3 space-y-1">
-                    <Label className="text-[10px]">Đơn giá</Label>
+                  <div className="col-span-3 space-y-1.5">
+                    <Label className="text-[11px] font-bold text-agri-700 uppercase tracking-wider">Đơn giá</Label>
                     <Input
                       type="number"
                       placeholder="Đơn giá"
                       value={item.unit_price}
                       onChange={(e) => updateItem(index, "unit_price", e.target.value)}
+                      className="h-9 bg-white border-agri-200"
                       required
                     />
                   </div>
-                  <div className="col-span-2 text-right self-center font-medium text-xs">
-                    {convertCurrency(item.total_price)}
-                  </div>
-                  <div className="col-span-1 flex justify-center">
+                  <div className="col-span-2 flex justify-end">
                     <Button
                       type="button"
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-destructive"
+                      className="h-9 w-9 text-destructive hover:bg-red-50"
                       onClick={() => removeItem(index)}
                       disabled={formData.items.length === 1}
                     >
@@ -293,27 +288,27 @@ export default function CreateExternalPurchaseModal({
             </div>
           </div>
 
-          <div className="flex justify-between items-center font-bold px-2">
-            <span>TỔNG CỘNG:</span>
-            <span className="text-lg text-primary">{convertCurrency(totalAmount)}</span>
+          <div className="flex justify-between items-center font-bold px-4 py-3 bg-agri-600 text-white rounded-xl shadow-inner">
+            <span className="text-sm">TỔNG CỘNG:</span>
+            <span className="text-lg">{convertCurrency(totalAmount)}</span>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="notes">Ghi chú</Label>
+          <div className="space-y-1.5">
+            <Label className="text-sm font-semibold text-agri-800">Ghi chú</Label>
             <Textarea
-              id="notes"
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               rows={2}
               placeholder="Ghi chú về lô hàng hoặc thanh toán..."
+              className="resize-none border-agri-200 focus:ring-agri-500"
             />
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="pt-4 border-t border-agri-100">
             <Button type="button" variant="outline" onClick={onClose}>
               Hủy
             </Button>
-            <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
+            <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-agri-600 hover:bg-agri-700 shadow-md">
               {(createMutation.isPending || updateMutation.isPending) && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}

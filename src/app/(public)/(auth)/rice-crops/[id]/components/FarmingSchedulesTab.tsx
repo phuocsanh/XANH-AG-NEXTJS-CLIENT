@@ -1,6 +1,8 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import {
   Table,
   TableBody,
@@ -9,7 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -18,19 +19,9 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
+import { Form } from "@/components/ui/form"
 import { Plus, Edit, Trash2, CheckCircle2, Loader2 } from "lucide-react"
 import dayjs from "dayjs"
-import { DatePicker } from "@/components/ui/date-picker"
 import {
   useFarmingSchedules,
   useCreateFarmingSchedule,
@@ -39,14 +30,13 @@ import {
   useCompleteFarmingSchedule,
 } from "@/hooks/use-farming-schedule"
 import { 
-  getScheduleStatusText, 
-  getScheduleStatusColor,
-  type FarmingSchedule,
-  type CreateFarmingScheduleDto,
-  type ScheduleStatus
+  type FarmingSchedule
 } from "@/models/rice-farming"
 import { useToast } from "@/hooks/use-toast"
 import { useConfirm } from "@/hooks/use-confirm"
+import { CreateFarmingScheduleBody, CreateFarmingScheduleBodyType } from "@/schemaValidations/rice-farming.schema"
+import { FormDatePicker, FormComboBox, FormTextarea, FormFieldWrapper } from "@/components/form"
+import { StatusBadge } from "@/components/common/status-badge"
 
 interface FarmingSchedulesTabProps {
   riceCropId: number
@@ -58,15 +48,17 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<FarmingSchedule | null>(null)
   
-  // Form state
-  const [formData, setFormData] = useState<Partial<CreateFarmingScheduleDto>>({
-    activity_name: "",
-    scheduled_date: dayjs().format("YYYY-MM-DD"),
-    status: "pending",
-    instructions: "",
+  const form = useForm<CreateFarmingScheduleBodyType>({
+    resolver: zodResolver(CreateFarmingScheduleBody),
+    defaultValues: {
+      rice_crop_id: riceCropId,
+      activity_name: "",
+      scheduled_date: dayjs().format("YYYY-MM-DD"),
+      status: "pending",
+      instructions: "",
+    },
   })
 
-  // Queries
   const { data: schedules, isLoading } = useFarmingSchedules({ rice_crop_id: riceCropId })
   
   const createMutation = useCreateFarmingSchedule()
@@ -74,26 +66,36 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
   const deleteMutation = useDeleteFarmingSchedule()
   const completeMutation = useCompleteFarmingSchedule()
 
+  useEffect(() => {
+    if (isModalOpen) {
+      if (editingItem) {
+        form.reset({
+          rice_crop_id: riceCropId,
+          activity_name: editingItem.activity_name,
+          scheduled_date: dayjs(editingItem.scheduled_date).format("YYYY-MM-DD"),
+          status: editingItem.status,
+          instructions: editingItem.instructions || "",
+          completed_date: editingItem.completed_date ? dayjs(editingItem.completed_date).format("YYYY-MM-DD") : undefined,
+        })
+      } else {
+        form.reset({
+          rice_crop_id: riceCropId,
+          activity_name: "",
+          scheduled_date: dayjs().format("YYYY-MM-DD"),
+          status: "pending",
+          instructions: "",
+        })
+      }
+    }
+  }, [editingItem, isModalOpen, riceCropId, form])
+
   const handleAdd = () => {
     setEditingItem(null)
-    setFormData({
-      activity_name: "",
-      scheduled_date: dayjs().format("YYYY-MM-DD"),
-      status: "pending",
-      instructions: "",
-    })
     setIsModalOpen(true)
   }
 
   const handleEdit = (item: FarmingSchedule) => {
     setEditingItem(item)
-    setFormData({
-      activity_name: item.activity_name,
-      scheduled_date: dayjs(item.scheduled_date).format("YYYY-MM-DD"),
-      status: item.status,
-      instructions: item.instructions || "",
-      completed_date: item.completed_date ? dayjs(item.completed_date).format("YYYY-MM-DD") : undefined,
-    })
     setIsModalOpen(true)
   }
 
@@ -125,31 +127,15 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!formData.activity_name || !formData.scheduled_date) {
-      toast({ title: "Lỗi", description: "Vui lòng nhập đầy đủ thông tin", variant: "destructive" })
-      return
-    }
-
+  const onSubmit = async (values: CreateFarmingScheduleBodyType) => {
     try {
-      const dto: CreateFarmingScheduleDto = {
-        activity_name: formData.activity_name,
-        scheduled_date: formData.scheduled_date,
-        status: formData.status as ScheduleStatus,
-        instructions: formData.instructions,
-        rice_crop_id: riceCropId,
-        completed_date: formData.completed_date,
-      }
-
       if (editingItem) {
-        await updateMutation.mutateAsync({ id: editingItem.id, dto })
+        await updateMutation.mutateAsync({ id: editingItem.id, dto: values as any })
         toast({ title: "Thành công", description: "Cập nhật lịch canh tác thành công" })
       } else {
-        await createMutation.mutateAsync(dto)
+        await createMutation.mutateAsync(values as any)
         toast({ title: "Thành công", description: "Thêm lịch canh tác thành công" })
       }
-
       setIsModalOpen(false)
     } catch {
       toast({ title: "Lỗi", description: "Có lỗi xảy ra khi lưu dữ liệu", variant: "destructive" })
@@ -159,53 +145,57 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button onClick={handleAdd}>
+        <Button onClick={handleAdd} className="bg-agri-600 hover:bg-agri-700 shadow-sm">
           <Plus className="h-4 w-4 mr-2" />
           Thêm công việc
         </Button>
       </div>
 
-      <div className="border rounded-md">
+      <div className="border rounded-xl overflow-hidden bg-white shadow-sm">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-agri-50/50">
             <TableRow>
-              <TableHead className="min-w-[120px]">Ngày dự kiến</TableHead>
-              <TableHead className="min-w-[180px]">Công việc</TableHead>
-              <TableHead className="min-w-[130px]">Trạng thái</TableHead>
-              <TableHead className="min-w-[130px]">Ngày hoàn thành</TableHead>
-              <TableHead className="text-right min-w-[140px]">Hành động</TableHead>
+              <TableHead className="min-w-[120px] font-bold text-agri-900">Ngày dự kiến</TableHead>
+              <TableHead className="min-w-[180px] font-bold text-agri-900">Công việc</TableHead>
+              <TableHead className="min-w-[130px] font-bold text-agri-900">Trạng thái</TableHead>
+              <TableHead className="min-w-[130px] font-bold text-agri-900 text-center">Hoàn thành</TableHead>
+              <TableHead className="text-right min-w-[140px] font-bold text-agri-900 pr-6">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
-                  <div className="flex items-center justify-center">
-                    <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                    Đang tải dữ liệu...
+                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin text-agri-500" />
+                    Đang tải lịch trình...
                   </div>
                 </TableCell>
               </TableRow>
             ) : schedules && schedules.length > 0 ? (
               schedules.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{dayjs(item.scheduled_date).format("DD/MM/YYYY")}</TableCell>
-                  <TableCell className="font-medium">{item.activity_name}</TableCell>
+                <TableRow key={item.id} className="hover:bg-agri-50/30 transition-colors">
+                  <TableCell className="font-medium text-gray-700">{dayjs(item.scheduled_date).format("DD/MM/YYYY")}</TableCell>
+                  <TableCell className="font-bold text-agri-800">{item.activity_name}</TableCell>
                   <TableCell>
-                    <Badge variant={getScheduleStatusColor(item.status)}>
-                      {getScheduleStatusText(item.status)}
-                    </Badge>
+                    <StatusBadge status={item.status} />
                   </TableCell>
-                  <TableCell>
-                    {item.completed_date ? dayjs(item.completed_date).format("DD/MM/YYYY") : "-"}
+                  <TableCell className="text-center">
+                    {item.completed_date ? (
+                      <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full border border-emerald-100 italic">
+                        {dayjs(item.completed_date).format("DD/MM/YYYY")}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right pr-4">
                     <div className="flex justify-end gap-1">
                       {item.status === "pending" && (
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                          className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                           onClick={() => handleComplete(item.id)}
                           title="Đánh dấu hoàn thành"
                         >
@@ -215,6 +205,7 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
                       <Button
                         variant="ghost"
                         size="icon"
+                        className="h-8 w-8 text-sky-600 hover:text-sky-700 hover:bg-sky-50"
                         onClick={() => handleEdit(item)}
                         title="Chỉnh sửa"
                       >
@@ -223,7 +214,7 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        className="h-8 w-8 text-destructive hover:bg-destructive/10"
                         onClick={() => handleDelete(item.id)}
                         title="Xóa"
                       >
@@ -235,7 +226,7 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground italic">
+                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground italic">
                   Chưa có lịch canh tác nào
                 </TableCell>
               </TableRow>
@@ -249,78 +240,67 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
           <DialogHeader>
             <DialogTitle>{editingItem ? "Sửa lịch canh tác" : "Thêm công việc mới"}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="activity_name">Tên công việc</Label>
-              <Input
-                id="activity_name"
-                value={formData.activity_name}
-                onChange={(e) => setFormData({ ...formData, activity_name: e.target.value })}
+          
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+              <FormFieldWrapper
+                control={form.control}
+                name="activity_name"
+                label="Tên công việc"
                 placeholder="VD: Bón phân đợt 1"
                 required
               />
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2 flex flex-col">
-                <Label htmlFor="scheduled_date">Ngày dự kiến</Label>
-                <DatePicker
-                  value={formData.scheduled_date}
-                  onChange={(date) => setFormData({ ...formData, scheduled_date: date })}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormDatePicker
+                  control={form.control}
+                  name="scheduled_date"
+                  label="Ngày dự kiến"
+                  required
+                />
+                <FormComboBox
+                  control={form.control}
+                  name="status"
+                  label="Trạng thái"
+                  options={[
+                    { value: "pending", label: "Chờ thực hiện" },
+                    { value: "completed", label: "Đã hoàn thành" },
+                    { value: "cancelled", label: "Đã hủy" },
+                    { value: "overdue", label: "Quá hạn" }
+                  ]}
+                  required
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="status">Trạng thái</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value) => setFormData({ ...formData, status: value as ScheduleStatus })}
-                >
-                  <SelectTrigger id="status">
-                    <SelectValue placeholder="Chọn trạng thái" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Chờ thực hiện</SelectItem>
-                    <SelectItem value="completed">Đã hoàn thành</SelectItem>
-                    <SelectItem value="cancelled">Đã hủy</SelectItem>
-                    <SelectItem value="overdue">Quá hạn</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
 
-            {formData.status === "completed" && (
-              <div className="space-y-2 flex flex-col">
-                <Label htmlFor="completed_date">Ngày hoàn thành thực tế</Label>
-                <DatePicker
-                  value={formData.completed_date || dayjs().format("YYYY-MM-DD")}
-                  onChange={(date) => setFormData({ ...formData, completed_date: date })}
+              {form.watch("status") === "completed" && (
+                <FormDatePicker
+                  control={form.control}
+                  name="completed_date"
+                  label="Ngày hoàn thành thực tế"
                 />
-              </div>
-            )}
+              )}
 
-            <div className="space-y-2">
-              <Label htmlFor="instructions">Mô tả chi tiết</Label>
-              <Textarea
-                id="instructions"
-                value={formData.instructions}
-                onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
-                rows={3}
+              <FormTextarea
+                control={form.control}
+                name="instructions"
+                label="Mô tả chi tiết"
                 placeholder="Nhập ghi chú hoặc hướng dẫn..."
+                rows={3}
               />
-            </div>
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
-                Hủy
-              </Button>
-              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
-                {(createMutation.isPending || updateMutation.isPending) && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                {editingItem ? "Cập nhật" : "Lưu"}
-              </Button>
-            </DialogFooter>
-          </form>
+              <DialogFooter className="pt-4 border-t border-agri-50">
+                <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+                  Hủy
+                </Button>
+                <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-agri-600 hover:bg-agri-700 shadow-md">
+                  {(createMutation.isPending || updateMutation.isPending) && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  {editingItem ? "Cập nhật" : "Lưu công việc"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
 
