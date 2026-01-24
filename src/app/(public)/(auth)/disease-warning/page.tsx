@@ -2,34 +2,28 @@
 
 import React, { useState } from "react"
 import { 
-  RefreshCw, 
-  Zap, 
   AlertCircle, 
   Info
 } from "lucide-react"
 import { 
   useDiseaseLocation, 
-  useUpdateDiseaseLocation, 
-  useDiseaseWarning, 
-  useRunDiseaseAnalysis 
+  useDiseaseWarning
 } from "@/hooks/use-disease-warning"
 import {
   LocationForm,
   DailyDataTable,
   DiseaseWarningCard
 } from "@/components/disease-warning"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
-import { toast } from "@/hooks/use-toast"
 
 export default function DiseaseWarningPage() {
   const [activeTab, setActiveTab] = useState("rice-blast")
   
   // Queries
-  const { data: location, isLoading: locationLoading, refetch: refetchLocation } = useDiseaseLocation()
+  const { data: location, isLoading: locationLoading } = useDiseaseLocation()
   
   // Warning queries for each disease
   const riceBlast = useDiseaseWarning("rice-blast")
@@ -40,65 +34,6 @@ export default function DiseaseWarningPage() {
   const gallMidge = useDiseaseWarning("gall-midge")
   const brownPlantHopper = useDiseaseWarning("brown-plant-hopper")
   
-  // Mutations
-  const updateLocation = useUpdateDiseaseLocation()
-  const runRiceBlast = useRunDiseaseAnalysis("rice-blast")
-  const runBacterialBlight = useRunDiseaseAnalysis("bacterial-blight")
-  const runSheathBlight = useRunDiseaseAnalysis("sheath-blight")
-  const runGrainDiscoloration = useRunDiseaseAnalysis("grain-discoloration")
-  const runStemBorer = useRunDiseaseAnalysis("stem-borer")
-  const runGallMidge = useRunDiseaseAnalysis("gall-midge")
-  const runBrownPlantHopper = useRunDiseaseAnalysis("brown-plant-hopper")
-
-  const isAnalyzing = 
-    runRiceBlast.isPending || 
-    runBacterialBlight.isPending ||
-    runSheathBlight.isPending ||
-    runGrainDiscoloration.isPending ||
-    runStemBorer.isPending ||
-    runGallMidge.isPending ||
-    runBrownPlantHopper.isPending
-
-  const handleUpdateLocation = async (values: any) => {
-    try {
-      await updateLocation.mutateAsync(values)
-      toast({
-        title: "Thành công",
-        description: "Đã cập nhật vị trí ruộng lúa",
-      })
-      handleRunAllAnalyses()
-    } catch {
-      toast({
-        title: "Lỗi",
-        description: "Không thể cập nhật vị trí",
-        variant: "destructive"
-      })
-    }
-  }
-
-  const handleRunAllAnalyses = () => {
-    runRiceBlast.mutate()
-    runBacterialBlight.mutate()
-    runSheathBlight.mutate()
-    runGrainDiscoloration.mutate()
-    runStemBorer.mutate()
-    runGallMidge.mutate()
-    runBrownPlantHopper.mutate()
-  }
-
-  const handleRefresh = () => {
-    switch (activeTab) {
-      case "rice-blast": riceBlast.refetch(); break;
-      case "bacterial-blight": bacterialBlight.refetch(); break;
-      case "sheath-blight": sheathBlight.refetch(); break;
-      case "grain-discoloration": grainDiscoloration.refetch(); break;
-      case "stem-borer": stemBorer.refetch(); break;
-      case "gall-midge": gallMidge.refetch(); break;
-      case "brown-plant-hopper": brownPlantHopper.refetch(); break;
-    }
-    refetchLocation()
-  }
-
   const tabsListRef = React.useRef<HTMLDivElement>(null)
 
   // Tự động cuộn tab đang chọn vào giữa (center) để người dùng thấy các tab lân cận
@@ -131,26 +66,6 @@ export default function DiseaseWarningPage() {
              Tự động phân tích rủi ro dựa trên dữ liệu thời tiết thực tế
            </p>
         </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex-1 md:flex-none h-10 border-emerald-100 text-emerald-700 font-bold bg-white shadow-sm"
-            onClick={handleRefresh}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading && 'animate-spin'}`} />
-            Làm mới
-          </Button>
-          <Button 
-            size="sm" 
-            className="flex-1 md:flex-none h-10 bg-emerald-600 hover:bg-emerald-700 shadow-md transition-all active:scale-95 font-bold"
-            onClick={handleRunAllAnalyses}
-            disabled={isAnalyzing || !location}
-          >
-            <Zap className={`h-4 w-4 mr-2 ${isAnalyzing && 'animate-pulse text-yellow-300'}`} />
-            {isAnalyzing ? "Đang phân tích..." : "Phân tích tất cả"}
-          </Button>
-        </div>
       </div>
 
       {/* Info Alert */}
@@ -158,7 +73,7 @@ export default function DiseaseWarningPage() {
         <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
         <AlertTitle className="text-xs font-bold uppercase tracking-wider">Hệ thống tự động</AlertTitle>
         <AlertDescription className="text-xs">
-          Dữ liệu cập nhật mỗi ngày lúc 6:00 sáng. Lưu ý: Phân tích AI thủ công có thể mất <span className="font-bold underline">5-10 giây</span>.
+          Dữ liệu cập nhật mỗi ngày lúc 6:00 sáng. Toàn bộ phân tích được thực hiện tự động dựa trên vị trí ruộng lúa.
         </AlertDescription>
       </Alert>
 
@@ -174,8 +89,6 @@ export default function DiseaseWarningPage() {
           {/* Location Form */}
           <LocationForm 
             location={location} 
-            onSubmit={handleUpdateLocation} 
-            loading={updateLocation.isPending} 
           />
 
           {/* Disease Sections */}
@@ -204,9 +117,6 @@ export default function DiseaseWarningPage() {
                 slug="rice-blast"
                 data={riceBlast.data}
                 loading={riceBlast.isLoading}
-                analyzing={runRiceBlast.isPending}
-                onAnalyze={() => runRiceBlast.mutate()}
-                location={!!location}
               />
             </TabsContent>
 
@@ -217,9 +127,6 @@ export default function DiseaseWarningPage() {
                 slug="bacterial-blight"
                 data={bacterialBlight.data}
                 loading={bacterialBlight.isLoading}
-                analyzing={runBacterialBlight.isPending}
-                onAnalyze={() => runBacterialBlight.mutate()}
-                location={!!location}
               />
             </TabsContent>
 
@@ -230,9 +137,6 @@ export default function DiseaseWarningPage() {
                 slug="sheath-blight"
                 data={sheathBlight.data}
                 loading={sheathBlight.isLoading}
-                analyzing={runSheathBlight.isPending}
-                onAnalyze={() => runSheathBlight.mutate()}
-                location={!!location}
               />
             </TabsContent>
 
@@ -243,9 +147,6 @@ export default function DiseaseWarningPage() {
                 slug="grain-discoloration"
                 data={grainDiscoloration.data}
                 loading={grainDiscoloration.isLoading}
-                analyzing={runGrainDiscoloration.isPending}
-                onAnalyze={() => runGrainDiscoloration.mutate()}
-                location={!!location}
               />
             </TabsContent>
 
@@ -256,9 +157,6 @@ export default function DiseaseWarningPage() {
                 slug="stem-borer"
                 data={stemBorer.data}
                 loading={stemBorer.isLoading}
-                analyzing={runStemBorer.isPending}
-                onAnalyze={() => runStemBorer.mutate()}
-                location={!!location}
                 borderColor="#fa8c16"
               />
             </TabsContent>
@@ -270,9 +168,6 @@ export default function DiseaseWarningPage() {
                 slug="gall-midge"
                 data={gallMidge.data}
                 loading={gallMidge.isLoading}
-                analyzing={runGallMidge.isPending}
-                onAnalyze={() => runGallMidge.mutate()}
-                location={!!location}
                 borderColor="#722ed1"
               />
             </TabsContent>
@@ -284,9 +179,6 @@ export default function DiseaseWarningPage() {
                 slug="brown-plant-hopper"
                 data={brownPlantHopper.data}
                 loading={brownPlantHopper.isLoading}
-                analyzing={runBrownPlantHopper.isPending}
-                onAnalyze={() => runBrownPlantHopper.mutate()}
-                location={!!location}
                 borderColor="#13c2c2"
               />
             </TabsContent>
@@ -302,25 +194,10 @@ function DiseaseTabPanel({
   slug, 
   data, 
   loading, 
-  analyzing, 
-  onAnalyze, 
-  location,
   borderColor
 }: any) {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex justify-end pr-1">
-        <Button
-          size="sm"
-          className="bg-emerald-600 hover:bg-emerald-700 h-9 font-bold px-4 rounded-xl"
-          onClick={onAnalyze}
-          disabled={analyzing || !location}
-        >
-          {analyzing ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <Zap className="h-4 w-4 mr-2" />}
-          Phân tích {diseaseTitle}
-        </Button>
-      </div>
-
       {loading ? (
         <div className="space-y-4">
           <Skeleton className="h-48 w-full rounded-3xl" />
@@ -331,7 +208,6 @@ function DiseaseTabPanel({
           <DiseaseWarningCard 
             warning={data} 
             title={diseaseTitle} 
-            loading={analyzing} 
             borderColor={borderColor}
           />
           
@@ -357,7 +233,7 @@ function DiseaseTabPanel({
           <AlertCircle className="h-4 w-4 text-orange-600" />
           <AlertTitle className="font-bold">Chưa có dữ liệu</AlertTitle>
           <AlertDescription>
-            Vui lòng nhấn nút "Phân tích {diseaseTitle}" để nhận kết quả từ AI.
+            Hệ thống đang thu thập dữ liệu. Vui lòng quay lại sau.
           </AlertDescription>
         </Alert>
       )}
