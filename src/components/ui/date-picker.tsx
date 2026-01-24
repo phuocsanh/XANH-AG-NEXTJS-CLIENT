@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { format } from "date-fns"
+import { vi } from "date-fns/locale"
 import { Calendar as CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -23,6 +24,10 @@ interface DatePickerProps {
   maxDate?: Date
 }
 
+/**
+ * Component DatePicker - Phiên bản Tiếng Việt
+ * Đồng bộ ngôn ngữ và định dạng với bản Admin.
+ */
 export function DatePicker({
   value,
   onChange,
@@ -32,10 +37,18 @@ export function DatePicker({
   minDate,
   maxDate,
 }: DatePickerProps) {
+  const [open, setOpen] = React.useState(false)
   const dateValue = value ? new Date(value) : undefined
 
+  const handleSelect = (date: Date | undefined) => {
+    if (onChange) {
+      onChange(date ? dayjs(date).format("YYYY-MM-DD") : "")
+    }
+    setOpen(false) // Tự động đóng sau khi chọn
+  }
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant={"outline"}
@@ -48,26 +61,23 @@ export function DatePicker({
         >
           <CalendarIcon className="mr-2 h-4 w-4 text-agri-600" />
           {value ? (
-            format(dateValue!, "dd/MM/yyyy")
+            format(dateValue!, "dd/MM/yyyy", { locale: vi })
           ) : (
             <span>{placeholder}</span>
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent className="w-auto p-0 bg-white" align="start">
         <Calendar
           mode="single"
           selected={dateValue}
-          onSelect={(date) => {
-            if (onChange) {
-              onChange(date ? dayjs(date).format("YYYY-MM-DD") : "")
-            }
-          }}
+          onSelect={handleSelect}
           disabled={(date) =>
             (minDate ? date < minDate : false) ||
             (maxDate ? date > maxDate : false)
           }
           initialFocus
+          locale={vi} // Chuyển lịch sang Tiếng Việt
         />
       </PopoverContent>
     </Popover>

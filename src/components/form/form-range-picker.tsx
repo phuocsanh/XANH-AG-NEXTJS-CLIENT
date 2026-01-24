@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { format } from "date-fns"
+import { vi } from "date-fns/locale"
 import { Calendar as CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -30,6 +31,9 @@ interface FormRangePickerProps<T extends FieldValues> {
   required?: boolean
 }
 
+/**
+ * Component FormRangePicker - Phiên bản Tiếng Việt
+ */
 export function FormRangePicker<T extends FieldValues>({
   control,
   name,
@@ -46,7 +50,7 @@ export function FormRangePicker<T extends FieldValues>({
       render={({ field }) => (
         <FormItem className={cn("flex flex-col", className)}>
           {label && (
-            <FormLabel>
+            <FormLabel className="text-sm font-semibold text-agri-800">
               {label} {required && <span className="text-red-500">*</span>}
             </FormLabel>
           )}
@@ -66,11 +70,11 @@ export function FormRangePicker<T extends FieldValues>({
                   {field.value?.from ? (
                     field.value.to ? (
                       <>
-                        {format(field.value.from, "dd/MM/yyyy")} -{" "}
-                        {format(field.value.to, "dd/MM/yyyy")}
+                        {format(field.value.from, "dd/MM/yyyy", { locale: vi })} -{" "}
+                        {format(field.value.to, "dd/MM/yyyy", { locale: vi })}
                       </>
                     ) : (
-                      format(field.value.from, "dd/MM/yyyy")
+                      format(field.value.from, "dd/MM/yyyy", { locale: vi })
                     )
                   ) : (
                     <span>{placeholder}</span>
@@ -78,7 +82,7 @@ export function FormRangePicker<T extends FieldValues>({
                 </Button>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto p-0 bg-white" align="start">
               <Calendar
                 initialFocus
                 mode="range"
@@ -86,6 +90,7 @@ export function FormRangePicker<T extends FieldValues>({
                 selected={field.value}
                 onSelect={field.onChange}
                 numberOfMonths={2}
+                locale={vi} // Chuyển sang Tiếng Việt
               />
             </PopoverContent>
           </Popover>
