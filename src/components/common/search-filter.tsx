@@ -1,137 +1,108 @@
 "use client"
 
-import * as React from "react"
-import { useForm } from "react-hook-form"
-import { Search, RotateCcw } from "lucide-react"
-
-import { Button } from "@/components/ui/button"
+import React from "react"
 import { Input } from "@/components/ui/input"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { format } from "date-fns"
+import { Button } from "@/components/ui/button"
+import { Search, RotateCcw, Filter } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-export interface FilterField {
-  key: string
-  label: string
-  type: "text" | "select" | "date"
-  placeholder?: string
-  options?: { label: string; value: string | number }[]
-}
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 interface SearchFilterProps {
-  filterFields?: FilterField[]
-  onSearch?: (values: any) => void
+  onSearch?: (value: string) => void
   onReset?: () => void
+  searchPlaceholder?: string
+  isLoading?: boolean
   className?: string
-  initialValues?: any
+  children?: React.ReactNode // Cho phép thêm các bộ lọc phụ (Select, DatePicker...)
 }
 
+/**
+ * Component SearchFilter - Phiên bản NextJS
+ * Tập trung vào tính cơ động: Tìm kiếm nhanh trên Mobile & Mở rộng trên Desktop.
+ * Clone & Tối ưu từ SearchFilter của bản Admin.
+ */
 export function SearchFilter({
-  filterFields = [],
   onSearch,
   onReset,
+  searchPlaceholder = "Tìm kiếm...",
+  isLoading = false,
   className,
-  initialValues = {},
+  children,
 }: SearchFilterProps) {
-  const form = useForm({
-    defaultValues: initialValues,
-  })
+  const [searchValue, setSearchValue] = React.useState("")
 
-  const onSubmit = (values: any) => {
-    onSearch?.(values)
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    onSearch?.(searchValue)
   }
 
   const handleReset = () => {
-    form.reset()
+    setSearchValue("")
     onReset?.()
   }
 
   return (
-    <div className={cn("bg-card p-4 rounded-lg border shadow-sm", className)}>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {filterFields.map((field) => (
-              <FormField
-                key={field.key}
-                control={form.control}
-                name={field.key}
-                render={({ field: formField }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel className="text-xs font-medium">{field.label}</FormLabel>
-                    <FormControl>
-                      {field.type === "text" && (
-                        <Input placeholder={field.placeholder} {...formField} className="h-8" />
-                      )}
-                      
-                      {field.type === "select" && (
-                        <Select onValueChange={formField.onChange} defaultValue={formField.value} value={formField.value}>
-                          <FormControl>
-                            <SelectTrigger className="h-8">
-                              <SelectValue placeholder={field.placeholder} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {field.options?.map((opt) => (
-                              <SelectItem key={opt.value} value={String(opt.value)}>
-                                {opt.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
+    <div className={cn("flex flex-col md:flex-row gap-3 items-center w-full", className)}>
+      {/* 1. Ô TÌM KIẾM CHÍNH */}
+      <form onSubmit={handleSearch} className="relative w-full md:flex-1">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder={searchPlaceholder}
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          className="pl-10 h-11 md:h-10 border-agri-100 bg-white focus-visible:ring-agri-500 shadow-sm"
+        />
+        <Button 
+          type="submit" 
+          disabled={isLoading}
+          className="hidden" // Nút ẩn để kích hoạt submit form
+        >
+          Tìm
+        </Button>
+      </form>
 
-                      {field.type === "date" && (
-                         <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant={"outline"}
-                                className={cn(
-                                  "w-full h-8 justify-start text-left font-normal",
-                                  !formField.value && "text-muted-foreground"
-                                )}
-                              >
-                                {formField.value ? format(new Date(formField.value), "dd/MM/yyyy") : <span>{field.placeholder}</span>}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
-                                mode="single"
-                                selected={formField.value}
-                                onSelect={formField.onChange}
-                                initialFocus
-                              />
-                            </PopoverContent>
-                          </Popover>
-                      )}
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            ))}
+      {/* 2. NHÓM BỘ LỌC PHỤ & RESET */}
+      <div className="flex items-center gap-2 w-full md:w-auto">
+        {/* Nếu có children (các bộ lọc như Select, Date...), hiển thị thêm nút Filter trên Mobile */}
+        {children && (
+          <div className="hidden md:flex items-center gap-2 flex-1 md:flex-none">
+            {children}
           </div>
+        )}
+        
+        {children && (
+          <div className="md:hidden flex-1">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full h-11 border-agri-200 text-agri-700 gap-2">
+                  <Filter className="h-4 w-4" />
+                  Bộ lọc
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[calc(100vw-2rem)] p-4 space-y-4" align="end">
+                <h3 className="font-bold text-sm text-agri-900 border-b pb-2 mb-2">Tùy chọn bộ lọc</h3>
+                <div className="space-y-4">
+                  {children}
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
 
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={handleReset}>
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Đặt lại
-            </Button>
-            <Button type="submit" size="sm">
-              <Search className="mr-2 h-4 w-4" />
-              Tìm kiếm
-            </Button>
-          </div>
-        </form>
-      </Form>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={handleReset}
+          className="h-11 w-11 md:h-10 md:w-10 text-muted-foreground hover:text-agri-600 hover:bg-agri-50 rounded-lg"
+          title="Đặt lại"
+        >
+          <RotateCcw className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   )
 }

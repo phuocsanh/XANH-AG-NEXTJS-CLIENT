@@ -1,9 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Control, FieldValues, Path } from "react-hook-form"
+import { Control, FieldPath, FieldValues } from "react-hook-form"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import {
   FormControl,
   FormField,
@@ -11,83 +10,58 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 
-interface FormFieldProps<T extends FieldValues> {
+interface FormFieldWrapperProps<T extends FieldValues> {
   control: Control<T>
-  name: Path<T>
-  label: string
-  type?: "text" | "email" | "password" | "select" | "textarea" | "number"
+  name: FieldPath<T>
+  label?: string
   placeholder?: string
-  options?: { label: string; value: string | number }[]
+  type?: string
   disabled?: boolean
   className?: string
-  rows?: number
+  required?: boolean
+  description?: string
+  rules?: any
 }
 
-/**
- * FormField component - Generic form field wrapper cho react-hook-form
- * Hỗ trợ nhiều loại input: text, email, password, select, textarea, number
- */
 export function FormFieldWrapper<T extends FieldValues>({
   control,
   name,
   label,
-  type = "text",
   placeholder,
-  options = [],
+  type = "text",
   disabled,
   className,
-  rows = 4,
-}: FormFieldProps<T>) {
+  required,
+  description,
+  rules,
+}: FormFieldWrapperProps<T>) {
   return (
     <FormField
       control={control}
       name={name}
+      rules={rules}
       render={({ field }) => (
-        <FormItem className={className}>
-          <FormLabel>{label}</FormLabel>
+        <FormItem className={cn("space-y-1.5", className)}>
+          {label && (
+            <FormLabel className="text-sm font-semibold text-agri-800">
+              {label} {required && <span className="text-red-500">*</span>}
+            </FormLabel>
+          )}
           <FormControl>
-            {type === "textarea" ? (
-              <Textarea
-                placeholder={placeholder}
-                disabled={disabled}
-                rows={rows}
-                {...field}
-              />
-            ) : type === "select" ? (
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-                disabled={disabled}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={placeholder} />
-                </SelectTrigger>
-                <SelectContent>
-                  {options.map((option) => (
-                    <SelectItem key={option.value} value={String(option.value)}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            ) : (
-              <Input
-                type={type}
-                placeholder={placeholder}
-                disabled={disabled}
-                {...field}
-              />
-            )}
+            <Input
+              type={type}
+              placeholder={placeholder}
+              disabled={disabled}
+              className="h-10 border-agri-200 focus-visible:ring-agri-500 focus-visible:border-agri-500 transition-all"
+              {...field}
+            />
           </FormControl>
-          <FormMessage />
+          {description && (
+            <p className="text-[12px] text-muted-foreground mt-1">{description}</p>
+          )}
+          <FormMessage className="text-[12px]" />
         </FormItem>
       )}
     />

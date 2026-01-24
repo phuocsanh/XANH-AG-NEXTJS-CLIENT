@@ -9,13 +9,15 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { NumberInput, NumberInputProps } from "@/components/ui/number-input"
+import { cn } from "@/lib/utils"
 
 interface FormNumberInputProps<T extends FieldValues> extends Omit<NumberInputProps, "value" | "defaultValue" | "onValueChange"> {
   control: Control<T>
   name: FieldPath<T>
   label?: string
   description?: string
-  rules?: any // React Hook Form validation rules
+  required?: boolean
+  rules?: any
 }
 
 export function FormNumberInput<T extends FieldValues>({
@@ -24,6 +26,7 @@ export function FormNumberInput<T extends FieldValues>({
   label,
   description,
   className,
+  required,
   rules,
   ...props
 }: FormNumberInputProps<T>) {
@@ -33,11 +36,16 @@ export function FormNumberInput<T extends FieldValues>({
       name={name}
       rules={rules}
       render={({ field }) => (
-        <FormItem className={className}>
-          {label && <FormLabel>{label}</FormLabel>}
+        <FormItem className={cn("space-y-1.5", className)}>
+          {label && (
+            <FormLabel className="text-sm font-semibold text-agri-800">
+              {label} {required && <span className="text-red-500">*</span>}
+            </FormLabel>
+          )}
           <FormControl>
             <NumberInput
               {...props}
+              className="h-10 border-agri-200 focus-visible:ring-agri-500 focus-visible:border-agri-500 transition-all"
               value={field.value}
               onValueChange={(values: any) => {
                 field.onChange(values.floatValue ?? null)
@@ -46,8 +54,8 @@ export function FormNumberInput<T extends FieldValues>({
               name={field.name}
             />
           </FormControl>
-          {description && <p className="text-sm text-muted-foreground">{description}</p>}
-          <FormMessage />
+          {description && <p className="text-[12px] text-muted-foreground mt-1">{description}</p>}
+          <FormMessage className="text-[12px]" />
         </FormItem>
       )}
     />

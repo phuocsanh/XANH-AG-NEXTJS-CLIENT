@@ -22,6 +22,8 @@ interface FormImageUploadProps<T extends FieldValues> {
   multiple?: boolean
   className?: string
   disabled?: boolean
+  required?: boolean
+  rules?: any
 }
 
 export function FormImageUpload<T extends FieldValues>({
@@ -31,7 +33,9 @@ export function FormImageUpload<T extends FieldValues>({
   maxCount = 5,
   multiple = true,
   className,
-  disabled
+  disabled,
+  required,
+  rules,
 }: FormImageUploadProps<T>) {
   const [isUploading, setIsUploading] = React.useState(false)
   const uploadMutation = useUploadImageMutation()
@@ -60,10 +64,8 @@ export function FormImageUpload<T extends FieldValues>({
     try {
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
-        if (!file) continue // Skip nếu file undefined
+        if (!file) continue
         
-        // Upload logic here
-        // Assuming response structure { url: string } based on hook
         const res = await uploadMutation.mutateAsync({ file })
         if (res?.url) {
           newUrls.push(res.url)
@@ -104,20 +106,26 @@ export function FormImageUpload<T extends FieldValues>({
     <FormField
       control={control}
       name={name}
+      rules={rules}
       render={({ field }) => {
         const value = (field.value as string[]) || []
 
         return (
           <FormItem className={className}>
-            {label && <FormLabel>{label}</FormLabel>}
+            {label && (
+              <FormLabel className="text-sm font-semibold text-agri-800">
+                {label} {required && <span className="text-red-500">*</span>}
+              </FormLabel>
+            )}
             <FormControl>
               <div className="space-y-4">
                 {/* Upload Area */}
                 <div 
                   className={cn(
-                    "border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors",
+                    "border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer hover:bg-agri-50 hover:border-agri-300 transition-all group",
                     isUploading && "opacity-50 pointer-events-none",
-                    disabled && "opacity-50 cursor-not-allowed"
+                    disabled && "opacity-50 cursor-not-allowed",
+                    "border-agri-200"
                   )}
                   onClick={() => !disabled && inputRef.current?.click()}
                 >
@@ -131,35 +139,35 @@ export function FormImageUpload<T extends FieldValues>({
                     disabled={disabled || isUploading}
                   />
                   {isUploading ? (
-                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    <Loader2 className="h-10 w-10 animate-spin text-agri-500" />
                   ) : (
-                    <UploadCloud className="h-8 w-8 text-muted-foreground" />
+                    <UploadCloud className="h-10 w-10 text-agri-400 group-hover:text-agri-600 transition-colors" />
                   )}
-                  <p className="mt-2 text-sm text-muted-foreground font-medium">
+                  <p className="mt-2 text-sm text-agri-700 font-medium">
                     {isUploading ? "Đang tải lên..." : "Nhấn để chọn ảnh"}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-agri-500">
                     Hỗ trợ JPG, PNG (Tối đa {maxCount} ảnh)
                   </p>
                 </div>
 
                 {/* Image List */}
                 {value.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
                     {value.map((url, index) => (
-                      <div key={index} className="relative group aspect-square rounded-md overflow-hidden border bg-background">
-                         {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <div key={index} className="relative group aspect-square rounded-lg overflow-hidden border border-agri-100 bg-background shadow-sm hover:shadow-md transition-all">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img 
                           src={url} 
                           alt={`Uploaded ${index}`} 
-                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          className="w-full h-full object-cover transition-transform group-hover:scale-110"
                         />
                         <button
                           type="button"
                           onClick={() => handleRemove(index, field.onChange, value)}
-                          className="absolute top-1 right-1 bg-black/50 hover:bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-1.5 right-1.5 bg-black/40 hover:bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm"
                         >
-                          <X className="h-4 w-4" />
+                          <X className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     ))}
@@ -167,7 +175,7 @@ export function FormImageUpload<T extends FieldValues>({
                 )}
               </div>
             </FormControl>
-            <FormMessage />
+            <FormMessage className="text-[12px]" />
           </FormItem>
         )
       }}

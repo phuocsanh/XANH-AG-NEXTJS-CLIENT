@@ -30,6 +30,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Plus, Edit, Trash2, Loader2 } from "lucide-react"
 import dayjs from "dayjs"
+import { DatePicker } from "@/components/ui/date-picker"
 import {
   useGrowthTrackings,
   useCreateGrowthTracking,
@@ -44,6 +45,7 @@ import {
   type GrowthStage
 } from "@/models/rice-farming"
 import { useToast } from "@/hooks/use-toast"
+import { useConfirm } from "@/hooks/use-confirm"
 
 interface GrowthTrackingTabProps {
   riceCropId: number
@@ -51,6 +53,7 @@ interface GrowthTrackingTabProps {
 
 export default function GrowthTrackingTab({ riceCropId }: GrowthTrackingTabProps) {
   const { toast } = useToast()
+  const { confirm, ConfirmDialog: ConfirmDialogComponent } = useConfirm()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<GrowthTracking | null>(null)
   
@@ -98,7 +101,15 @@ export default function GrowthTrackingTab({ riceCropId }: GrowthTrackingTabProps
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Bạn có chắc chắn muốn xóa bản ghi này?")) return
+    const isConfirmed = await confirm({
+      title: "Xác nhận xóa",
+      description: "Bạn có chắc chắn muốn xóa bản ghi theo dõi sinh trưởng này? Hành động này không thể hoàn tác.",
+      variant: "destructive",
+      confirmText: "Xóa ngay",
+      cancelText: "Hủy"
+    })
+
+    if (!isConfirmed) return
 
     try {
       await deleteMutation.mutateAsync({ id, cropId: riceCropId })
@@ -221,14 +232,11 @@ export default function GrowthTrackingTab({ riceCropId }: GrowthTrackingTabProps
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+              <div className="space-y-2 flex flex-col">
                 <Label htmlFor="tracking_date">Ngày kiểm tra</Label>
-                <Input
-                  id="tracking_date"
-                  type="date"
+                <DatePicker
                   value={formData.tracking_date}
-                  onChange={(e) => setFormData({ ...formData, tracking_date: e.target.value })}
-                  required
+                  onChange={(date) => setFormData({ ...formData, tracking_date: date })}
                 />
               </div>
               <div className="space-y-2">
@@ -309,6 +317,8 @@ export default function GrowthTrackingTab({ riceCropId }: GrowthTrackingTabProps
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialogComponent />
     </div>
   )
 }

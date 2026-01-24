@@ -21,6 +21,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Loader2 } from "lucide-react"
 import dayjs from "dayjs"
+import { DatePicker } from "@/components/ui/date-picker"
 import { 
   useCreateHarvestRecord, 
   useUpdateHarvestRecord 
@@ -144,14 +145,11 @@ export default function CreateHarvestRecordModal({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
+            <div className="space-y-2 flex flex-col">
               <Label htmlFor="harvest_date">Ngày thu hoạch</Label>
-              <Input
-                id="harvest_date"
-                type="date"
+              <DatePicker
                 value={formData.harvest_date}
-                onChange={(e) => setFormData({ ...formData, harvest_date: e.target.value })}
-                required
+                onChange={(date) => setFormData({ ...formData, harvest_date: date })}
               />
             </div>
             <div className="space-y-2">

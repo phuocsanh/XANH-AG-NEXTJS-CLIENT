@@ -39,15 +39,21 @@ interface FormComboBoxProps<T extends FieldValues> {
   label?: string
   placeholder?: string
   options?: ComboBoxOption[]
-  data?: ComboBoxOption[] // Async data
+  data?: ComboBoxOption[]
   isLoading?: boolean
   onSearch?: (value: string) => void
   disabled?: boolean
   className?: string
   modal?: boolean
   emptyText?: string
+  required?: boolean
+  rules?: any
 }
 
+/**
+ * Component FormComboBox Cao Cấp
+ * Tích hợp tìm kiếm, async loading, và giao diện đẹp mắt đồng bộ với bản Admin.
+ */
 export function FormComboBox<T extends FieldValues>({
   control,
   name,
@@ -61,6 +67,8 @@ export function FormComboBox<T extends FieldValues>({
   className,
   modal = false,
   emptyText = "Không tìm thấy kết quả.",
+  required,
+  rules,
 }: FormComboBoxProps<T>) {
   const [open, setOpen] = React.useState(false)
   const [searchQuery, setSearchQuery] = React.useState("")
@@ -81,9 +89,14 @@ export function FormComboBox<T extends FieldValues>({
     <FormField
       control={control}
       name={name}
+      rules={rules}
       render={({ field }) => (
-        <FormItem className={className}>
-          {label && <FormLabel>{label}</FormLabel>}
+        <FormItem className={cn("flex flex-col space-y-1.5", className)}>
+          {label && (
+            <FormLabel className="text-sm font-semibold text-agri-800">
+              {label} {required && <span className="text-red-500">*</span>}
+            </FormLabel>
+          )}
           <Popover open={open} onOpenChange={setOpen} modal={modal}>
             <PopoverTrigger asChild>
               <FormControl>
@@ -93,54 +106,69 @@ export function FormComboBox<T extends FieldValues>({
                   aria-expanded={open}
                   disabled={disabled}
                   className={cn(
-                    "w-full justify-between font-normal",
+                    "w-full h-10 justify-between font-normal border-agri-200 focus:ring-agri-500 transition-all",
                     !field.value && "text-muted-foreground"
                   )}
                 >
-                  {field.value
-                    ? finalOptions.find(
-                        (option) => String(option.value) === String(field.value)
-                      )?.label || field.value
-                    : placeholder}
+                  <span className="truncate">
+                    {field.value
+                      ? finalOptions.find(
+                          (option) => String(option.value) === String(field.value)
+                        )?.label || field.value
+                      : placeholder}
+                  </span>
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent className="w-[--radix-popover-trigger-width] p-0 bg-background">
-              <Command shouldFilter={!onSearch}> {/* Disable internal filter if using async search */}
+            <PopoverContent 
+              className="w-[--radix-popover-trigger-width] p-0 bg-white shadow-xl border-agri-100 overflow-hidden"
+              align="start"
+            >
+              <Command shouldFilter={!onSearch}>
                 <CommandInput 
-                  placeholder={placeholder} 
+                  placeholder="Tìm kiếm..." 
                   value={searchQuery}
                   onValueChange={setSearchQuery}
+                  className="h-10 border-none focus:ring-0"
                 />
-                <CommandList className="max-h-[200px] overflow-y-auto overflow-x-hidden">
+                <CommandList className="max-h-[250px] overflow-y-auto thin-scrollbar">
                   {isLoading ? (
-                    <div className="py-6 text-center text-sm text-muted-foreground">
-                      <Loader2 className="mx-auto h-4 w-4 animate-spin" />
-                      Đang tải...
+                    <div className="py-8 text-center text-sm text-muted-foreground flex flex-col items-center gap-2">
+                      <Loader2 className="h-5 w-5 animate-spin text-agri-500" />
+                      <span>Đang tải dữ liệu...</span>
                     </div>
                   ) : (
                     <>
-                      <CommandEmpty>{emptyText}</CommandEmpty>
+                      <CommandEmpty className="py-6 text-sm text-center text-muted-foreground italic">
+                        {emptyText}
+                      </CommandEmpty>
                       <CommandGroup>
                         {finalOptions.map((option) => (
                           <CommandItem
                             value={String(option.label)} 
                             key={option.value}
+                            disabled={option.disabled}
                             onSelect={() => {
                               field.onChange(option.value)
                               setOpen(false)
                             }}
+                            className="py-2.5 px-3 aria-selected:bg-agri-50 aria-selected:text-agri-700 cursor-pointer transition-colors"
                           >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                String(option.value) === String(field.value)
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                            {option.label}
+                            <div className="flex items-center justify-between w-full">
+                              <span className="flex-1 truncate">{option.label}</span>
+                              <Check
+                                className={cn(
+                                  "ml-2 h-4 w-4 text-agri-600",
+                                  String(option.value) === String(field.value)
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                            </div>
+                            {option.subLabel && (
+                              <p className="text-[11px] text-muted-foreground mt-0.5">{option.subLabel}</p>
+                            )}
                           </CommandItem>
                         ))}
                       </CommandGroup>
@@ -150,7 +178,7 @@ export function FormComboBox<T extends FieldValues>({
               </Command>
             </PopoverContent>
           </Popover>
-          <FormMessage />
+          <FormMessage className="text-[12px]" />
         </FormItem>
       )}
     />

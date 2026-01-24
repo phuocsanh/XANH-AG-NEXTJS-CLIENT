@@ -17,6 +17,7 @@ import dayjs from "dayjs"
 import { useCostItems, useDeleteCostItem } from "@/hooks/use-cost-item"
 import { convertCurrency } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
+import { useConfirm } from "@/hooks/use-confirm"
 import CreateCostItemModal from "@/app/(public)/(auth)/rice-crops/[id]/components/CreateCostItemModal"
 import type { CostItem } from "@/models/rice-farming"
 
@@ -38,6 +39,8 @@ export default function CostItemsTab({ riceCropId }: CostItemsTabProps) {
 
   const deleteMutation = useDeleteCostItem()
 
+  const { confirm, ConfirmDialog: ConfirmDialogComponent } = useConfirm()
+
   const handleAdd = () => {
     setEditingItem(null)
     setIsModalOpen(true)
@@ -49,7 +52,15 @@ export default function CostItemsTab({ riceCropId }: CostItemsTabProps) {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Bạn có chắc chắn muốn xóa chi phí này?")) return
+    const isConfirmed = await confirm({
+      title: "Xác nhận xóa",
+      description: "Bạn có chắc chắn muốn xóa chi phí này không? Hành động này không thể hoàn tác.",
+      variant: "destructive",
+      confirmText: "Xóa ngay",
+      cancelText: "Hủy"
+    })
+
+    if (!isConfirmed) return
 
     try {
       await deleteMutation.mutateAsync({ id, cropId: riceCropId })
@@ -166,6 +177,8 @@ export default function CostItemsTab({ riceCropId }: CostItemsTabProps) {
         initialData={editingItem}
         riceCropId={riceCropId}
       />
+
+      <ConfirmDialogComponent />
     </div>
   )
 }

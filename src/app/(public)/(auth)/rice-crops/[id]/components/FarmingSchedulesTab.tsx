@@ -30,6 +30,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Plus, Edit, Trash2, CheckCircle2, Loader2 } from "lucide-react"
 import dayjs from "dayjs"
+import { DatePicker } from "@/components/ui/date-picker"
 import {
   useFarmingSchedules,
   useCreateFarmingSchedule,
@@ -45,6 +46,7 @@ import {
   type ScheduleStatus
 } from "@/models/rice-farming"
 import { useToast } from "@/hooks/use-toast"
+import { useConfirm } from "@/hooks/use-confirm"
 
 interface FarmingSchedulesTabProps {
   riceCropId: number
@@ -52,6 +54,7 @@ interface FarmingSchedulesTabProps {
 
 export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabProps) {
   const { toast } = useToast()
+  const { confirm, ConfirmDialog: ConfirmDialogComponent } = useConfirm()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<FarmingSchedule | null>(null)
   
@@ -95,7 +98,15 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Bạn có chắc chắn muốn xóa lịch canh tác này?")) return
+    const isConfirmed = await confirm({
+      title: "Xác nhận xóa",
+      description: "Bạn có chắc chắn muốn xóa lịch canh tác này không? Hành động này không thể hoàn tác.",
+      variant: "destructive",
+      confirmText: "Xóa ngay",
+      cancelText: "Hủy"
+    })
+
+    if (!isConfirmed) return
 
     try {
       await deleteMutation.mutateAsync({ id, cropId: riceCropId })
@@ -251,14 +262,11 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+              <div className="space-y-2 flex flex-col">
                 <Label htmlFor="scheduled_date">Ngày dự kiến</Label>
-                <Input
-                  id="scheduled_date"
-                  type="date"
+                <DatePicker
                   value={formData.scheduled_date}
-                  onChange={(e) => setFormData({ ...formData, scheduled_date: e.target.value })}
-                  required
+                  onChange={(date) => setFormData({ ...formData, scheduled_date: date })}
                 />
               </div>
               <div className="space-y-2">
@@ -281,13 +289,11 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
             </div>
 
             {formData.status === "completed" && (
-              <div className="space-y-2">
+              <div className="space-y-2 flex flex-col">
                 <Label htmlFor="completed_date">Ngày hoàn thành thực tế</Label>
-                <Input
-                  id="completed_date"
-                  type="date"
+                <DatePicker
                   value={formData.completed_date || dayjs().format("YYYY-MM-DD")}
-                  onChange={(e) => setFormData({ ...formData, completed_date: e.target.value })}
+                  onChange={(date) => setFormData({ ...formData, completed_date: date })}
                 />
               </div>
             )}
@@ -317,6 +323,8 @@ export default function FarmingSchedulesTab({ riceCropId }: FarmingSchedulesTabP
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialogComponent />
     </div>
   )
 }

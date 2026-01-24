@@ -7,32 +7,30 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { Textarea } from "@/components/ui/textarea"
 import { Control, FieldValues, Path } from "react-hook-form"
-import { DatePicker } from "@/components/ui/date-picker"
 
-interface FormDatePickerProps<T extends FieldValues> {
+interface FormTextareaProps<T extends FieldValues> {
   control: Control<T>
   name: Path<T>
   label?: string
   placeholder?: string
   disabled?: boolean
   className?: string
-  minDate?: Date
-  maxDate?: Date
+  rows?: number
   required?: boolean
 }
 
-export function FormDatePicker<T extends FieldValues>({
+export function FormTextarea<T extends FieldValues>({
   control,
   name,
   label,
   placeholder,
   disabled,
   className,
-  minDate,
-  maxDate,
+  rows = 3,
   required,
-}: FormDatePickerProps<T>) {
+}: FormTextareaProps<T>) {
   return (
     <FormField
       control={control}
@@ -45,13 +43,12 @@ export function FormDatePicker<T extends FieldValues>({
             </FormLabel>
           )}
           <FormControl>
-            <DatePicker
-              value={field.value}
-              onChange={field.onChange}
+            <Textarea
               placeholder={placeholder}
+              className="resize-none border-agri-200 focus:ring-agri-500"
+              rows={rows}
               disabled={disabled}
-              minDate={minDate}
-              maxDate={maxDate}
+              {...field}
             />
           </FormControl>
           <FormMessage />

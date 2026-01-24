@@ -32,6 +32,7 @@ import {
 } from "@/hooks/use-external-purchase"
 import { convertCurrency } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
+import { useConfirm } from "@/hooks/use-confirm"
 import CreateExternalPurchaseModal from "@/app/(public)/(auth)/rice-crops/[id]/components/CreateExternalPurchaseModal"
 import InvoiceDetailModal from "@/app/(public)/(auth)/rice-crops/[id]/components/InvoiceDetailModal"
 import type { MergedPurchase } from "@/models/rice-farming"
@@ -43,6 +44,7 @@ interface InvoicesTabProps {
 // Component chính hiển thị tab hóa đơn
 export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
   const { toast } = useToast()
+  const { confirm, ConfirmDialog: ConfirmDialogComponent } = useConfirm()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<MergedPurchase | null>(null)
@@ -68,7 +70,15 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
   // Xử lý xóa hóa đơn (chỉ áp dụng cho hóa đơn tự nhập)
   const handleDelete = async (id: number | string) => {
     if (typeof id === 'string' && id.startsWith('ext-')) {
-      if (!confirm("Bạn có chắc chắn muốn xóa hóa đơn này?")) return
+      const isConfirmed = await confirm({
+        title: "Xác nhận xóa",
+        description: "Bạn có chắc chắn muốn xóa hóa đơn tự nhập này không? Hành động này không thể hoàn tác.",
+        variant: "destructive",
+        confirmText: "Xóa ngay",
+        cancelText: "Hủy"
+      })
+
+      if (!isConfirmed) return
 
       const numericId = parseInt(id.replace('ext-', ''))
       try {
@@ -247,6 +257,8 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
         onClose={() => setIsDetailOpen(false)}
         data={viewingItem}
       />
+
+      <ConfirmDialogComponent />
     </div>
   )
 }

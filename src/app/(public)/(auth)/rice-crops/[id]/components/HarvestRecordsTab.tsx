@@ -27,6 +27,7 @@ import {
 } from "@/hooks/use-harvest-record"
 import { convertCurrency } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
+import { useConfirm } from "@/hooks/use-confirm"
 import CreateHarvestRecordModal from "@/app/(public)/(auth)/rice-crops/[id]/components/CreateHarvestRecordModal"
 import type { HarvestRecord } from "@/models/rice-farming"
 
@@ -36,6 +37,7 @@ interface HarvestRecordsTabProps {
 
 export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps) {
   const { toast } = useToast()
+  const { confirm, ConfirmDialog: ConfirmDialogComponent } = useConfirm()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<HarvestRecord | null>(null)
 
@@ -53,7 +55,15 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Bạn có chắc chắn muốn xóa bản ghi thu hoạch này?")) return
+    const isConfirmed = await confirm({
+      title: "Xác nhận xóa",
+      description: "Bạn có chắc chắn muốn xóa bản ghi thu hoạch này không? Hành động này không thể hoàn tác.",
+      variant: "destructive",
+      confirmText: "Xóa ngay",
+      cancelText: "Hủy"
+    })
+
+    if (!isConfirmed) return
 
     try {
       await deleteMutation.mutateAsync({ id, cropId: riceCropId })
@@ -190,6 +200,8 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
         initialData={editingItem}
         riceCropId={riceCropId}
       />
+
+      <ConfirmDialogComponent />
     </div>
   )
 }

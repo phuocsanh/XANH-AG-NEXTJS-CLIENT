@@ -21,6 +21,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Loader2, Plus, Trash2 } from "lucide-react"
 import dayjs from "dayjs"
+import { DatePicker } from "@/components/ui/date-picker"
 import { 
   useCreateExternalPurchase, 
   useUpdateExternalPurchase 
@@ -193,14 +194,11 @@ export default function CreateExternalPurchaseModal({
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 flex flex-col">
               <Label htmlFor="purchase_date">Ngày mua</Label>
-              <Input
-                id="purchase_date"
-                type="date"
+              <DatePicker
                 value={formData.purchase_date}
-                onChange={(e) => setFormData({ ...formData, purchase_date: e.target.value })}
-                required
+                onChange={(date) => setFormData({ ...formData, purchase_date: date })}
               />
             </div>
           </div>

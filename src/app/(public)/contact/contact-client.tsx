@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
 
 /**
  * Contact Page
@@ -16,10 +17,17 @@ export default function ContactPage() {
     message: ''
   })
 
+  const { toast } = useToast()
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement contact form submission
-    alert('Cảm ơn bạn đã liên hệ. Chúng tôi sẽ phản hồi sớm nhất có thể!')
+    
+    // Gửi thông báo thành công
+    toast({
+      title: "Gửi tin nhắn thành công!",
+      description: "Cảm ơn bạn đã liên hệ. Xanh AG sẽ phản hồi sớm nhất có thể.",
+    })
+    
     setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
   }
 
