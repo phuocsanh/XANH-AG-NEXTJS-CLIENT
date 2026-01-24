@@ -99,6 +99,24 @@ export default function DiseaseWarningPage() {
     refetchLocation()
   }
 
+  const tabsListRef = React.useRef<HTMLDivElement>(null)
+
+  // Tự động cuộn tab đang chọn vào giữa (center) để người dùng thấy các tab lân cận
+  React.useEffect(() => {
+    if (tabsListRef.current) {
+      const activeElement = tabsListRef.current.querySelector(
+        '[data-state="active"]'
+      ) as HTMLElement
+      if (activeElement) {
+        activeElement.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "center",
+        })
+      }
+    }
+  }, [activeTab])
+
   const isLoading = locationLoading
 
   return (
@@ -161,16 +179,19 @@ export default function DiseaseWarningPage() {
           />
 
           {/* Disease Sections */}
-          <Tabs defaultValue="rice-blast" onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="relative mb-6">
-               <TabsList className="w-full justify-start overflow-x-auto h-auto p-1 bg-white border border-emerald-50 rounded-2xl shadow-sm flex-nowrap scrollbar-hide">
-                 <TabsTrigger value="rice-blast" className="px-4 py-2.5 rounded-xl data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:font-black transition-all shrink-0 font-bold text-xs uppercase tracking-tight">🦠 Đạo Ôn</TabsTrigger>
-                 <TabsTrigger value="bacterial-blight" className="px-4 py-2.5 rounded-xl data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:font-black transition-all shrink-0 font-bold text-xs uppercase tracking-tight">🍃 Cháy Bìa Lá</TabsTrigger>
-                 <TabsTrigger value="sheath-blight" className="px-4 py-2.5 rounded-xl data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:font-black transition-all shrink-0 font-bold text-xs uppercase tracking-tight">🍂 Khô Vằn</TabsTrigger>
-                 <TabsTrigger value="grain-discoloration" className="px-4 py-2.5 rounded-xl data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:font-black transition-all shrink-0 font-bold text-xs uppercase tracking-tight">🌾 Lem Lép Hạt</TabsTrigger>
-                 <TabsTrigger value="stem-borer" className="px-4 py-2.5 rounded-xl data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:font-black transition-all shrink-0 font-bold text-xs uppercase tracking-tight">🐛 Sâu Đục Thân</TabsTrigger>
-                 <TabsTrigger value="gall-midge" className="px-4 py-2.5 rounded-xl data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:font-black transition-all shrink-0 font-bold text-xs uppercase tracking-tight">🦟 Muỗi Hành</TabsTrigger>
-                 <TabsTrigger value="brown-plant-hopper" className="px-4 py-2.5 rounded-xl data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:font-black transition-all shrink-0 font-bold text-xs uppercase tracking-tight">🦗 Rầy Nâu</TabsTrigger>
+               <TabsList 
+                ref={tabsListRef}
+                className="w-full justify-start overflow-x-auto h-auto p-1 bg-white border border-emerald-50 rounded-2xl shadow-sm flex-nowrap scrollbar-hide snap-x scroll-smooth"
+               >
+                 <TabsTrigger value="rice-blast" className="px-4 py-2.5 rounded-xl data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:font-black transition-all shrink-0 font-bold text-xs uppercase tracking-tight snap-center">🦠 Đạo Ôn</TabsTrigger>
+                 <TabsTrigger value="bacterial-blight" className="px-4 py-2.5 rounded-xl data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:font-black transition-all shrink-0 font-bold text-xs uppercase tracking-tight snap-center">🍃 Cháy Bìa Lá</TabsTrigger>
+                 <TabsTrigger value="sheath-blight" className="px-4 py-2.5 rounded-xl data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:font-black transition-all shrink-0 font-bold text-xs uppercase tracking-tight snap-center">🍂 Khô Vằn</TabsTrigger>
+                 <TabsTrigger value="grain-discoloration" className="px-4 py-2.5 rounded-xl data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:font-black transition-all shrink-0 font-bold text-xs uppercase tracking-tight snap-center">🌾 Lem Lép Hạt</TabsTrigger>
+                 <TabsTrigger value="stem-borer" className="px-4 py-2.5 rounded-xl data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:font-black transition-all shrink-0 font-bold text-xs uppercase tracking-tight snap-center">🐛 Sâu Đục Thân</TabsTrigger>
+                 <TabsTrigger value="gall-midge" className="px-4 py-2.5 rounded-xl data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:font-black transition-all shrink-0 font-bold text-xs uppercase tracking-tight snap-center">🦟 Muỗi Hành</TabsTrigger>
+                 <TabsTrigger value="brown-plant-hopper" className="px-4 py-2.5 rounded-xl data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:font-black transition-all shrink-0 font-bold text-xs uppercase tracking-tight snap-center">🦗 Rầy Nâu</TabsTrigger>
                </TabsList>
             </div>
 
