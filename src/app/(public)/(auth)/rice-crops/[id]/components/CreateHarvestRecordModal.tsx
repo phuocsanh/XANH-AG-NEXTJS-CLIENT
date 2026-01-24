@@ -124,7 +124,7 @@ export default function CreateHarvestRecordModal({
         </DialogHeader>
         
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormDatePicker
                 control={form.control}
@@ -141,8 +141,8 @@ export default function CreateHarvestRecordModal({
               />
             </div>
 
-            {/* Layout 3 cột cho Sản lượng, Đơn vị, Giá bán */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Layout 3 cột THẲNG HÀNG TUYỆT ĐỐI */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
               <FormNumberInput
                 control={form.control}
                 name="yield_amount"
@@ -174,7 +174,7 @@ export default function CreateHarvestRecordModal({
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-agri-800 uppercase tracking-wider">Thành tiền (Dự kiến)</label>
-              <div className="bg-agri-50 border border-agri-100 p-4 rounded-xl text-2xl font-black text-agri-700 text-center shadow-inner">
+              <div className="bg-agri-50 border border-agri-100 p-4 rounded-xl text-3xl font-black text-agri-700 text-center shadow-inner tracking-tight">
                 {convertCurrency(form.watch("total_revenue"))}
               </div>
             </div>
@@ -201,15 +201,15 @@ export default function CreateHarvestRecordModal({
               placeholder="Nhập ghi chú thu hoạch..."
             />
 
-            <DialogFooter className="pt-4 border-t border-agri-50">
-              <Button type="button" variant="outline" onClick={onClose} className="rounded-lg px-6">
+            <DialogFooter className="pt-4 border-t border-agri-50 gap-2">
+              <Button type="button" variant="outline" onClick={onClose} className="rounded-lg px-6 h-11">
                 Hủy
               </Button>
-              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-agri-600 hover:bg-agri-700 rounded-lg px-8 shadow-md transition-all active:scale-95">
+              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-agri-600 hover:bg-agri-700 rounded-lg px-8 h-11 shadow-md transition-all active:scale-95 font-bold">
                 {(createMutation.isPending || updateMutation.isPending) && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}
-                {initialData ? "Cập nhật" : "Lưu dữ liệu"}
+                {initialData ? "Cập nhật ngay" : "Lưu đợt thu hoạch"}
               </Button>
             </DialogFooter>
           </form>

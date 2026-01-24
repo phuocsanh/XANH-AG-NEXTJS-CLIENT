@@ -52,7 +52,7 @@ interface FormComboBoxProps<T extends FieldValues> {
 }
 
 /**
- * Component FormComboBox - Sửa lỗi không chọn được item khi đặt trong Dialog
+ * Component FormComboBox - Cải tiến đồng bộ UI và fix lỗi click trong Dialog
  */
 export function FormComboBox<T extends FieldValues>({
   control,
@@ -65,7 +65,7 @@ export function FormComboBox<T extends FieldValues>({
   onSearch,
   disabled,
   className,
-  modal = true, // Mặc định là true để hoạt động tốt trong Dialog
+  modal = true,
   emptyText = "Không tìm thấy kết quả.",
   required,
   rules,
@@ -90,7 +90,7 @@ export function FormComboBox<T extends FieldValues>({
       name={name}
       rules={rules}
       render={({ field }) => (
-        <FormItem className={cn("flex flex-col space-y-1.5", className)}>
+        <FormItem className={cn("space-y-1.5", className)}>
           {label && (
             <FormLabel className="text-sm font-semibold text-agri-800">
               {label} {required && <span className="text-red-500">*</span>}
@@ -105,7 +105,7 @@ export function FormComboBox<T extends FieldValues>({
                   aria-expanded={open}
                   disabled={disabled}
                   className={cn(
-                    "w-full h-10 justify-between font-normal border-agri-200 focus:ring-agri-500 transition-all text-left px-3",
+                    "w-full h-10 justify-between font-normal border-agri-200 focus:ring-agri-500 transition-all text-left px-3 bg-white",
                     !field.value && "text-muted-foreground"
                   )}
                 >
@@ -121,9 +121,16 @@ export function FormComboBox<T extends FieldValues>({
               </FormControl>
             </PopoverTrigger>
             <PopoverContent 
-              className="w-[--radix-popover-trigger-width] p-0 bg-white shadow-xl border-agri-100 overflow-hidden z-[150]"
+              className="w-[--radix-popover-trigger-width] p-0 bg-white shadow-xl border-agri-100 overflow-hidden z-[200]"
               align="start"
-              onPointerDownOutside={(e) => e.preventDefault()}
+              // Ngăn chặn sự kiện PointerDown lan tới Dialog làm block selection
+              onPointerDownOutside={(e) => {
+                 const target = e.target as HTMLElement;
+                 // Nếu target đang nằm trong popover hoặc là một phần của UI Radix thì ignore
+                 if (target?.closest('[data-radix-popper-content-wrapper]')) {
+                    e.preventDefault();
+                 }
+              }}
               onFocusOutside={(e) => e.preventDefault()}
             >
               <Command shouldFilter={!onSearch}>
@@ -137,7 +144,7 @@ export function FormComboBox<T extends FieldValues>({
                   {isLoading ? (
                     <div className="py-8 text-center text-sm text-muted-foreground flex flex-col items-center gap-2">
                       <Loader2 className="h-5 w-5 animate-spin text-agri-500" />
-                      <span>Đang tải dữ liệu...</span>
+                      <span>Đang tải...</span>
                     </div>
                   ) : (
                     <>

@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/form"
 import { Control, FieldValues, Path } from "react-hook-form"
 import { DatePicker } from "@/components/ui/date-picker"
+import { cn } from "@/lib/utils"
 
 interface FormDatePickerProps<T extends FieldValues> {
   control: Control<T>
@@ -38,9 +39,9 @@ export function FormDatePicker<T extends FieldValues>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={className}>
+        <FormItem className={cn("space-y-1.5", className)}>
           {label && (
-            <FormLabel>
+            <FormLabel className="text-sm font-semibold text-agri-800">
               {label} {required && <span className="text-red-500">*</span>}
             </FormLabel>
           )}
@@ -54,7 +55,7 @@ export function FormDatePicker<T extends FieldValues>({
               maxDate={maxDate}
             />
           </FormControl>
-          <FormMessage />
+          <FormMessage className="text-[12px]" />
         </FormItem>
       )}
     />
