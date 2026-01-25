@@ -46,7 +46,7 @@ export function FormFieldWrapper<T extends FieldValues>({
         <FormItem className={cn("space-y-1.5", className)}>
           {label && (
             <FormLabel className="text-sm font-semibold text-agri-800">
-              {label} {required && <span className="text-red-500">*</span>}
+              {label} {(required || !!rules?.required) && <span className="text-red-500">*</span>}
             </FormLabel>
           )}
           <FormControl>

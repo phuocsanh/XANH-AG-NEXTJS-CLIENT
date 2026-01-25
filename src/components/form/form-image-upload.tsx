@@ -114,7 +114,7 @@ export function FormImageUpload<T extends FieldValues>({
           <FormItem className={className}>
             {label && (
               <FormLabel className="text-sm font-semibold text-agri-800">
-                {label} {required && <span className="text-red-500">*</span>}
+                {label} {(required || !!rules?.required) && <span className="text-red-500">*</span>}
               </FormLabel>
             )}
             <FormControl>

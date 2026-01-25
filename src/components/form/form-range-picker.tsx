@@ -29,6 +29,7 @@ interface FormRangePickerProps<T extends FieldValues> {
   disabled?: boolean
   className?: string
   required?: boolean
+  rules?: any
 }
 
 /**
@@ -42,16 +43,18 @@ export function FormRangePicker<T extends FieldValues>({
   disabled,
   className,
   required,
+  rules,
 }: FormRangePickerProps<T>) {
   return (
     <FormField
       control={control}
       name={name}
+      rules={rules}
       render={({ field }) => (
         <FormItem className={cn("flex flex-col", className)}>
           {label && (
             <FormLabel className="text-sm font-semibold text-agri-800">
-              {label} {required && <span className="text-red-500">*</span>}
+              {label} {(required || !!rules?.required) && <span className="text-red-500">*</span>}
             </FormLabel>
           )}
           <Popover>

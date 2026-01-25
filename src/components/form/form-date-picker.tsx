@@ -21,6 +21,7 @@ interface FormDatePickerProps<T extends FieldValues> {
   minDate?: Date
   maxDate?: Date
   required?: boolean
+  rules?: any
 }
 
 export function FormDatePicker<T extends FieldValues>({
@@ -33,16 +34,18 @@ export function FormDatePicker<T extends FieldValues>({
   minDate,
   maxDate,
   required,
+  rules,
 }: FormDatePickerProps<T>) {
   return (
     <FormField
       control={control}
       name={name}
+      rules={rules}
       render={({ field }) => (
         <FormItem className={cn("space-y-1.5", className)}>
           {label && (
             <FormLabel className="text-sm font-semibold text-agri-800">
-              {label} {required && <span className="text-red-500">*</span>}
+              {label} {(required || !!rules?.required) && <span className="text-red-500">*</span>}
             </FormLabel>
           )}
           <FormControl>

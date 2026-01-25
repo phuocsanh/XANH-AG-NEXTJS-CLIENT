@@ -19,6 +19,7 @@ interface FormTextareaProps<T extends FieldValues> {
   className?: string
   rows?: number
   required?: boolean
+  rules?: any
 }
 
 export function FormTextarea<T extends FieldValues>({
@@ -30,16 +31,18 @@ export function FormTextarea<T extends FieldValues>({
   className,
   rows = 3,
   required,
+  rules,
 }: FormTextareaProps<T>) {
   return (
     <FormField
       control={control}
       name={name}
+      rules={rules}
       render={({ field }) => (
         <FormItem className={className}>
           {label && (
             <FormLabel>
-              {label} {required && <span className="text-red-500">*</span>}
+              {label} {(required || !!rules?.required) && <span className="text-red-500">*</span>}
             </FormLabel>
           )}
           <FormControl>
