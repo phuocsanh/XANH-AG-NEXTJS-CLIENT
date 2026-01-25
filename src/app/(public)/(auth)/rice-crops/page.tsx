@@ -235,7 +235,11 @@ export default function RiceCropsPage() {
                     </TableRow>
                   ) : data?.data && data.data.length > 0 ? (
                     data.data.map((crop) => (
-                      <TableRow key={crop.id} className="whitespace-nowrap">
+                      <TableRow 
+                        key={crop.id} 
+                        className="whitespace-nowrap cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => router.push(`/rice-crops/${crop.id}`)}
+                      >
                         <TableCell className="font-medium whitespace-normal min-w-[200px]">
                           {crop.field_name}
                         </TableCell>
@@ -268,7 +272,8 @@ export default function RiceCropsPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation() // Ngăn sự kiện click lan ra TableRow
                               router.push(`/rice-crops/${crop.id}`)
                             }}
                           >
