@@ -31,6 +31,7 @@ interface ProductType {
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false) // State cho dropdown sản phẩm trên mobile
   const [productTypes, setProductTypes] = useState<ProductType[]>([])
   
   // Fetch user profile từ API
@@ -239,10 +240,44 @@ export default function Navbar() {
                 Trang chủ
               </Link>
               <div className='relative'>
-                <button className='w-full py-2 text-left text-white hover:text-yellow-300 font-medium text-sm flex items-center justify-between transition-colors'>
+                <button 
+                  onClick={() => setIsMobileProductsOpen(!isMobileProductsOpen)}
+                  className='w-full py-2 text-left text-yellow-300 hover:text-yellow-200 font-medium text-sm flex items-center justify-between transition-colors'
+                >
                   Sản phẩm
-                  <IoMdArrowDropdown className='w-4 h-4' />
+                  <IoMdArrowDropdown className={`w-4 h-4 transition-transform duration-300 ${isMobileProductsOpen ? 'rotate-180' : ''}`} />
                 </button>
+                {isMobileProductsOpen && (
+                  <div className='pl-4 py-1 space-y-1 bg-emerald-800/30 rounded-md mt-1'>
+                    <Link
+                      href='/products'
+                      className='block py-2 text-white hover:text-yellow-300 font-medium text-sm transition-colors'
+                      onClick={() => {
+                        setIsMobileMenuOpen(false)
+                        setIsMobileProductsOpen(false)
+                      }}
+                    >
+                      Tất cả sản phẩm
+                    </Link>
+                    {productTypes.length > 0 && (
+                      <>
+                        {productTypes.map((type) => (
+                          <Link
+                            key={type.id}
+                            href={`/products#type-${type.id}`}
+                            className='block py-2 text-white hover:text-yellow-300 text-sm transition-colors'
+                            onClick={() => {
+                              setIsMobileMenuOpen(false)
+                              setIsMobileProductsOpen(false)
+                            }}
+                          >
+                            {type.name}
+                          </Link>
+                        ))}
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
               <Link
                 href='/promotions'
