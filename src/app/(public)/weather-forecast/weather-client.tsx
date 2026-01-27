@@ -575,6 +575,13 @@ export default function WeatherForecastPage() {
             </div>
 
           </div>
+
+          {/* Dòng chữ cảnh báo mang tính chất tham khảo */}
+          <div className="mt-10 sm:mt-16 text-center">
+            <p className="text-[10px] sm:text-xs font-bold text-gray-400/80 italic">
+              * Dự báo thời tiết mang tính chất tham khảo không thể chính xác hoàn toàn!
+            </p>
+          </div>
         </div>
       </div>
 
