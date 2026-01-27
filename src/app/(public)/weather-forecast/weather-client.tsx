@@ -259,10 +259,16 @@ export default function WeatherForecastPage() {
       {/* Header Banner - Agriculture Theme */}
       <div className="bg-gradient-to-br from-agri-600 via-agri-700 to-agri-800 pt-10 sm:pt-12 pb-10 sm:pb-14 px-3 sm:px-4 overflow-hidden relative w-full">
         <div className="max-w-7xl mx-auto w-full">
-          <Link href="/" className="inline-flex items-center gap-2 text-agri-100 hover:text-white mb-4 sm:mb-6 transition-colors font-bold text-sm sm:text-base">
+          <Link href="/" className="inline-flex items-center gap-2 text-agri-100 hover:text-white mb-4 transition-colors font-bold text-sm sm:text-base">
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Về trang chủ</span>
           </Link>
+
+          <div className="mb-4 sm:mb-6">
+            <p className="text-[10px] sm:text-xs font-bold text-agri-100/80 italic">
+              * Dự báo thời tiết mang tính chất tham khảo không thể chính xác hoàn toàn!
+            </p>
+          </div>
 
           {/* Detailed Location Card */}
           <div className="bg-white/95 backdrop-blur-xl p-4 sm:p-6 md:p-8 rounded-[2rem] sm:rounded-[2.5rem] shadow-xl border border-white relative w-full overflow-hidden">
@@ -576,12 +582,6 @@ export default function WeatherForecastPage() {
 
           </div>
 
-          {/* Dòng chữ cảnh báo mang tính chất tham khảo */}
-          <div className="mt-10 sm:mt-16 text-center">
-            <p className="text-[10px] sm:text-xs font-bold text-gray-400/80 italic">
-              * Dự báo thời tiết mang tính chất tham khảo không thể chính xác hoàn toàn!
-            </p>
-          </div>
         </div>
       </div>
 
