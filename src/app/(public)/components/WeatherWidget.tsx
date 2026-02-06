@@ -15,21 +15,18 @@ export default function WeatherWidget() {
   const [loading, setLoading] = useState(true)
   const [locationName, setLocationName] = useState(DEFAULT_LOCATION.name)
 
-  const fetchWeather = async () => {
+  const fetchWeather = async (lat = DEFAULT_LOCATION.latitude, lon = DEFAULT_LOCATION.longitude, name?: string) => {
     setLoading(true)
     try {
-      const daily = await weatherService.getDailyForecast7Days(
-        DEFAULT_LOCATION.latitude,
-        DEFAULT_LOCATION.longitude
-      )
+      const daily = await weatherService.getDailyForecast7Days(lat, lon)
       setDailyForecast(daily)
       
-      // Try to get detailed place name
-      const name = await weatherService.getPlaceName(
-        DEFAULT_LOCATION.latitude,
-        DEFAULT_LOCATION.longitude
-      )
-      if (name) setLocationName(name)
+      if (name) {
+        setLocationName(name)
+      } else {
+        const detectedName = await weatherService.getPlaceName(lat, lon)
+        if (detectedName) setLocationName(detectedName)
+      }
     } catch (error) {
       console.error('Failed to fetch weather:', error)
     } finally {
@@ -38,7 +35,23 @@ export default function WeatherWidget() {
   }
 
   useEffect(() => {
-    fetchWeather()
+    // Thử đọc vị trí từ localStorage trước khi fetch
+    const savedCoords = localStorage.getItem('weather_coords')
+    const savedName = localStorage.getItem('weather_location_name')
+
+    if (savedCoords) {
+      try {
+        const parsed = JSON.parse(savedCoords)
+        if (savedName) setLocationName(savedName)
+        fetchWeather(parsed.latitude, parsed.longitude, savedName || undefined)
+        return
+      } catch (e) {
+        console.error('Failed to parse saved coords', e)
+      }
+    }
+
+    // Nếu không có, fetch mặc định (An Giang)
+    fetchWeather(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)
   }, [])
 
   const getWeatherIcon = (code: number) => {
@@ -72,7 +85,7 @@ export default function WeatherWidget() {
             <h3 className="font-bold text-lg truncate max-w-[200px]">{locationName}</h3>
           </div>
           <button 
-            onClick={fetchWeather}
+            onClick={() => fetchWeather()}
             className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
           >
             <RefreshCw className="w-4 h-4" />

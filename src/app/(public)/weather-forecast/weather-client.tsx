@@ -109,6 +109,10 @@ export default function WeatherForecastPage() {
       console.error('Failed to fetch weather:', error)
     } finally {
       setLoading(false)
+      // Lưu vào localStorage sau khi fetch thành công
+      localStorage.setItem('weather_coords', JSON.stringify({ latitude: lat, longitude: lon }))
+      localStorage.setItem('weather_coords_time', Date.now().toString())
+      if (name) localStorage.setItem('weather_location_name', name)
     }
   }
 
@@ -193,8 +197,28 @@ export default function WeatherForecastPage() {
   }
 
   useEffect(() => {
-    // Tự động xin quyền lấy vị trí hiện tại khi vào trang
-    // Sử dụng silent mode để không hiển thị lỗi nếu GPS không khả dụng
+    // Kiểm tra xem đã có vị trí lưu trong localStorage chưa
+    const savedCoords = localStorage.getItem('weather_coords')
+    const savedName = localStorage.getItem('weather_location_name')
+
+    if (savedCoords) {
+      try {
+        const parsedCoords = JSON.parse(savedCoords)
+        setCoords(parsedCoords)
+        if (savedName) setLocationName(savedName)
+        
+        // Load thời tiết từ vị trí cũ ngay lập tức
+        fetchWeather(parsedCoords.latitude, parsedCoords.longitude, savedName || undefined)
+        
+        // KHÔNG gọi detectLocation(true) nữa để tránh hiện Prompt của trình duyệt
+        // Người dùng muốn cập nhật vị trí mới thì nhấn nút "Vị trí hiện tại" thủ công
+        return 
+      } catch (e) {
+        console.error('Failed to parse saved coords', e)
+      }
+    }
+
+    // Chỉ tự động xin quyền nếu CHƯA TỪNG có vị trí nào được lưu (Lần đầu vào app)
     detectLocation(true)
   }, [])
 
