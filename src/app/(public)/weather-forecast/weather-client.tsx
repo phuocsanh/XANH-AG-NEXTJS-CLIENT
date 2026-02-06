@@ -277,6 +277,20 @@ export default function WeatherForecastPage() {
       peakPrecipitationHour: maxPopHour
     };
   }, [selectedDay, hourlyForSelectedDay]);
+  
+  // Tự động cuộn thẻ được chọn vào giữa màn hình
+  useEffect(() => {
+    if (scrollRef.current) {
+      const activeButton = scrollRef.current.children[activeTab] as HTMLElement;
+      if (activeButton) {
+        activeButton.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }
+    }
+  }, [activeTab]);
 
   return (
     <div className="min-h-screen bg-agri-50/50 pb-10 sm:pb-20 overflow-x-hidden w-full relative">
