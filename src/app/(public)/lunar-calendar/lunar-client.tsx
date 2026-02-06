@@ -25,12 +25,8 @@ export default function LunarCalendarPage() {
   const selectedLunar = getLunarData(selectedDate)
   
   const getVietnameseDateString = (date: Date) => {
-    return date.toLocaleDateString('vi-VN', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    })
+    const days = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy']
+    return `${days[date.getDay()]}, ngày ${date.getDate()} tháng ${date.getMonth() + 1}, ${date.getFullYear()}`
   }
 
   const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate()
