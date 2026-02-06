@@ -70,7 +70,7 @@ export default function LunarCalendarWidget() {
 
         <div className="grid grid-cols-7 gap-1 text-center mb-2">
           {['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'].map((day, i) => (
-            <span key={day} className={`text-[10px] font-bold uppercase ${i === 0 ? 'text-red-500' : 'text-gray-400'}`}>
+            <span key={day} className={`text-[11px] font-bold uppercase ${i === 0 ? 'text-red-500' : 'text-gray-400'}`}>
               {day}
             </span>
           ))}
@@ -99,7 +99,7 @@ export default function LunarCalendarWidget() {
                 } ${isToday && !isSelected ? 'ring-2 ring-red-200 bg-red-50' : ''}`}
               >
                 <span className="text-sm font-bold leading-none">{date}</span>
-                <span className={`text-[9px] mt-0.5 ${isSelected ? 'text-white/80' : 'text-gray-400 font-medium'}`}>
+                <span className={`text-[11px] mt-0.5 ${isSelected ? 'text-white/80' : 'text-gray-400 font-medium'}`}>
                   {cellLunar.day}
                 </span>
                 {isToday && (

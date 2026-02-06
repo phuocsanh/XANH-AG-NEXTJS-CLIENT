@@ -438,17 +438,17 @@ export default function WeatherForecastPage() {
                       : 'bg-white text-gray-500 hover:bg-agri-50 border border-agri-100 hover:scale-[1.02]'
                     }`}
                   >
-                    <p className={`text-[8px] sm:text-[10px] font-black uppercase mb-1 sm:mb-3 tracking-widest ${activeTab === i ? 'text-agri-200' : 'text-gray-400'}`}>
+                    <p className={`text-[11px] sm:text-xs font-black uppercase mb-1 sm:mb-3 tracking-widest ${activeTab === i ? 'text-agri-200' : 'text-gray-400'}`}>
                       {new Date(day.date).toLocaleDateString('vi', { weekday: 'long' }).toUpperCase()}
                     </p>
                     <div className="flex flex-col items-center">
-                      <p className="text-xl sm:text-3xl font-black tabular-nums">{new Date(day.date).getDate()}<span className="text-xs sm:text-lg opacity-50 ml-0.5">/{new Date(day.date).getMonth() + 1}</span></p>
-                      <p className={`text-[7px] sm:text-[9px] font-bold uppercase tracking-wider mt-0.5 ${activeTab === i ? 'text-agri-200' : 'text-gray-400'}`}>Ngày/Tháng</p>
+                      <p className="text-2xl sm:text-4xl font-black tabular-nums">{new Date(day.date).getDate()}<span className="text-sm sm:text-xl opacity-50 ml-0.5">/{new Date(day.date).getMonth() + 1}</span></p>
+                      <p className={`text-[9px] sm:text-[11px] font-bold uppercase tracking-wider mt-0.5 ${activeTab === i ? 'text-agri-200' : 'text-gray-400'}`}>Ngày/Tháng</p>
                     </div>
                     <div className="my-3 sm:my-5 flex justify-center">
                       {getWeatherIcon(day.weatherCode, "w-8 h-8 sm:w-12 sm:h-12")}
                     </div>
-                    <p className={`text-[11px] sm:text-sm font-black ${activeTab === i ? 'text-white' : 'text-gray-800'}`}>{day.tempMax}°<span className="opacity-40 font-bold mx-1">/</span>{day.tempMin}°</p>
+                    <p className={`text-sm sm:text-lg font-black ${activeTab === i ? 'text-white' : 'text-gray-800'}`}>{day.tempMax}°<span className="opacity-40 font-bold mx-1">/</span>{day.tempMin}°</p>
                   </button>
                 ))}
               </div>
@@ -459,7 +459,7 @@ export default function WeatherForecastPage() {
               <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] p-5 sm:p-8 shadow-xl border border-agri-100 flex flex-col gap-5 sm:gap-8 xl:sticky top-24 w-full">
                 <div className="border-b border-gray-100 pb-3 sm:pb-4">
                   <h3 className="font-black text-gray-800 text-base sm:text-xl tracking-tight">Chi tiết theo ngày</h3>
-                  <p className="text-[10px] sm:text-xs font-bold text-agri-600 mt-1 uppercase tracking-wider">
+                  <p className="text-xs sm:text-sm font-bold text-agri-600 mt-1 uppercase tracking-wider">
                     {selectedDay ? new Date(selectedDay.date).toLocaleDateString('vi', { weekday: 'long', day: 'numeric', month: 'long' }) : ''}
                   </p>
                 </div>

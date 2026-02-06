@@ -82,7 +82,7 @@ export default function LunarCalendarPage() {
             {/* Featured Date Card */}
             <div className="bg-white rounded-[40px] p-1 shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500">
                <div className="bg-white rounded-[39px] border-4 border-orange-50 p-10 flex flex-col items-center min-w-[320px]">
-                  <p className="text-orange-600 font-black uppercase tracking-widest text-sm mb-6 flex items-center gap-2">
+                  <p className="text-orange-600 font-black uppercase tracking-widest text-base mb-6 flex items-center gap-2">
                     <Sun className="w-4 h-4" /> Dương lịch
                   </p>
                   <p className="text-8xl font-black text-gray-800 tabular-nums">{selectedDate.getDate()}</p>
@@ -90,7 +90,7 @@ export default function LunarCalendarPage() {
                   
                   <div className="w-full h-px bg-gray-100 my-8" />
                   
-                  <p className="text-red-500 font-black uppercase tracking-widest text-sm mb-4 flex items-center gap-2">
+                  <p className="text-red-500 font-black uppercase tracking-widest text-base mb-4 flex items-center gap-2">
                     <Moon className="w-4 h-4" /> Âm lịch
                   </p>
                   <p className="text-3xl font-black text-red-600">
@@ -127,7 +127,7 @@ export default function LunarCalendarPage() {
 
             <div className="grid grid-cols-7 gap-2 sm:gap-4 text-center mb-6">
               {['Thứ\nHai', 'Thứ\nBa', 'Thứ\nTư', 'Thứ\nNăm', 'Thứ\nSáu', 'Thứ\nBảy', 'Chủ\nNhật'].map((day, i) => (
-                <span key={day} className={`text-[10px] sm:text-xs font-black uppercase tracking-wider whitespace-pre-line leading-tight ${i === 6 ? 'text-red-500' : 'text-gray-400'}`}>
+                <span key={day} className={`text-[11px] sm:text-sm font-black uppercase tracking-wider whitespace-pre-line leading-tight ${i === 6 ? 'text-red-500' : 'text-gray-400'}`}>
                   {day}
                 </span>
               ))}
