@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -23,6 +23,8 @@ import { convertCurrency } from "@/lib/utils"
 import { CreateHarvestRecordBody, CreateHarvestRecordBodyType } from "@/schemaValidations/rice-farming.schema"
 import { FormDatePicker, FormNumberInput, FormComboBox, FormTextarea, FormFieldWrapper } from "@/components/form"
 import type { HarvestRecord } from "@/models/rice-farming"
+import RiceWeighingTool from "@/components/common/RiceWeighingTool"
+import { Calculator } from "lucide-react"
 
 interface CreateHarvestRecordModalProps {
   isOpen: boolean
@@ -38,6 +40,7 @@ export default function CreateHarvestRecordModal({
   riceCropId,
 }: CreateHarvestRecordModalProps) {
   const { toast } = useToast()
+  const [isWeighingOpen, setIsWeighingOpen] = useState(false)
   
   const form = useForm<CreateHarvestRecordBodyType>({
     resolver: zodResolver(CreateHarvestRecordBody),
@@ -118,7 +121,7 @@ export default function CreateHarvestRecordModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="sm:max-w-[700px] max-h-[95vh] overflow-y-auto p-4 md:p-6">
         <DialogHeader>
           <DialogTitle>{initialData ? "Sửa đợt thu hoạch" : "Thêm đợt thu hoạch mới"}</DialogTitle>
         </DialogHeader>
@@ -215,6 +218,15 @@ export default function CreateHarvestRecordModal({
           </form>
         </Form>
       </DialogContent>
+
+      <RiceWeighingTool
+        isOpen={isWeighingOpen}
+        onClose={() => setIsWeighingOpen(false)}
+        onSave={(total) => {
+          form.setValue("yield_amount", total)
+          form.setValue("yield_unit", "kg") // Máy cân tính bằng kg
+        }}
+      />
     </Dialog>
   )
 }
