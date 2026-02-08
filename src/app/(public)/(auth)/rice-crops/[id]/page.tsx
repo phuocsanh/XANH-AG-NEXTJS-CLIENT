@@ -38,6 +38,23 @@ export default function RiceCropDetailPage() {
   
   const { data: riceCrop, isLoading } = useRiceCrop(id)
 
+  const [activeTab, setActiveTab] = React.useState("profit")
+  const tabsListRef = React.useRef<HTMLDivElement>(null)
+
+  // Tự động cuộn tab active vào giữa container khi thay đổi
+  React.useEffect(() => {
+    if (tabsListRef.current) {
+      const activeElement = tabsListRef.current.querySelector('[data-state="active"]')
+      if (activeElement) {
+        activeElement.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "center",
+        })
+      }
+    }
+  }, [activeTab])
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -123,8 +140,8 @@ export default function RiceCropDetailPage() {
       {/* Main Content with Tabs */}
       <Card>
         <CardContent className="p-0">
-          <Tabs defaultValue="profit" className="w-full">
-            <div className="border-b px-4 overflow-x-auto">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="border-b px-4 overflow-x-auto scroll-smooth no-scrollbar" ref={tabsListRef}>
               <TabsList className="h-12 bg-transparent gap-6 inline-flex whitespace-nowrap">
                  <TabsTrigger 
                    value="profit" 
