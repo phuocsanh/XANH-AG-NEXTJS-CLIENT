@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast"
 import { CreateCostItemBody, CreateCostItemBodyType } from "@/schemaValidations/rice-farming.schema"
 import { FormNumberInput, FormComboBox, FormDatePicker, FormFieldWrapper, FormTextarea } from "@/components/form"
 import type { CostItem } from "@/models/rice-farming"
+import VoiceToFormButton from "@/components/common/VoiceToFormButton"
 
 interface CreateCostItemModalProps {
   isOpen: boolean
@@ -108,6 +109,22 @@ export default function CreateCostItemModal({
         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+            <div className="flex justify-between items-center bg-agri-50 p-2 rounded-lg border border-agri-100">
+              <span className="text-xs text-agri-700 font-medium ml-2 italic">Mẹo: Có thể nói "Hôm qua mua 2 bao phân ure hết 500 ngàn"</span>
+              <VoiceToFormButton 
+                categories={categories.map(c => ({ id: c.id, name: c.name }))}
+                onDataParsed={(data: any) => {
+                  if (data.item_name) form.setValue("item_name", data.item_name)
+                  if (data.total_cost !== undefined && data.total_cost !== null) {
+                    form.setValue("total_cost", Number(data.total_cost))
+                  }
+                  if (data.category_id) form.setValue("category_id", data.category_id as any)
+                  if (data.expense_date) form.setValue("expense_date", data.expense_date)
+                  if (data.notes) form.setValue("notes", data.notes)
+                }}
+              />
+            </div>
+
             <FormFieldWrapper
               control={form.control}
               name="item_name"

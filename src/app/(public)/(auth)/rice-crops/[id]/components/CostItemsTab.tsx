@@ -82,6 +82,7 @@ export default function CostItemsTab({ riceCropId }: CostItemsTabProps) {
     {
       title: "Tổng tiền",
       key: "total_cost",
+      dataIndex: "total_cost",
       render: (val) => (
         <span className="font-bold text-destructive">{convertCurrency(val)}</span>
       ),
