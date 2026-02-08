@@ -144,35 +144,48 @@ export default function CreateHarvestRecordModal({
               />
             </div>
 
-            {/* Layout 3 cột THẲNG HÀNG TUYỆT ĐỐI */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-              <FormNumberInput
-                control={form.control}
-                name="yield_amount"
-                label="Sản lượng"
-                placeholder="0"
-                decimalScale={3}
-                required
-              />
-              <FormComboBox
-                control={form.control}
-                name="yield_unit"
-                label="Đơn vị"
-                options={[
-                  { value: "tan", label: "Tấn" },
-                  { value: "kg", label: "kg" }
-                ]}
-                required
-              />
-              <FormNumberInput
-                control={form.control}
-                name="selling_price_per_unit"
-                label="Giá bán (đ/kg)"
-                placeholder="0"
-                suffix=" ₫"
-                decimalScale={0}
-                required
-              />
+            {/* Khu vực nhập Sản lượng, Đơn vị, Giá bán */}
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-4">
+              <div className="flex justify-between items-center bg-white p-2 px-4 rounded-xl border border-agri-100 shadow-sm">
+                <span className="text-sm font-bold text-agri-800">Cân lúa tại ruộng?</span>
+                <Button 
+                  type="button" 
+                  className="bg-agri-600 hover:bg-agri-700 text-white rounded-full px-4 h-9 font-bold shadow-md animate-pulse flex gap-2"
+                  onClick={() => setIsWeighingOpen(true)}
+                >
+                  <Calculator className="h-4 w-4" /> Mở máy cân điện tử
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormNumberInput
+                  control={form.control}
+                  name="yield_amount"
+                  label="Tổng sản lượng"
+                  placeholder="0"
+                  decimalScale={3}
+                  required
+                />
+                <FormComboBox
+                  control={form.control}
+                  name="yield_unit"
+                  label="Đơn vị"
+                  options={[
+                    { value: "tan", label: "Tấn" },
+                    { value: "kg", label: "kg" }
+                  ]}
+                  required
+                />
+                <FormNumberInput
+                  control={form.control}
+                  name="selling_price_per_unit"
+                  label="Giá bán (đ/kg)"
+                  placeholder="0"
+                  suffix=" ₫"
+                  decimalScale={0}
+                  required
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
