@@ -208,7 +208,16 @@ export default function CreateHarvestRecordModal({
               <Button type="button" variant="outline" onClick={onClose} className="rounded-lg px-6 h-11">
                 Hủy
               </Button>
-              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-agri-600 hover:bg-agri-700 rounded-lg px-8 h-11 shadow-md transition-all active:scale-95 font-bold">
+              <Button 
+                type="submit" 
+                disabled={
+                  createMutation.isPending || 
+                  updateMutation.isPending || 
+                  !form.watch("yield_amount") || 
+                  !form.watch("selling_price_per_unit")
+                } 
+                className="bg-agri-600 hover:bg-agri-700 rounded-lg px-8 h-11 shadow-md transition-all active:scale-95 font-bold disabled:opacity-50 disabled:bg-slate-400"
+              >
                 {(createMutation.isPending || updateMutation.isPending) && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}

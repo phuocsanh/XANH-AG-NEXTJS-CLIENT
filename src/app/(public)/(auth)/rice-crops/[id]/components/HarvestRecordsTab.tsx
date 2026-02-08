@@ -78,7 +78,7 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
       key: "yield_amount",
       render: (_, record) => (
         <span className="font-bold">
-          {record.yield_amount.toLocaleString("vi-VN")} {record.yield_unit === 'tan' ? 'Tấn' : 'kg'}
+          {Number(record.yield_amount || 0).toLocaleString("vi-VN")} {record.yield_unit === 'tan' ? 'Tấn' : 'kg'}
         </span>
       ),
       priority: "high",
@@ -99,7 +99,7 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
     {
       title: "Giá bán",
       key: "selling_price_per_unit",
-      render: (val) => `${val.toLocaleString("vi-VN")} đ/kg`,
+      render: (val) => `${Number(val || 0).toLocaleString("vi-VN")} đ/kg`,
       priority: "medium",
       className: "text-right",
     },
