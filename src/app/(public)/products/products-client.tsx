@@ -27,6 +27,8 @@ interface Product {
   ingredient?: string[]
   notes?: string
   type: number
+  is_sold_on_web?: boolean
+  show_price_on_web?: boolean
   unit?: {
     id: number
     name: string
@@ -339,7 +341,7 @@ export default function ProductsClient() {
                               {product.name}
                             </h3>
                             <p className="text-sm md:text-base font-bold text-agri-600">
-                              {product.price && Number(product.price) > 0
+                              {product.show_price_on_web !== false && product.price && Number(product.price) > 0
                                 ? new Intl.NumberFormat('vi-VN', {
                                     style: 'currency',
                                     currency: 'VND',

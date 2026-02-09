@@ -19,6 +19,7 @@ interface Product {
   pictures?: string[]
   ingredient?: string[]
   notes?: string
+  show_price_on_web?: boolean
   unit?: {
     id: number
     name: string
@@ -171,7 +172,7 @@ export default function ProductDetailModal({
 
             {/* Prices */}
             <div className="bg-agri-50 rounded-lg p-4">
-              {product.price && Number(product.price) > 0 ? (
+              {product.show_price_on_web !== false && product.price && Number(product.price) > 0 ? (
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 font-medium">Giá:</span>
                   <span className="font-bold text-2xl text-agri-700">
