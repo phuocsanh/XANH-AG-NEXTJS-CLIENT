@@ -78,7 +78,7 @@ export default function RiceWeighingTool({
     if (numbers.length >= 3 && numbers.length <= 4) {
       const currentIndex = activeIndexRef.current
       const currentWeights = weightsRef.current
-      const isEditing = currentWeights[currentIndex] !== ""
+      const isEditing = (currentWeights[currentIndex] || "") !== ""
       
       updateWeight(currentIndex, numbers)
       
@@ -129,7 +129,7 @@ export default function RiceWeighingTool({
     const parsedCells = tableCells.map(w => w ? parseFloat(w) / 10 : 0)
     const tableTotal = parsedCells.reduce((a, b) => a + b, 0)
     const colTotals = [0, 1, 2, 3, 4].map(col => {
-      return [0, 1, 2, 3, 4].reduce((sum, row) => sum + parsedCells[row * COLUMNS + col], 0)
+      return [0, 1, 2, 3, 4].reduce((sum, row) => sum + (parsedCells[row * COLUMNS + col] || 0), 0)
     })
 
     if (tableTotal === 0 && tableIdx > 0 && weights.slice(0, startIdx).every(w => w === "")) return null
@@ -247,7 +247,7 @@ export default function RiceWeighingTool({
                 onClick={() => {
                   setWeights(prev => {
                     const n = [...prev]
-                    n[activeIndex] = n[activeIndex].slice(0, -1)
+                    n[activeIndex] = (n[activeIndex] || "").slice(0, -1)
                     return n
                   })
                 }}
@@ -352,7 +352,7 @@ export default function RiceWeighingTool({
                   onClick={() => {
                     setWeights(prev => {
                       const n = [...prev]
-                      n[activeIndex] = n[activeIndex].slice(0, -1)
+                      n[activeIndex] = (n[activeIndex] || "").slice(0, -1)
                       weightsRef.current = n
                       return n
                     })
