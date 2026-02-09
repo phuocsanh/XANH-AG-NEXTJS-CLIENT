@@ -1,8 +1,10 @@
 'use client'
 
-import { Cloud, Calendar as CalendarIcon, ArrowRight, Sun, Moon, MapPin, Sprout, Zap } from 'lucide-react'
 import Link from 'next/link'
+import { useState } from 'react'
 import { useAppStore } from '@/stores'
+import { Cloud, Calendar as CalendarIcon, ArrowRight, Sun, Moon, MapPin, Sprout, Zap, Scale } from 'lucide-react'
+import RiceWeighingTool from '@/components/common/RiceWeighingTool'
 
 /**
  * ToolsSection Component
@@ -10,6 +12,7 @@ import { useAppStore } from '@/stores'
  */
 export default function ToolsSection() {
   const { isLogin } = useAppStore()
+  const [isWeighingToolOpen, setIsWeighingToolOpen] = useState(false)
   
   return (
     <section className="py-10 md:py-20 bg-white overflow-hidden">
@@ -154,7 +157,46 @@ export default function ToolsSection() {
               </div>
             </Link>
           )}
+
+          {/* Rice Weighing Tool Card - NEW */}
+          <div 
+            onClick={() => setIsWeighingToolOpen(true)}
+            className="flex-shrink-0 w-[75%] md:w-auto snap-center group relative bg-gradient-to-br from-indigo-600 to-blue-800 rounded-[1.5rem] md:rounded-[3rem] p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500 cursor-pointer"
+          >
+            <div className="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-white/10 rounded-full blur-3xl -translate-y-12 md:-translate-y-20 translate-x-12 md:translate-x-20 group-hover:bg-white/20 transition-all" />
+
+            <div className="relative z-10">
+              <div className="w-12 h-12 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-4 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
+                <Scale className="w-6 h-6 md:w-10 md:h-10 text-white" />
+              </div>
+              <p className="text-indigo-100 font-black uppercase tracking-widest text-[9px] md:text-sm mb-1 md:mb-4">Công cụ hỗ trợ</p>
+              <h3 className="text-xl md:text-5xl font-black text-white mb-3 md:mb-6 leading-tight">Cân <br/> Điện Tử</h3>
+              <div className="flex items-center gap-2 md:gap-3 text-white/60 mb-5 md:mb-8">
+                <Scale className="w-4 h-4 md:w-5 md:h-5" />
+                <span className="font-bold text-xs md:text-base">Ghi chép sản lượng</span>
+              </div>
+
+              <div className="flex items-center gap-2 text-white font-black text-sm md:text-lg group-hover:gap-4 transition-all">
+                Mở công cụ 
+                <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-accent-gold" />
+              </div>
+            </div>
+
+            <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Scale className="w-48 md:w-64 h-48 md:h-64 text-white" />
+            </div>
+          </div>
         </div>
+
+        {/* Rice Weighing Tool Modal */}
+        <RiceWeighingTool 
+          isOpen={isWeighingToolOpen} 
+          onClose={() => setIsWeighingToolOpen(false)}
+          onSave={(total) => {
+            console.log("Total weight saved:", total)
+            // Có thể thêm logic lưu vào store hoặc database nếu cần
+          }}
+        />
       </div>
     </section>
   )

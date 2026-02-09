@@ -278,13 +278,13 @@ export default function RiceWeighingTool({
 
         {/* Bàn phím số (To, dễ bấm) */}
         {showKeyboard && (
-          <div className="bg-white border-t p-4 z-40 animate-in slide-in-from-bottom-full duration-300">
-             <div className="grid grid-cols-3 gap-3">
+          <div className="bg-white border-t p-2 z-40 animate-in slide-in-from-bottom-full duration-300">
+             <div className="grid grid-cols-3 gap-2">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
                   <Button 
                     key={n} 
                     variant="secondary"
-                    className="h-20 text-4xl font-black bg-slate-100 border-b-4 border-slate-300 active:border-b-0 active:translate-y-1 rounded-3xl text-agri-900"
+                    className="h-12 text-2xl font-black bg-slate-100 border-b-2 border-slate-300 active:border-b-0 active:translate-y-0.5 rounded-2xl text-agri-900"
                     onClick={() => {
                       const currentVal = weightsRef.current[activeIndex] || ""
                       if (currentVal.length < 4) {
@@ -313,7 +313,7 @@ export default function RiceWeighingTool({
                 {/* Nút Xóa Hết Ô */}
                 <Button 
                   variant="outline"
-                  className="h-20 text-2xl font-black rounded-3xl border-2 border-red-100 text-red-500 bg-red-50 active:bg-red-100"
+                  className="h-12 text-sm font-black rounded-2xl border-2 border-red-100 text-red-500 bg-red-50 active:bg-red-100"
                   onClick={() => updateWeight(activeIndex, "")}
                 >
                   Xóa Hết
@@ -321,7 +321,7 @@ export default function RiceWeighingTool({
 
                 <Button 
                   variant="secondary"
-                  className="h-20 text-4xl font-black bg-slate-100 border-b-4 border-slate-300 active:border-b-0 active:translate-y-1 rounded-3xl text-agri-900"
+                  className="h-12 text-2xl font-black bg-slate-100 border-b-2 border-slate-300 active:border-b-0 active:translate-y-0.5 rounded-2xl text-agri-900"
                   onClick={() => {
                     const currentVal = weightsRef.current[activeIndex] || ""
                     if (currentVal.length < 4) {
@@ -348,7 +348,7 @@ export default function RiceWeighingTool({
                 {/* Nút Xóa 1 Số Cuối */}
                 <Button 
                   variant="outline"
-                  className="h-20 text-2xl font-black rounded-3xl border-2 border-slate-200 text-slate-600 bg-slate-50 active:bg-slate-100"
+                  className="h-12 text-2xl font-black rounded-2xl border-2 border-slate-200 text-slate-600 bg-slate-50 active:bg-slate-100"
                   onClick={() => {
                     setWeights(prev => {
                       const n = [...prev]
