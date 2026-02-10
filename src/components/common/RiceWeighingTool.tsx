@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { 
-  Mic, MicOff, X, RotateCcw, ChevronLeft, Save, Database, History, Info, Scale, ArrowRight, Trash2, RotateCw
+  Mic, MicOff, X, RotateCcw, ChevronLeft, Save, Database, History, Info, Scale, ArrowRight, Trash2, RotateCw, Keyboard, ChevronDown
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAppStore } from "@/stores"
@@ -34,9 +35,10 @@ export default function RiceWeighingTool({
   const [weights, setWeights] = useState<string[]>(new Array(MAX_CELLS).fill(""))
   const [activeIndex, setActiveIndex] = useState(0)
   const [isListening, setIsListening] = useState(false)
-  const [showKeyboard, setShowKeyboard] = useState(true)
+  const [showKeyboard, setShowKeyboard] = useState(false)
   const [step, setStep] = useState<"select-crop" | "weighing" | "history">("select-crop")
   const [selectedCropId, setSelectedCropId] = useState<number | string | null>(null)
+  const [customCropName, setCustomCropName] = useState("")
   const [pricePerUnit, setPricePerUnit] = useState<number>(0)
   const [localCrops, setLocalCrops] = useState<any[]>([])
   const [history, setHistory] = useState<WeighingRecord[]>([])
@@ -157,7 +159,9 @@ export default function RiceWeighingTool({
 
     const weighingData: any = {
       rice_crop_id: selectedCropId && typeof selectedCropId === 'number' ? selectedCropId : undefined,
-      crop_name: selectedCropId ? (isLogin ? onlineCrops : localCrops).find(c => c.id === selectedCropId)?.field_name || "Vụ tự do" : "Vụ tự do",
+      crop_name: selectedCropId 
+        ? (isLogin ? onlineCrops : localCrops).find(c => c.id === selectedCropId)?.field_name || "Vụ tự do" 
+        : (customCropName.trim() || "Vụ tự do"),
       is_guest: !isLogin,
       weighing_date: dayjs().toISOString(),
       total_weight: total,
@@ -358,17 +362,31 @@ export default function RiceWeighingTool({
                                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center mr-3", selectedCropId === null ? "bg-white/20" : "bg-slate-100")}>
                                   <Info className="w-5 h-5" />
                                </div>
-                               Cân vụ tự do
+                              Tạo Phiếu Cân
                             </div>
                             {selectedCropId === null && <div className="w-6 h-6 bg-white rounded-full" />}
                          </Button>
+
+                         {selectedCropId === null && (
+                            <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                               <Input 
+                                 placeholder="Nhập tên ruộng (vd: Ruộng nhà, Kinh A...)"
+                                 value={customCropName}
+                                 onChange={(e) => setCustomCropName(e.target.value)}
+                                 className="h-14 rounded-2xl border-2 border-blue-100 bg-white px-6 text-lg font-bold text-blue-900 placeholder:text-blue-200 focus:border-blue-500 focus:ring-0 shadow-inner"
+                               />
+                            </div>
+                         )}
 
                          {/* List Crops */}
                          {(isLogin ? onlineCrops : localCrops).slice(0, 5).map(crop => (
                             <Button
                               key={crop.id}
                               variant="outline"
-                              onClick={() => setSelectedCropId(crop.id)}
+                              onClick={() => {
+                                 setSelectedCropId(crop.id)
+                                 setCustomCropName("")
+                              }}
                               className={cn(
                                 "h-16 justify-between rounded-2xl border-2 text-lg font-bold transition-all",
                                 selectedCropId === crop.id ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100" : "bg-white text-slate-700 border-slate-100"
@@ -411,7 +429,9 @@ export default function RiceWeighingTool({
                       </div>
                       <div>
                          <div className="text-blue-900 font-black leading-none uppercase tracking-tighter">
-                            {selectedCropId ? (isLogin ? onlineCrops : localCrops).find(c => c.id === selectedCropId)?.field_name : "Vụ tự do"}
+                            {selectedCropId 
+                              ? (isLogin ? onlineCrops : localCrops).find(c => c.id === selectedCropId)?.field_name 
+                              : (customCropName.trim() || "Vụ tự do")}
                          </div>
                          <div className="text-[10px] text-blue-500 font-bold uppercase mt-1">Đang thực hiện cân lúa</div>
                       </div>
@@ -429,8 +449,22 @@ export default function RiceWeighingTool({
                 </div>
 
                 {/* Floating Controls */}
-                <div className="absolute bottom-6 left-0 right-0 px-6 flex justify-center pointer-events-none z-50">
-                    <div className="bg-white/90 backdrop-blur-xl p-3 px-6 rounded-full shadow-2xl flex items-center gap-4 border border-blue-100 pointer-events-auto">
+                {!showKeyboard && (
+                  <div className="absolute bottom-6 left-0 right-0 px-6 flex justify-center pointer-events-none z-50">
+                    <div className="bg-white/95 backdrop-blur-xl p-3 px-6 rounded-full shadow-2xl flex items-center gap-3 border border-blue-100 pointer-events-auto">
+                        <Button 
+                          variant="outline" 
+                          className={cn(
+                            "h-12 w-12 rounded-full border-2 transition-all active:scale-90",
+                            showKeyboard ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-200"
+                          )}
+                          onClick={() => setShowKeyboard(!showKeyboard)}
+                        >
+                          <Keyboard className="h-6 w-6" />
+                        </Button>
+
+                        <div className="w-px h-8 bg-slate-200 mx-1" />
+
                         <Button 
                           variant="outline" 
                           className="h-12 w-12 rounded-full border-2 border-slate-200 text-slate-600 active:scale-90"
@@ -467,15 +501,16 @@ export default function RiceWeighingTool({
                         </Button>
                     </div>
                 </div>
+              )}
 
                 {showKeyboard && (
-                  <div className="bg-white border-t p-2 z-40 animate-in slide-in-from-bottom-full duration-300 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+                  <div className="absolute bottom-0 left-0 right-0 bg-white border-t p-4 z-40 animate-in slide-in-from-bottom-full duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] h-[320px]">
                     <div className="grid grid-cols-3 gap-2">
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
                           <Button 
                             key={n} 
                             variant="secondary"
-                            className="h-12 text-2xl font-black bg-slate-50 border-b-4 border-slate-200 active:border-b-0 active:translate-y-1 rounded-2xl text-slate-800"
+                            className="h-16 text-2xl font-black bg-slate-50 border-b-4 border-slate-200 active:border-b-0 active:translate-y-1 rounded-2xl text-slate-800"
                             onClick={() => {
                               const currentVal = weightsRef.current[activeIndex] || ""
                               if (currentVal.length < 4) {
@@ -499,8 +534,11 @@ export default function RiceWeighingTool({
                             {n}
                           </Button>
                         ))}
-                        <Button variant="outline" className="h-12 text-sm font-black rounded-2xl border-2 border-red-50" onClick={() => updateWeight(activeIndex, "")}>XÓA Ô</Button>
-                        <Button variant="secondary" className="h-12 text-2xl font-black bg-slate-50 border-b-4 border-slate-200 active:border-b-0 active:translate-y-1 rounded-2xl text-slate-800" onClick={() => {
+                        <Button variant="outline" className="h-16 text-sm font-black rounded-2xl border-2 border-slate-100 flex flex-col items-center justify-center gap-1 active:bg-slate-50" onClick={() => setShowKeyboard(false)}>
+                          <ChevronDown className="h-5 w-5 text-slate-400" />
+                          ẨN PHÍM
+                        </Button>
+                        <Button variant="secondary" className="h-16 text-2xl font-black bg-slate-50 border-b-4 border-slate-200 active:border-b-0 active:translate-y-1 rounded-2xl text-slate-800" onClick={() => {
                            const currentVal = weightsRef.current[activeIndex] || ""
                            if (currentVal.length < 4) {
                               const newVal = currentVal + "0"
@@ -512,7 +550,7 @@ export default function RiceWeighingTool({
                               }
                            }
                         }}>0</Button>
-                        <Button variant="outline" className="h-12 text-2xl font-black rounded-2xl bg-slate-100" onClick={() => {
+                        <Button variant="outline" className="h-16 text-2xl font-black rounded-2xl bg-slate-100" onClick={() => {
                            setWeights(prev => {
                               const n = [...prev]
                               n[activeIndex] = (n[activeIndex] || "").slice(0, -1)
