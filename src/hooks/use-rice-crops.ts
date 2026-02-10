@@ -30,7 +30,7 @@ export const useUpdateRiceCrop = () => {
 /**
  * Hook lấy danh sách ruộng lúa với pagination và filters
  */
-export const useRiceCrops = (params?: RiceCropFilters) => {
+export const useRiceCrops = (params?: RiceCropFilters, enabled: boolean = true) => {
   return useApiQuery<RiceCropsResponse>(`${API_URL}/rice-crops/search`, {
     queryKey: ["rice-crops", "list", JSON.stringify(params)],
     method: "POST",
@@ -39,6 +39,7 @@ export const useRiceCrops = (params?: RiceCropFilters) => {
       limit: params?.limit || 10,
       ...params,
     },
+    enabled,
   })
 }
 

@@ -3,9 +3,16 @@
 import React, { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { 
-  Mic, MicOff, X, RotateCcw
+  Mic, MicOff, X, RotateCcw, ChevronLeft, Save, Database, History, Info, Scale, ArrowRight, Trash2, RotateCw
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useAppStore } from "@/stores"
+import { useRiceCrops } from "@/hooks/use-rice-crops"
+import { localFarmingService } from "@/lib/local-farming-service"
+import { RiceCrop, WeighingRecord } from "@/models/rice-farming"
+import dayjs from "dayjs"
+import httpClient from "@/lib/http"
+import { toast } from "@/hooks/use-toast"
 
 interface RiceWeighingToolProps {
   isOpen: boolean
@@ -28,12 +35,35 @@ export default function RiceWeighingTool({
   const [activeIndex, setActiveIndex] = useState(0)
   const [isListening, setIsListening] = useState(false)
   const [showKeyboard, setShowKeyboard] = useState(true)
+  const [step, setStep] = useState<"select-crop" | "weighing" | "history">("select-crop")
+  const [selectedCropId, setSelectedCropId] = useState<number | string | null>(null)
+  const [pricePerUnit, setPricePerUnit] = useState<number>(0)
+  const [localCrops, setLocalCrops] = useState<any[]>([])
+  const [history, setHistory] = useState<WeighingRecord[]>([])
+  
+  const { isLogin } = useAppStore()
+  const { data: onlineCropsData } = useRiceCrops({ limit: 100 }, isOpen && isLogin)
+  const onlineCrops = onlineCropsData?.data || []
+
   const recognitionRef = useRef<any>(null)
   const activeIndexRef = useRef(0)
   const weightsRef = useRef<string[]>(new Array(MAX_CELLS).fill(""))
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-  // Đồng bộ Refs để tránh stale closures (Điểm mấu chốt để nhảy ô đúng)
+  // Fetch local crops and history
+  useEffect(() => {
+    if (isOpen) {
+      const loadData = async () => {
+        const c = await localFarmingService.getAllRiceCrops()
+        setLocalCrops(c)
+        const h = await localFarmingService.getAllWeighingRecords()
+        setHistory(h)
+      }
+      loadData()
+    }
+  }, [isOpen])
+
+  // Đồng bộ Refs để tránh stale closures
   useEffect(() => {
     activeIndexRef.current = activeIndex
     const activeElement = document.getElementById(`cell-${activeIndex}`)
@@ -82,7 +112,6 @@ export default function RiceWeighingTool({
       
       updateWeight(currentIndex, numbers)
       
-      // Nhảy ô thông minh: Nếu sửa thì về ô trống, nếu mới thì sang ô tiếp
       if (isEditing) {
         const updatedWeights = [...currentWeights]
         updatedWeights[currentIndex] = numbers
@@ -117,10 +146,71 @@ export default function RiceWeighingTool({
     }
   }
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     const total = weights.reduce((sum, w) => sum + (w ? parseFloat(w) / 10 : 0), 0)
-    onSave(total)
-    onClose()
+    const revenue = total * pricePerUnit
+
+    if (total === 0) {
+      toast({ title: "Thông báo", description: "Vui lòng nhập sản lượng cân lúa." })
+      return
+    }
+
+    const weighingData: any = {
+      rice_crop_id: selectedCropId && typeof selectedCropId === 'number' ? selectedCropId : undefined,
+      crop_name: selectedCropId ? (isLogin ? onlineCrops : localCrops).find(c => c.id === selectedCropId)?.field_name || "Vụ tự do" : "Vụ tự do",
+      is_guest: !isLogin,
+      weighing_date: dayjs().toISOString(),
+      total_weight: total,
+      price_per_unit: pricePerUnit,
+      total_revenue: revenue,
+      weights_data: weights.filter(w => w !== ""),
+    }
+
+    try {
+      await localFarmingService.createWeighingRecord(weighingData)
+      onSave(total)
+      toast({ title: "Thành công 🎉", description: "Đã lưu bản ghi cân lúa." })
+      
+      // Reset after success
+      setWeights(new Array(MAX_CELLS).fill(""))
+      setStep("history") // Chuyển sang xem lịch sử
+    } catch (error) {
+      console.error("Error saving weighing record:", error)
+      toast({ title: "Lỗi", description: "Không thể lưu bản ghi.", variant: "destructive" })
+    }
+  }
+
+  const handleSyncToCrop = async (record: WeighingRecord) => {
+    if (!record.rice_crop_id) return
+
+    const harvestData = {
+      rice_crop_id: record.rice_crop_id,
+      harvest_date: dayjs(record.weighing_date).format("YYYY-MM-DD"),
+      yield_amount: record.total_weight,
+      selling_price_per_unit: record.price_per_unit || 0,
+      total_revenue: record.total_revenue || 0,
+      quality_grade: "Loại 1",
+      payment_status: "pending"
+    }
+
+    try {
+      if (isLogin) {
+        await httpClient.post('harvest-records', harvestData)
+      } else {
+        await localFarmingService.createHarvestRecord(harvestData)
+      }
+      toast({ title: "Thành công", description: "Đã đồng bộ sản lượng vào ruộng lúa." })
+    } catch (error) {
+      console.error("Sync failed:", error)
+      toast({ title: "Lỗi", description: "Không thể đồng bộ dữ liệu.", variant: "destructive" })
+    }
+  }
+
+  const deleteHistoryRecord = async (id: number) => {
+    if (!id) return
+    await localFarmingService.deleteWeighingRecord(id)
+    setHistory(prev => prev.filter(r => r.id !== id))
+    toast({ title: "Đã xóa", description: "Đã xóa bản ghi lịch sử." })
   }
 
   const renderTable = (tableIdx: number) => {
@@ -210,159 +300,297 @@ export default function RiceWeighingTool({
     <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-md flex flex-col items-center justify-center">
       <div className="w-full max-w-2xl bg-[#e8f5e9] md:rounded-[40px] shadow-2xl flex flex-col h-screen md:h-[90vh] relative overflow-hidden">
         
+        {/* Header */}
         <div className="bg-[#0b5394] text-white p-3 flex justify-between items-center shadow-xl z-20">
            <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:bg-white/10 rounded-full">
-              <X className="h-6 w-6" />
+            <Button variant="ghost" size="icon" onClick={() => {
+              if (step === "weighing") setStep("select-crop")
+              else if (step === "history") setStep("select-crop")
+              else onClose()
+            }} className="text-white hover:bg-white/10 rounded-full">
+              {step !== "select-crop" ? <ChevronLeft className="h-6 w-6" /> : <X className="h-6 w-6" />}
             </Button>
+            <div className="ml-2 font-black italic text-lg tracking-tight uppercase">CÂN LÚA</div>
+          </div>
+
+          <div className="flex items-center gap-2">
             <Button 
               variant="ghost" 
-              size="icon" 
-              onClick={() => setShowKeyboard(!showKeyboard)} 
-              className={cn("text-white rounded-full transition-all", showKeyboard ? "bg-white/20" : "hover:bg-white/10")}
+              onClick={() => {
+                setStep("history")
+                localFarmingService.getAllWeighingRecords().then(setHistory)
+              }}
+              className={cn("text-white rounded-full h-10 px-4", step === "history" ? "bg-white/20" : "hover:bg-white/10")}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-keyboard"><path d="M10 8h.01"/><path d="M12 12h.01"/><path d="M14 8h.01"/><path d="M16 12h.01"/><path d="M18 8h.01"/><path d="M6 8h.01"/><path d="M7 16h10"/><path d="M8 12h.01"/><rect width="20" height="16" x="2" y="4" rx="2"/></svg>
+              <History className="h-5 w-5 mr-2" />
+              <span className="text-sm font-bold">Lịch sử</span>
             </Button>
           </div>
-          <div className="bg-white/10 px-6 py-2 rounded-full text-center">
-             <div className="text-xl font-black tracking-tighter leading-none">
-                {weights.reduce((s, w) => s + (w ? parseFloat(w) / 10 : 0), 0).toLocaleString("vi-VN", { minimumFractionDigits: 1 })} kg
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-hidden flex flex-col relative">
+           
+           {/* Step 1: CHỌN RUỘNG LÚA */}
+           {step === "select-crop" && (
+             <div className="p-6 md:p-10 flex flex-col h-full overflow-y-auto">
+                <div className="text-center mb-8">
+                   <div className="w-20 h-20 bg-blue-100 rounded-[2rem] flex items-center justify-center mx-auto mb-4">
+                      <Scale className="w-10 h-10 text-blue-600" />
+                   </div>
+                   <h2 className="text-3xl font-black text-blue-900 mb-2">BẮT ĐẦU CÂN LÚA</h2>
+                   <p className="text-blue-600 font-medium italic">Chọn ruộng lúa của bạn để tự động lưu sản lượng.</p>
+                </div>
+
+                <div className="space-y-6 max-w-md mx-auto w-full">
+                   <div className="space-y-4">
+                      <label className="text-sm font-black text-blue-900 uppercase tracking-widest pl-2">Chọn ruộng lúa (không bắt buộc)</label>
+                      <div className="grid grid-cols-1 gap-3">
+                         <Button 
+                            variant="outline"
+                            onClick={() => setSelectedCropId(null)}
+                            className={cn(
+                              "h-16 justify-between rounded-2xl border-2 text-lg font-bold transition-all",
+                              selectedCropId === null ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100" : "bg-white text-slate-500 border-slate-100"
+                            )}
+                         >
+                            <div className="flex items-center">
+                               <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center mr-3", selectedCropId === null ? "bg-white/20" : "bg-slate-100")}>
+                                  <Info className="w-5 h-5" />
+                               </div>
+                               Cân vụ tự do
+                            </div>
+                            {selectedCropId === null && <div className="w-6 h-6 bg-white rounded-full" />}
+                         </Button>
+
+                         {/* List Crops */}
+                         {(isLogin ? onlineCrops : localCrops).slice(0, 5).map(crop => (
+                            <Button
+                              key={crop.id}
+                              variant="outline"
+                              onClick={() => setSelectedCropId(crop.id)}
+                              className={cn(
+                                "h-16 justify-between rounded-2xl border-2 text-lg font-bold transition-all",
+                                selectedCropId === crop.id ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100" : "bg-white text-slate-700 border-slate-100"
+                              )}
+                            >
+                               <div className="flex items-center">
+                                  <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center mr-3", selectedCropId === crop.id ? "bg-white/20" : "bg-blue-50")}>
+                                     <Database className="w-5 h-5" />
+                                  </div>
+                                  <div className="text-left">
+                                     <div className="leading-tight">{crop.field_name}</div>
+                                     <div className={cn("text-[10px] uppercase opacity-70", selectedCropId === crop.id ? "text-white" : "text-slate-400")}>{crop.season_name}</div>
+                                  </div>
+                               </div>
+                            </Button>
+                         ))}
+                      </div>
+                   </div>
+
+                   <div className="pt-8">
+                      <Button 
+                        onClick={() => setStep("weighing")}
+                        className="w-full h-16 rounded-3xl bg-blue-600 hover:bg-blue-700 text-white text-xl font-black shadow-2xl shadow-blue-200 group active:scale-95 transition-all"
+                      >
+                         TIẾP TỤC
+                         <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                      </Button>
+                   </div>
+                </div>
              </div>
-             <div className="text-[10px] uppercase font-bold opacity-70">Tổng sản lượng</div>
-          </div>
-          <Button variant="ghost" size="icon" onClick={() => setWeights(new Array(MAX_CELLS).fill(""))} className="text-white hover:bg-red-500 rounded-full">
-            <RotateCcw className="h-5 w-5" />
-          </Button>
-        </div>
+           )}
 
-        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 no-scrollbar pb-32">
-          {[...Array(MAX_TABLES)].map((_, i) => renderTable(i))}
-        </div>
+           {/* Step 2: CÂN LÚA */}
+           {step === "weighing" && (
+             <>
+                <div className="bg-white/80 backdrop-blur-md p-4 flex justify-between items-center border-b border-blue-100">
+                   <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                         <Scale className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                         <div className="text-blue-900 font-black leading-none uppercase tracking-tighter">
+                            {selectedCropId ? (isLogin ? onlineCrops : localCrops).find(c => c.id === selectedCropId)?.field_name : "Vụ tự do"}
+                         </div>
+                         <div className="text-[10px] text-blue-500 font-bold uppercase mt-1">Đang thực hiện cân lúa</div>
+                      </div>
+                   </div>
+                   <div className="bg-blue-900 text-white px-6 py-2 rounded-2xl shadow-inner">
+                      <div className="text-2xl font-black tracking-tighter leading-none">
+                         {weights.reduce((s, w) => s + (w ? parseFloat(w) / 10 : 0), 0).toLocaleString("vi-VN", { minimumFractionDigits: 1 })}
+                      </div>
+                      <div className="text-[9px] uppercase font-black text-blue-300 text-right">Tổng kg</div>
+                   </div>
+                </div>
 
-        <div className="absolute bottom-6 left-0 right-0 px-6 flex justify-center pointer-events-none">
-           <div className="bg-white/90 backdrop-blur-xl p-3 px-6 rounded-full shadow-2xl flex items-center gap-4 border border-white pointer-events-auto">
-              <Button 
-                variant="outline" 
-                className="h-12 w-12 rounded-full border-2 border-slate-200 text-slate-600 active:scale-90"
-                onClick={() => {
-                  setWeights(prev => {
-                    const n = [...prev]
-                    n[activeIndex] = (n[activeIndex] || "").slice(0, -1)
-                    return n
-                  })
-                }}
-              >
-                Xóa
-              </Button>
-              
-              <Button 
-                onClick={toggleListening}
-                className={cn(
-                  "h-16 w-16 rounded-full shadow-lg transition-all active:scale-95 border-4 border-white/50",
-                  isListening 
-                    ? "!bg-red-600 animate-pulse ring-4 ring-red-600/30 shadow-red-500/50" 
-                    : "!bg-[#2e7d32] hover:bg-[#1b5e20] shadow-green-900/20"
-                )}
-              >
-                {isListening ? <MicOff className="h-8 w-8 text-white" /> : <Mic className="h-8 w-8 text-white" />}
-              </Button>
+                <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 no-scrollbar pb-40">
+                   {[...Array(MAX_TABLES)].map((_, i) => renderTable(i))}
+                </div>
 
-              <Button 
-                onClick={handleComplete}
-                className="h-14 px-8 rounded-full bg-black text-white font-black hover:bg-slate-800 shadow-lg active:scale-95"
-              >
-                XONG
-              </Button>
-           </div>
-        </div>
-
-        {/* Bàn phím số (To, dễ bấm) */}
-        {showKeyboard && (
-          <div className="bg-white border-t p-2 z-40 animate-in slide-in-from-bottom-full duration-300">
-             <div className="grid grid-cols-3 gap-2">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
-                  <Button 
-                    key={n} 
-                    variant="secondary"
-                    className="h-12 text-2xl font-black bg-slate-100 border-b-2 border-slate-300 active:border-b-0 active:translate-y-0.5 rounded-2xl text-agri-900"
-                    onClick={() => {
-                      const currentVal = weightsRef.current[activeIndex] || ""
-                      if (currentVal.length < 4) {
-                        const isEditing = currentVal !== ""
-                        const newVal = currentVal + n
-                        updateWeight(activeIndex, newVal)
+                {/* Floating Controls */}
+                <div className="absolute bottom-6 left-0 right-0 px-6 flex justify-center pointer-events-none z-50">
+                    <div className="bg-white/90 backdrop-blur-xl p-3 px-6 rounded-full shadow-2xl flex items-center gap-4 border border-blue-100 pointer-events-auto">
+                        <Button 
+                          variant="outline" 
+                          className="h-12 w-12 rounded-full border-2 border-slate-200 text-slate-600 active:scale-90"
+                          onClick={() => {
+                            setWeights(prev => {
+                              const n = [...prev]
+                              n[activeIndex] = (n[activeIndex] || "").slice(0, -1)
+                              weightsRef.current = n
+                              return n
+                            })
+                          }}
+                        >
+                          Xóa
+                        </Button>
                         
-                        if (newVal.length >= 3) {
-                           const updatedWeights = [...weightsRef.current]
-                           updatedWeights[activeIndex] = newVal
-                           if (isEditing) {
-                              const firstEmpty = updatedWeights.findIndex(w => w === "")
-                              if (firstEmpty !== -1) setActiveIndex(firstEmpty)
-                              else setActiveIndex(prev => prev + 1)
-                           } else {
-                              setActiveIndex(prev => prev + 1)
+                        <Button 
+                          onClick={toggleListening}
+                          className={cn(
+                            "h-16 w-16 rounded-full shadow-lg transition-all active:scale-95 border-4 border-white/50",
+                            isListening 
+                              ? "!bg-red-600 animate-pulse ring-4 ring-red-600/30 shadow-red-500/50" 
+                              : "!bg-[#2e7d32] hover:bg-[#1b5e20] shadow-green-900/20"
+                          )}
+                        >
+                          {isListening ? <MicOff className="h-8 w-8 text-white" /> : <Mic className="h-8 w-8 text-white" />}
+                        </Button>
+
+                        <Button 
+                          onClick={handleComplete}
+                          className="h-14 px-8 rounded-full bg-blue-900 text-white font-black hover:bg-blue-950 shadow-lg active:scale-95 flex items-center gap-2"
+                        >
+                          <Save className="w-5 h-5" />
+                          HOÀN TẤT
+                        </Button>
+                    </div>
+                </div>
+
+                {showKeyboard && (
+                  <div className="bg-white border-t p-2 z-40 animate-in slide-in-from-bottom-full duration-300 shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+                    <div className="grid grid-cols-3 gap-2">
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
+                          <Button 
+                            key={n} 
+                            variant="secondary"
+                            className="h-12 text-2xl font-black bg-slate-50 border-b-4 border-slate-200 active:border-b-0 active:translate-y-1 rounded-2xl text-slate-800"
+                            onClick={() => {
+                              const currentVal = weightsRef.current[activeIndex] || ""
+                              if (currentVal.length < 4) {
+                                const isEditing = currentVal !== ""
+                                const newVal = currentVal + n
+                                updateWeight(activeIndex, newVal)
+                                if (newVal.length >= 3) {
+                                  const updatedWeights = [...weightsRef.current]
+                                  updatedWeights[activeIndex] = newVal
+                                  if (isEditing) {
+                                    const firstEmpty = updatedWeights.findIndex(w => w === "")
+                                    if (firstEmpty !== -1) setActiveIndex(firstEmpty)
+                                    else setActiveIndex(prev => prev + 1)
+                                  } else {
+                                    setActiveIndex(prev => prev + 1)
+                                  }
+                                }
+                              }
+                            }}
+                          >
+                            {n}
+                          </Button>
+                        ))}
+                        <Button variant="outline" className="h-12 text-sm font-black rounded-2xl border-2 border-red-50" onClick={() => updateWeight(activeIndex, "")}>XÓA Ô</Button>
+                        <Button variant="secondary" className="h-12 text-2xl font-black bg-slate-50 border-b-4 border-slate-200 active:border-b-0 active:translate-y-1 rounded-2xl text-slate-800" onClick={() => {
+                           const currentVal = weightsRef.current[activeIndex] || ""
+                           if (currentVal.length < 4) {
+                              const newVal = currentVal + "0"
+                              updateWeight(activeIndex, newVal)
+                              if (newVal.length >= 3) {
+                                 const updatedWeights = [...weightsRef.current]
+                                 updatedWeights[activeIndex] = newVal
+                                 setActiveIndex(prev => (updatedWeights.findIndex(w => w === "") !== -1 ? updatedWeights.findIndex(w => w === "") : prev + 1))
+                              }
                            }
-                        }
-                      }
-                    }}
-                  >
-                    {n}
-                  </Button>
-                ))}
-                
-                {/* Nút Xóa Hết Ô */}
-                <Button 
-                  variant="outline"
-                  className="h-12 text-sm font-black rounded-2xl border-2 border-red-100 text-red-500 bg-red-50 active:bg-red-100"
-                  onClick={() => updateWeight(activeIndex, "")}
-                >
-                  Xóa Hết
-                </Button>
+                        }}>0</Button>
+                        <Button variant="outline" className="h-12 text-2xl font-black rounded-2xl bg-slate-100" onClick={() => {
+                           setWeights(prev => {
+                              const n = [...prev]
+                              n[activeIndex] = (n[activeIndex] || "").slice(0, -1)
+                              weightsRef.current = n
+                              return n
+                            })
+                        }}>
+                           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-delete"><path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z"/><line x1="18" x2="12" y1="9" y2="15"/><line x1="12" x2="18" y1="9" y2="15"/></svg>
+                        </Button>
+                    </div>
+                  </div>
+                )}
+             </>
+           )}
 
-                <Button 
-                  variant="secondary"
-                  className="h-12 text-2xl font-black bg-slate-100 border-b-2 border-slate-300 active:border-b-0 active:translate-y-0.5 rounded-2xl text-agri-900"
-                  onClick={() => {
-                    const currentVal = weightsRef.current[activeIndex] || ""
-                    if (currentVal.length < 4) {
-                      const isEditing = currentVal !== ""
-                      const newVal = currentVal + "0"
-                      updateWeight(activeIndex, newVal)
-                      if (newVal.length >= 3) {
-                         const updatedWeights = [...weightsRef.current]
-                         updatedWeights[activeIndex] = newVal
-                         if (isEditing) {
-                            const firstEmpty = updatedWeights.findIndex(w => w === "")
-                            if (firstEmpty !== -1) setActiveIndex(firstEmpty)
-                            else setActiveIndex(prev => prev + 1)
-                         } else {
-                            setActiveIndex(prev => prev + 1)
-                         }
-                      }
-                    }
-                  }}
-                >
-                  0
-                </Button>
+           {/* Step 3: LỊCH SỬ CÂN LÚA */}
+           {step === "history" && (
+             <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 bg-slate-50">
+                {history.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full opacity-30 text-slate-400">
+                     <History className="w-16 h-16 mb-4" />
+                     <div className="font-bold text-xl uppercase">Chưa có lịch sử cân</div>
+                  </div>
+                ) : (
+                  history.map(record => (
+                    <div key={record.id} className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 group relative">
+                       <div className="flex justify-between items-start mb-4">
+                          <div>
+                             <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{dayjs(record.weighing_date).format("DD/MM/YYYY - HH:mm")}</div>
+                             <h4 className="text-xl font-black text-blue-900">{record.crop_name}</h4>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-red-300 hover:text-red-500 hover:bg-red-50 rounded-full"
+                            onClick={() => record.id && deleteHistoryRecord(record.id)}
+                          >
+                             <Trash2 className="w-5 h-5" />
+                          </Button>
+                       </div>
 
-                {/* Nút Xóa 1 Số Cuối */}
-                <Button 
-                  variant="outline"
-                  className="h-12 text-2xl font-black rounded-2xl border-2 border-slate-200 text-slate-600 bg-slate-50 active:bg-slate-100"
-                  onClick={() => {
-                    setWeights(prev => {
-                      const n = [...prev]
-                      n[activeIndex] = (n[activeIndex] || "").slice(0, -1)
-                      weightsRef.current = n
-                      return n
-                    })
-                  }}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-delete"><path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z"/><line x1="18" x2="12" y1="9" y2="15"/><line x1="12" x2="18" y1="9" y2="15"/></svg>
-                </Button>
+                       <div className="grid grid-cols-2 gap-4 mb-6">
+                          <div className="bg-blue-50 p-4 rounded-2xl border border-blue-100">
+                             <div className="text-[10px] font-black text-blue-400 uppercase mb-1">Tổng sản lượng</div>
+                             <div className="text-2xl font-black text-blue-700 leading-none">{record.total_weight.toLocaleString()} <span className="text-sm">kg</span></div>
+                          </div>
+                          <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
+                             <div className="text-[10px] font-black text-emerald-400 uppercase mb-1">Xấp xỉ tiền</div>
+                             <div className="text-2xl font-black text-emerald-700 leading-none">{record.total_revenue?.toLocaleString()} <span className="text-sm">đ</span></div>
+                          </div>
+                       </div>
+
+                       <div className="flex gap-2">
+                          <Button 
+                            className="flex-1 h-12 rounded-xl bg-slate-800 text-white font-bold text-sm tracking-tight"
+                            onClick={() => {
+                               // Logic để xem lại chi tiết bảng (Nếu cần)
+                               toast({ title: "Thông báo", description: "Tính năng đang hoàn thiện." })
+                            }}
+                          >
+                             CHI TIẾT BẢNG
+                          </Button>
+                          {record.rice_crop_id && (
+                             <Button 
+                                className="flex-1 h-12 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-black text-sm tracking-tight shadow-lg shadow-orange-100"
+                                onClick={() => handleSyncToCrop(record)}
+                             >
+                                <RotateCw className="w-5 h-5 mr-2" />
+                                ĐỒNG BỘ
+                             </Button>
+                          )}
+                       </div>
+                    </div>
+                  ))
+                )}
              </div>
-          </div>
-        )}
+           )}
+        </div>
       </div>
     </div>
   )

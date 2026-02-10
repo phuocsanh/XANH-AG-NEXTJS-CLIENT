@@ -128,7 +128,7 @@ export default function ToolsSection() {
             /* Farm Management Card - Guest / Offline mode */
             <Link 
               href="/guest-farming"
-              className="flex-shrink-0 w-[75%] md:w-auto snap-center group relative bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[1.5rem] md:rounded-[3rem] p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
+              className="flex-shrink-0 w-[75%] md:w-auto snap-center group relative bg-gradient-to-br from-indigo-500 to-indigo-800 rounded-[1.5rem] md:rounded-[3rem] p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
             >
               <div className="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-white/10 rounded-full blur-3xl -translate-y-12 md:-translate-y-20 translate-x-12 md:translate-x-20 group-hover:bg-white/20 transition-all" />
 
@@ -136,7 +136,7 @@ export default function ToolsSection() {
                 <div className="w-12 h-12 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-4 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
                   <Smartphone className="w-6 h-6 md:w-10 md:h-10 text-white" />
                 </div>
-                <p className="text-blue-100 font-black uppercase tracking-widest text-[9px] md:text-sm mb-1 md:mb-4">Công cụ miễn phí</p>
+                <p className="text-indigo-100 font-black uppercase tracking-widest text-[9px] md:text-sm mb-1 md:mb-4">Công cụ miễn phí</p>
                 <h3 className="text-xl md:text-5xl font-black text-white mb-3 md:mb-6 leading-tight">Canh tác</h3>
                 <div className="flex items-center gap-2 md:gap-3 text-white/60 mb-5 md:mb-8">
                   <Zap className="w-4 h-4 md:w-5 md:h-5 text-yellow-300" />
@@ -189,7 +189,7 @@ export default function ToolsSection() {
           {/* Rice Weighing Tool Card - NEW */}
           <div 
             onClick={() => setIsWeighingToolOpen(true)}
-            className="flex-shrink-0 w-[75%] md:w-auto snap-center group relative bg-gradient-to-br from-indigo-600 to-blue-800 rounded-[1.5rem] md:rounded-[3rem] p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500 cursor-pointer"
+            className="flex-shrink-0 w-[75%] md:w-auto snap-center group relative bg-gradient-to-br from-violet-600 to-purple-800 rounded-[1.5rem] md:rounded-[3rem] p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500 cursor-pointer"
           >
             <div className="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-white/10 rounded-full blur-3xl -translate-y-12 md:-translate-y-20 translate-x-12 md:translate-x-20 group-hover:bg-white/20 transition-all" />
 
@@ -197,7 +197,7 @@ export default function ToolsSection() {
               <div className="w-12 h-12 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-4 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
                 <Scale className="w-6 h-6 md:w-10 md:h-10 text-white" />
               </div>
-              <p className="text-indigo-100 font-black uppercase tracking-widest text-[9px] md:text-sm mb-1 md:mb-4">Công cụ hỗ trợ</p>
+              <p className="text-purple-100 font-black uppercase tracking-widest text-[9px] md:text-sm mb-1 md:mb-4">Công cụ hỗ trợ</p>
               <h3 className="text-xl md:text-5xl font-black text-white mb-3 md:mb-6 leading-tight">Cân <br/> Điện Tử</h3>
               <div className="flex items-center gap-2 md:gap-3 text-white/60 mb-5 md:mb-8">
                 <Scale className="w-4 h-4 md:w-5 md:h-5" />

@@ -194,11 +194,33 @@ class HttpClient {
       const accessToken = await this.refreshAccessToken()
       if (!accessToken) {
         console.warn('❌ Client-side refresh failed')
-        if (location.pathname !== "/login") {
-           console.log('Redirecting to login...')
-           await this.handleLogout()
-           location.href = "/login"
+        const { pathname } = window.location
+        
+        // Luôn logout để xóa token và reset state
+        await this.handleLogout()
+        
+        // Cập nhật Zustand store nếu có thể
+        try {
+          const { useAppStore } = await import('@/stores')
+          useAppStore.getState().setIsLogin(false)
+        } catch (e) {
+          console.error('Failed to update store state:', e)
         }
+
+        // Chỉ redirect nếu không phải trang chủ hoặc trang public
+        // Danh sách các trang không tự động redirect khi hết hạn token
+        const publicPaths = ['/', '/login', '/weather-forecast', '/lunar-calendar', '/news', '/products', '/contact']
+        const isPublicPath = publicPaths.includes(pathname)
+
+        if (!isPublicPath) {
+           console.log('Redirecting to login from protected path:', pathname)
+           location.href = "/login"
+        } else {
+           console.log('Stay on public path after session expired:', pathname)
+           // Tùy chọn: reload để cập nhật UI đồng nhất
+           // location.reload() 
+        }
+        
         throw new Error("Unauthorized")
       }
 

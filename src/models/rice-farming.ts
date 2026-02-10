@@ -287,6 +287,22 @@ export interface HarvestRecord {
   updated_at: string
 }
 
+/** Bản ghi cân lúa */
+export interface WeighingRecord {
+  id?: number
+  rice_crop_id?: number
+  crop_name?: string
+  is_guest?: boolean
+  weighing_date: string
+  total_weight: number
+  price_per_unit?: number
+  total_revenue?: number
+  weights_data: string[]
+  notes?: string
+  created_at: string
+  updated_at: string
+}
+
 /** Hóa đơn mua hàng từ bên ngoài (nông dân tự nhập) */
 export interface ExternalPurchase {
   id: number
@@ -483,4 +499,3 @@ export const getScheduleStatusColor = (
   }
   return map[status] || "default"
 }
-
