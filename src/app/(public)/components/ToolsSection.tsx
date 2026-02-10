@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useAppStore } from '@/stores'
-import { Cloud, Calendar as CalendarIcon, ArrowRight, Sun, Moon, MapPin, Sprout, Zap, Scale } from 'lucide-react'
+import { Cloud, Calendar as CalendarIcon, ArrowRight, Sun, Moon, MapPin, Sprout, Zap, Scale, Smartphone } from 'lucide-react'
 import RiceWeighingTool from '@/components/common/RiceWeighingTool'
 
 /**
@@ -95,8 +95,8 @@ export default function ToolsSection() {
 
          
 
-          {/* Farm Management Card - Only show when logged in */}
-          {isLogin && (
+          {/* Farm Management Card - Authenticated */}
+          {isLogin ? (
             <Link 
               href="/rice-crops"
               className="flex-shrink-0 w-[75%] md:w-auto snap-center group relative bg-gradient-to-br from-emerald-600 to-teal-700 rounded-[1.5rem] md:rounded-[3rem] p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
@@ -110,8 +110,8 @@ export default function ToolsSection() {
                 <p className="text-emerald-100 font-black uppercase tracking-widest text-[9px] md:text-sm mb-1 md:mb-4">Quản lý nông nghiệp</p>
                 <h3 className="text-xl md:text-5xl font-black text-white mb-3 md:mb-6 leading-tight">Quản lý <br/> Canh tác</h3>
                 <div className="flex items-center gap-2 md:gap-3 text-white/60 mb-5 md:mb-8">
-                  <Sprout className="w-4 h-4 md:w-5 md:h-5" />
-                  <span className="font-bold text-xs md:text-base">Theo dõi vụ lúa</span>
+                  <Cloud className="w-4 h-4 md:w-5 md:h-5" />
+                  <span className="font-bold text-xs md:text-base">Đồng bộ Đám mây</span>
                 </div>
 
                 <div className="flex items-center gap-2 text-white font-black text-sm md:text-lg group-hover:gap-4 transition-all">
@@ -120,7 +120,35 @@ export default function ToolsSection() {
                 </div>
               </div>
 
-              {/* Decorative Icons */}
+              <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Sprout className="w-48 md:w-64 h-48 md:h-64 text-white" />
+              </div>
+            </Link>
+          ) : (
+            /* Farm Management Card - Guest / Offline mode */
+            <Link 
+              href="/guest-farming"
+              className="flex-shrink-0 w-[75%] md:w-auto snap-center group relative bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[1.5rem] md:rounded-[3rem] p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
+            >
+              <div className="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-white/10 rounded-full blur-3xl -translate-y-12 md:-translate-y-20 translate-x-12 md:translate-x-20 group-hover:bg-white/20 transition-all" />
+
+              <div className="relative z-10">
+                <div className="w-12 h-12 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-4 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
+                  <Smartphone className="w-6 h-6 md:w-10 md:h-10 text-white" />
+                </div>
+                <p className="text-blue-100 font-black uppercase tracking-widest text-[9px] md:text-sm mb-1 md:mb-4">Công cụ miễn phí</p>
+                <h3 className="text-xl md:text-5xl font-black text-white mb-3 md:mb-6 leading-tight">Canh tác</h3>
+                <div className="flex items-center gap-2 md:gap-3 text-white/60 mb-5 md:mb-8">
+                  <Zap className="w-4 h-4 md:w-5 md:h-5 text-yellow-300" />
+                  <span className="font-bold text-xs md:text-base">Lưu trên thiết bị</span>
+                </div>
+
+                <div className="flex items-center gap-2 text-white font-black text-sm md:text-lg group-hover:gap-4 transition-all">
+                  Bắt đầu ngay 
+                  <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-accent-gold" />
+                </div>
+              </div>
+
               <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity">
                 <Sprout className="w-48 md:w-64 h-48 md:h-64 text-white" />
               </div>

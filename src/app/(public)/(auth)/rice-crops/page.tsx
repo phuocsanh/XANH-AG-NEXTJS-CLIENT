@@ -158,6 +158,7 @@ export default function RiceCropsPage() {
                         </Select>
                       </div>
                     </TableHead>
+                    <TableHead className="min-w-[100px]">Số công</TableHead>
                     <TableHead className="min-w-[120px]">Diện tích (m²)</TableHead>
                     <TableHead className="min-w-[180px]">
                       <div className="space-y-2">
@@ -244,8 +245,11 @@ export default function RiceCropsPage() {
                           {crop.field_name}
                         </TableCell>
                         <TableCell>
-                          {crop.season?.name || "-"}
+                          {crop.season_name || crop.season?.name || "-"}
                           {crop.season?.year && ` (${crop.season.year})`}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {crop.amount_of_land || 0}
                         </TableCell>
                         <TableCell className="text-center sm:text-left">
                           {Number(crop.field_area).toLocaleString("vi-VN")}
@@ -262,11 +266,18 @@ export default function RiceCropsPage() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {crop.sowing_date
-                            ? new Date(crop.sowing_date).toLocaleDateString(
-                                "vi-VN"
-                              )
-                            : "-"}
+                          <div>
+                            {crop.sowing_date
+                              ? new Date(crop.sowing_date).toLocaleDateString(
+                                  "vi-VN"
+                                )
+                              : "-"}
+                            {crop.sowing_lunar_date && (
+                              <div className="text-[10px] text-agri-600 font-bold">
+                                {crop.sowing_lunar_date}
+                              </div>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell className="text-right">
                           <Button

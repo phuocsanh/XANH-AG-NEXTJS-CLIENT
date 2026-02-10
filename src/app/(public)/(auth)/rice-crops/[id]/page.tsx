@@ -232,9 +232,39 @@ export default function RiceCropDetailPage() {
                     </Badge>
                   } 
                 />
-                <DetailItem label="Ngày gieo" value={riceCrop.sowing_date ? dayjs(riceCrop.sowing_date).format("DD/MM/YYYY") : "-"} />
-                <DetailItem label="Ngày cấy" value={riceCrop.transplanting_date ? dayjs(riceCrop.transplanting_date).format("DD/MM/YYYY") : "-"} />
-                <DetailItem label="Ngày thu hoạch dự kiến" value={riceCrop.expected_harvest_date ? dayjs(riceCrop.expected_harvest_date).format("DD/MM/YYYY") : "-"} />
+                <DetailItem 
+                  label="Ngày gieo" 
+                  value={
+                    <div className="flex flex-col">
+                       <span>{riceCrop.sowing_date ? dayjs(riceCrop.sowing_date).format("DD/MM/YYYY") : "-"}</span>
+                       {riceCrop.sowing_lunar_date && (
+                         <span className="text-[10px] text-agri-600 font-bold">{riceCrop.sowing_lunar_date}</span>
+                       )}
+                    </div>
+                  } 
+                />
+                <DetailItem 
+                  label="Ngày cấy" 
+                  value={
+                    <div className="flex flex-col">
+                       <span>{riceCrop.transplanting_date ? dayjs(riceCrop.transplanting_date).format("DD/MM/YYYY") : "-"}</span>
+                       {riceCrop.transplanting_lunar_date && (
+                         <span className="text-[10px] text-agri-600 font-bold">{riceCrop.transplanting_lunar_date}</span>
+                       )}
+                    </div>
+                  } 
+                />
+                <DetailItem 
+                  label="Ngày thu hoạch dự kiến" 
+                  value={
+                    <div className="flex flex-col">
+                       <span>{riceCrop.expected_harvest_date ? dayjs(riceCrop.expected_harvest_date).format("DD/MM/YYYY") : "-"}</span>
+                       {riceCrop.expected_harvest_lunar_date && (
+                         <span className="text-[10px] text-agri-600 font-bold">{riceCrop.expected_harvest_lunar_date}</span>
+                       )}
+                    </div>
+                  } 
+                />
                 <DetailItem label="Ngày thu hoạch thực tế" value={riceCrop.actual_harvest_date ? dayjs(riceCrop.actual_harvest_date).format("DD/MM/YYYY") : "-"} />
                 {riceCrop.yield_amount && <DetailItem label="Sản lượng" value={`${riceCrop.yield_amount} kg`} />}
                 {riceCrop.quality_grade && <DetailItem label="Chất lượng" value={riceCrop.quality_grade} />}

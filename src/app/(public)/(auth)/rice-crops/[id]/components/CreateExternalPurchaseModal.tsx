@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { NumberInput } from "@/components/ui/number-input"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -218,10 +219,9 @@ export default function CreateExternalPurchaseModal({
             {formData.payment_status === 'partial' && (
               <div className="space-y-1.5">
                 <Label className="text-sm font-semibold text-agri-800">Số tiền đã trả <span className="text-red-500">*</span></Label>
-                <Input
-                  type="number"
+                <NumberInput
                   value={formData.paid_amount}
-                  onChange={(e) => setFormData({ ...formData, paid_amount: Number(e.target.value) })}
+                  onValueChange={(values) => setFormData({ ...formData, paid_amount: values.floatValue || 0 })}
                   className="h-10 border-agri-200 focus:ring-agri-500"
                   required
                 />
@@ -251,22 +251,20 @@ export default function CreateExternalPurchaseModal({
                   </div>
                   <div className="col-span-2 space-y-1.5">
                     <Label className="text-[11px] font-bold text-agri-700 uppercase tracking-wider">SL</Label>
-                    <Input
-                      type="number"
+                    <NumberInput
                       placeholder="SL"
                       value={item.quantity}
-                      onChange={(e) => updateItem(index, "quantity", e.target.value)}
+                      onValueChange={(values) => updateItem(index, "quantity", values.floatValue || 0)}
                       className="h-9 bg-white border-agri-200"
                       required
                     />
                   </div>
                   <div className="col-span-3 space-y-1.5">
                     <Label className="text-[11px] font-bold text-agri-700 uppercase tracking-wider">Đơn giá</Label>
-                    <Input
-                      type="number"
+                    <NumberInput
                       placeholder="Đơn giá"
                       value={item.unit_price}
-                      onChange={(e) => updateItem(index, "unit_price", e.target.value)}
+                      onValueChange={(values) => updateItem(index, "unit_price", values.floatValue || 0)}
                       className="h-9 bg-white border-agri-200"
                       required
                     />

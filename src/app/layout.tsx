@@ -7,7 +7,7 @@ import { FirebaseNotificationsProvider } from "./components/firebase-notificatio
 import { RemoteConfigInitializer } from "@/components/remote-config-initializer"
 import { JsonLd } from "@/components/JsonLd"
 
-const lexend = Lexend({ subsets: ["latin"] })
+const lexend = Lexend({ subsets: ["latin", "vietnamese"] })
 
 export const metadata: Metadata = {
   title: "Xanh AG - Nông nghiệp thông minh",

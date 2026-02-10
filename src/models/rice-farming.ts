@@ -59,8 +59,10 @@ export interface Customer {
 /** Ruộng lúa */
 export interface RiceCrop {
   id: number
-  customer_id: number
-  season_id: number
+  customer_id?: number
+  season_id?: number
+  customer_name?: string
+  season_name?: string
   field_name: string
   amount_of_land: number
   field_area: number
@@ -69,8 +71,11 @@ export interface RiceCrop {
   rice_variety: string
   seed_source?: string
   sowing_date?: string
+  sowing_lunar_date?: string
   transplanting_date?: string
+  transplanting_lunar_date?: string
   expected_harvest_date?: string
+  expected_harvest_lunar_date?: string
   actual_harvest_date?: string
   growth_stage: GrowthStage
   status: CropStatus
@@ -88,8 +93,10 @@ export interface RiceCrop {
 
 /** DTO tạo Ruộng lúa */
 export interface CreateRiceCropDto {
-  customer_id: number
-  season_id: number
+  customer_id?: number
+  season_id?: number
+  customer_name?: string
+  season_name?: string
   field_name: string
   amount_of_land: number
   field_area: number
@@ -98,20 +105,33 @@ export interface CreateRiceCropDto {
   rice_variety: string
   seed_source?: string
   sowing_date?: string
+  sowing_lunar_date?: string
   transplanting_date?: string
+  transplanting_lunar_date?: string
   expected_harvest_date?: string
+  expected_harvest_lunar_date?: string
   notes?: string
 }
 
-/** DTO cập nhật Ruộng lúa */
 export interface UpdateRiceCropDto {
   field_name?: string
+  customer_name?: string
+  season_name?: string
   amount_of_land?: number
   field_area?: number
   area_of_each_plot_of_land_id?: number
   location?: string
   rice_variety?: string
+  seed_source?: string
+  growth_stage?: GrowthStage
+  status?: CropStatus
+  sowing_date?: string
+  sowing_lunar_date?: string
+  transplanting_date?: string
+  transplanting_lunar_date?: string
   expected_harvest_date?: string
+  expected_harvest_lunar_date?: string
+  actual_harvest_date?: string
   yield_amount?: number
   quality_grade?: string
   notes?: string

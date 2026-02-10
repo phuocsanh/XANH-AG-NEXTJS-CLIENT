@@ -54,7 +54,34 @@ export type CreateGrowthTrackingBodyType = z.TypeOf<typeof CreateGrowthTrackingB
 
 
 // Schema cho Ruộng lúa
+export const CreateRiceCropBody = z.object({
+  field_name: z.string().min(1, "Vui lòng nhập tên ruộng"),
+  customer_name: z.string().optional(),
+  season_name: z.string().optional(),
+  location: z.string().optional(),
+  amount_of_land: z.number().min(0, "Số công đất không được âm"),
+  area_per_com: z.number().optional(),
+  field_area: z.number().min(0, "Diện tích không được âm"),
+  rice_variety: z.string().min(1, "Vui lòng nhập giống lúa"),
+  sowing_date: z.string().min(1, "Vui lòng chọn ngày gieo"),
+  sowing_lunar_date: z.string().optional(),
+  transplanting_date: z.string().optional(),
+  transplanting_lunar_date: z.string().optional(),
+  expected_harvest_date: z.string().optional(),
+  expected_harvest_lunar_date: z.string().optional(),
+  status: z.string().default("active"),
+  growth_stage: z.string().default("seedling"),
+})
+
+export type CreateRiceCropBodyType = z.TypeOf<typeof CreateRiceCropBody>
+
 export const UpdateRiceCropBody = z.object({
+  field_name: z.string().min(1, "Vui lòng nhập tên ruộng").optional(),
+  customer_name: z.string().optional(),
+  season_name: z.string().optional(),
+  season_id: z.number().int().optional(),
+  amount_of_land: z.number().min(0, "Số công đất không được âm").optional(),
+  area_per_com: z.number().optional(),
   field_area: z.number().min(0, "Diện tích không được âm"),
   rice_variety: z.string().min(1, "Vui lòng nhập giống lúa"),
   seed_source: z.string().optional(),
@@ -62,8 +89,11 @@ export const UpdateRiceCropBody = z.object({
   growth_stage: z.string().min(1, "Vui lòng chọn giai đoạn"),
   status: z.string().min(1, "Vui lòng chọn trạng thái"),
   sowing_date: z.string().optional(),
+  sowing_lunar_date: z.string().optional(),
   transplanting_date: z.string().optional(),
+  transplanting_lunar_date: z.string().optional(),
   expected_harvest_date: z.string().optional(),
+  expected_harvest_lunar_date: z.string().optional(),
   actual_harvest_date: z.string().optional(),
 })
 
