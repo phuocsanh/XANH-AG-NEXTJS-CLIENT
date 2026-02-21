@@ -325,6 +325,7 @@ export interface ExternalPurchaseItem {
   external_purchase_id: number
   product_name: string
   quantity: number
+  unit?: string
   unit_price: number
   total_price: number
   notes?: string
@@ -417,6 +418,7 @@ export interface CreateExternalPurchaseDto {
 export interface CreateExternalPurchaseItemDto {
   product_name: string
   quantity: number
+  unit?: string
   unit_price: number
   total_price: number
   notes?: string

@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import { getMessaging, getToken, onMessage, isSupported } from "firebase/messaging";
 import { getRemoteConfig, fetchAndActivate, getValue, getAll } from "firebase/remote-config";
 
 const firebaseConfig = {
@@ -13,7 +13,27 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const messaging = typeof window !== 'undefined' ? getMessaging(app) : null;
+
+// Khởi tạo messaging một cách an toàn
+export let messaging: any = null;
+
+if (typeof window !== 'undefined') {
+  try {
+    // Kiểm tra xem trình duyệt có hỗ trợ Firebase Messaging không (Yêu cầu HTTPS hoặc localhost)
+    isSupported().then((supported: boolean) => {
+      if (supported) {
+        messaging = getMessaging(app);
+      } else {
+        console.warn("🔔 Firebase Messaging không được hỗ trợ trên trình duyệt này (Có thể do bạn đang dùng HTTP thay vì HTTPS)");
+      }
+    }).catch((err: any) => {
+      console.warn("🔔 Lỗi khi kiểm tra hỗ trợ Firebase Messaging:", err);
+    });
+  } catch (error) {
+    console.error("🔔 Không thể khởi tạo Firebase Messaging:", error);
+  }
+}
+
 export const remoteConfig = typeof window !== 'undefined' ? getRemoteConfig(app) : null;
 
 if (remoteConfig) {

@@ -49,6 +49,7 @@ export default function CreateExternalPurchaseModal({
   interface PurchaseItem {
     product_name: string
     quantity: number
+    unit: string
     unit_price: number
     total_price: number
     notes?: string
@@ -67,7 +68,7 @@ export default function CreateExternalPurchaseModal({
     payment_status: "paid",
     paid_amount: 0,
     notes: "",
-    items: [{ product_name: "", quantity: 1, unit_price: 0, total_price: 0 }]
+    items: [{ product_name: "", quantity: 1, unit: "Kg", unit_price: 0, total_price: 0 }]
   })
 
   useEffect(() => {
@@ -78,7 +79,7 @@ export default function CreateExternalPurchaseModal({
         payment_status: initialData.status,
         paid_amount: initialData.paid_amount,
         notes: initialData.notes || "",
-        items: (initialData as any).items || [{ product_name: "", quantity: 1, unit_price: 0, total_price: 0 }]
+        items: (initialData as any).items || [{ product_name: "", quantity: 1, unit: "Kg", unit_price: 0, total_price: 0 }]
       })
     } else {
       setFormData({
@@ -87,7 +88,7 @@ export default function CreateExternalPurchaseModal({
         payment_status: "paid",
         paid_amount: 0,
         notes: "",
-        items: [{ product_name: "", quantity: 1, unit_price: 0, total_price: 0 }]
+        items: [{ product_name: "", quantity: 1, unit: "Kg", unit_price: 0, total_price: 0 }]
       })
     }
   }, [initialData, isOpen])
@@ -98,7 +99,7 @@ export default function CreateExternalPurchaseModal({
   const addItem = () => {
     setFormData({
       ...formData,
-      items: [...formData.items, { product_name: "", quantity: 1, unit_price: 0, total_price: 0 }]
+      items: [...formData.items, { product_name: "", quantity: 1, unit: "Kg", unit_price: 0, total_price: 0 }]
     })
   }
 
@@ -115,6 +116,8 @@ export default function CreateExternalPurchaseModal({
     
     if (field === "product_name") {
       newItems[index] = { ...currentItem, product_name: String(value) } as PurchaseItem
+    } else if (field === "unit") {
+      newItems[index] = { ...currentItem, unit: String(value) } as PurchaseItem
     } else if (field === "quantity") {
       const quantity = Number(value)
       newItems[index] = { 
@@ -151,6 +154,7 @@ export default function CreateExternalPurchaseModal({
         items: formData.items.map((item: PurchaseItem) => ({
           product_name: item.product_name,
           quantity: Number(item.quantity),
+          unit: item.unit,
           unit_price: Number(item.unit_price),
           total_price: Number(item.total_price),
           notes: item.notes
@@ -255,6 +259,16 @@ export default function CreateExternalPurchaseModal({
                       placeholder="SL"
                       value={item.quantity}
                       onValueChange={(values) => updateItem(index, "quantity", values.floatValue || 0)}
+                      className="h-9 bg-white border-agri-200"
+                      required
+                    />
+                  </div>
+                  <div className="col-span-2 space-y-1.5">
+                    <Label className="text-[11px] font-bold text-agri-700 uppercase tracking-wider">Đơn vị</Label>
+                    <Input
+                      placeholder="ĐVT"
+                      value={item.unit}
+                      onChange={(e) => updateItem(index, "unit", e.target.value)}
                       className="h-9 bg-white border-agri-200"
                       required
                     />

@@ -158,7 +158,7 @@ export default function InvoiceDetailModal({
                           )}
                         </TableCell>
                         <TableCell className="px-1 text-center text-xs whitespace-nowrap">
-                          {item.quantity} {item.unit || item.product?.unit_name || ''}
+                          {item.quantity} {item.unit_name || item.unit || item.product?.unit_name || ''}
                         </TableCell>
                         <TableCell className="px-2 text-right text-xs whitespace-nowrap font-mono">
                           {convertCurrency(Number(item.unit_price || item.price || 0))}
