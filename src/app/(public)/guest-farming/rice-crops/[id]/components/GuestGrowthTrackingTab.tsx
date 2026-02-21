@@ -31,8 +31,8 @@ export default function GuestGrowthTrackingTab({ riceCropId }: GuestGrowthTracki
     try {
       const data = await localFarmingService.getTrackingsByCropId(riceCropId)
       setTrackings(data as any)
-    } catch (error) {
-      console.error("Error fetching local trackings:", error)
+    } catch (_error) {
+      console.error("Error fetching local trackings:", _error)
     } finally {
       setIsLoading(false)
     }
@@ -54,7 +54,7 @@ export default function GuestGrowthTrackingTab({ riceCropId }: GuestGrowthTracki
         await localFarmingService.deleteTracking(id)
         toast({ title: "Thành công", description: "Đã xóa bản ghi sinh trưởng." })
         fetchTrackings()
-      } catch (error) {
+      } catch {
         toast({ title: "Lỗi", description: "Không thể xóa bản ghi.", variant: "destructive" })
       }
     }
@@ -81,7 +81,7 @@ export default function GuestGrowthTrackingTab({ riceCropId }: GuestGrowthTracki
       }
       setIsModalOpen(false)
       fetchTrackings()
-    } catch (error) {
+    } catch {
       toast({ title: "Lỗi", description: "Không thể lưu thông tin.", variant: "destructive" })
     }
   }

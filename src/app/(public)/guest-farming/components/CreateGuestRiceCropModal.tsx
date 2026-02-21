@@ -18,7 +18,6 @@ import { localFarmingService } from "@/lib/local-farming-service"
 import { useToast } from "@/hooks/use-toast"
 import { CreateRiceCropBody, CreateRiceCropBodyType } from "@/schemaValidations/rice-farming.schema"
 import { FormNumberInput, FormFieldWrapper, FormDatePicker, FormComboBox } from "@/components/form"
-import { Badge } from "@/components/ui/badge"
 import { convertSolar2Lunar } from "@/lib/lunar-calendar"
 
 interface CreateGuestRiceCropModalProps {

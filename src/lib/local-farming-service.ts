@@ -1,12 +1,5 @@
 import { localDB } from './local-db';
-import { 
-  RiceCrop, 
-  Season, 
-  FarmingSchedule, 
-  GrowthTracking, 
-  CostItem, 
-  HarvestRecord 
-} from '@/models/rice-farming';
+
 
 export const localFarmingService = {
   // Rice Crops

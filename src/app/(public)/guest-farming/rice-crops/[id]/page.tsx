@@ -15,9 +15,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ArrowLeft, Edit, Smartphone, Calendar, Sprout, DollarSign, TrendingUp, Info } from "lucide-react"
+import { ArrowLeft, Edit, Calendar, Sprout, Info } from "lucide-react"
 import dayjs from "dayjs"
-import { cn } from "@/lib/utils"
 
 // Tab components
 import GuestFarmingSchedulesTab from "./components/GuestFarmingSchedulesTab"
@@ -32,7 +31,6 @@ export default function GuestRiceCropDetailPage() {
   
   const [riceCrop, setRiceCrop] = useState<RiceCrop | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState("info")
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   const fetchDetail = async () => {
@@ -198,7 +196,7 @@ export default function GuestRiceCropDetailPage() {
 
         {/* Right Content: Tabs */}
         <div className="lg:col-span-8">
-          <Tabs defaultValue="info" className="w-full" onValueChange={setActiveTab}>
+          <Tabs defaultValue="info" className="w-full">
             <div className="mb-8 overflow-x-auto scrollbar-none">
               <TabsList className="bg-gray-100/50 p-1.5 rounded-[1.8rem] w-full md:w-auto h-auto min-w-max">
                 <TabsTrigger value="info" className="rounded-full px-6 py-3 data-[state=active]:bg-white data-[state=active]:shadow-md font-bold text-xs">

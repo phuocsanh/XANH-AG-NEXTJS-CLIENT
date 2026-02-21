@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Form } from "@/components/ui/form"
-import { Loader2, Smartphone, Edit } from "lucide-react"
+import { Loader2, Edit } from "lucide-react"
 import dayjs from "dayjs"
 import { localFarmingService } from "@/lib/local-farming-service"
 import { useToast } from "@/hooks/use-toast"

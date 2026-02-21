@@ -1,21 +1,19 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Plus, DollarSign, Tag, Calendar, Trash2, PieChart, TrendingDown } from "lucide-react"
+import { Plus, DollarSign, Tag, Trash2, PieChart, TrendingDown } from "lucide-react"
 import dayjs from "dayjs"
 import { localFarmingService } from "@/lib/local-farming-service"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { type CostItem } from "@/models/rice-farming"
 import { cn, convertCurrency } from "@/lib/utils"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { useConfirm } from "@/hooks/use-confirm"
 import GuestCostItemModal from "./GuestCostItemModal"
 import GuestHarvestModal from "./GuestHarvestModal"
 import { CreateCostItemBodyType, CreateHarvestRecordBodyType } from "@/schemaValidations/rice-farming.schema"
-import { Edit2, Wheat, Wallet, Trash } from "lucide-react"
+import { Edit2, Wheat } from "lucide-react"
 
 interface GuestCostItemsTabProps {
   riceCropId: number
@@ -53,8 +51,8 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
       ])
       setCosts(costData as any)
       setHarvestRecords(harvestData as any)
-    } catch (error) {
-      console.error("Error fetching local data:", error)
+    } catch (_error) {
+      console.error("Error fetching local data:", _error)
     } finally {
       setIsLoading(false)
     }
@@ -76,7 +74,7 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
         await localFarmingService.deleteCostItem(id)
         toast({ title: "Thành công", description: "Đã xóa mục chi phí." })
         fetchData()
-      } catch (error) {
+      } catch {
         toast({ title: "Lỗi", description: "Không thể xóa chi phí.", variant: "destructive" })
       }
     }
@@ -103,7 +101,7 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
       }
       setIsModalOpen(false)
       fetchData()
-    } catch (error) {
+    } catch {
       toast({ title: "Lỗi", description: "Không thể lưu thông tin.", variant: "destructive" })
     }
   }
@@ -130,7 +128,7 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
         await localFarmingService.deleteHarvestRecord(id)
         toast({ title: "Thành công", description: "Đã xóa bản ghi thu hoạch." })
         fetchData()
-      } catch (error) {
+      } catch {
         toast({ title: "Lỗi", description: "Không thể xóa bản ghi.", variant: "destructive" })
       }
     }
@@ -147,7 +145,7 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
       }
       setIsHarvestModalOpen(false)
       fetchData()
-    } catch (error) {
+    } catch {
       toast({ title: "Lỗi", description: "Không thể lưu thông tin.", variant: "destructive" })
     }
   }

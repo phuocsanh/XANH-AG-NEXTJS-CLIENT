@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Plus, Calendar, CheckCircle2, Clock, Trash2, Edit2 } from "lucide-react"
+import { Plus, Calendar, Clock, Trash2, Edit2 } from "lucide-react"
 import dayjs from "dayjs"
 import { localFarmingService } from "@/lib/local-farming-service"
 import { Button } from "@/components/ui/button"
@@ -32,8 +32,8 @@ export default function GuestFarmingSchedulesTab({ riceCropId }: GuestFarmingSch
     try {
       const data = await localFarmingService.getSchedulesByCropId(riceCropId)
       setSchedules(data as any)
-    } catch (error) {
-      console.error("Error fetching local schedules:", error)
+    } catch (_error) {
+      console.error("Error fetching local schedules:", _error)
     } finally {
       setIsLoading(false)
     }
@@ -55,7 +55,7 @@ export default function GuestFarmingSchedulesTab({ riceCropId }: GuestFarmingSch
         await localFarmingService.deleteSchedule(id)
         toast({ title: "Thành công", description: "Đã xóa công việc." })
         fetchSchedules()
-      } catch (error) {
+      } catch {
         toast({ title: "Lỗi", description: "Không thể xóa công việc này.", variant: "destructive" })
       }
     }
@@ -70,7 +70,7 @@ export default function GuestFarmingSchedulesTab({ riceCropId }: GuestFarmingSch
         description: `Công việc đã được đánh dấu là ${newStatus === "completed" ? "hoàn thành" : "đang chờ"}.` 
       })
       fetchSchedules()
-    } catch (error) {
+    } catch {
       toast({ title: "Lỗi", description: "Cập nhật không thành công.", variant: "destructive" })
     }
   }
@@ -96,7 +96,7 @@ export default function GuestFarmingSchedulesTab({ riceCropId }: GuestFarmingSch
       }
       setIsModalOpen(false)
       fetchSchedules()
-    } catch (error) {
+    } catch {
       toast({ title: "Lỗi", description: "Không thể lưu thông tin.", variant: "destructive" })
     }
   }

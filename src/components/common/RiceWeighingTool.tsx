@@ -4,13 +4,13 @@ import React, { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { 
-  Mic, MicOff, X, RotateCcw, ChevronLeft, Save, Database, History, Info, Scale, ArrowRight, Trash2, RotateCw, Keyboard, ChevronDown
+  Mic, MicOff, X, ChevronLeft, Save, Database, History, Info, Scale, ArrowRight, Trash2, RotateCw, Keyboard, ChevronDown
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAppStore } from "@/stores"
 import { useRiceCrops } from "@/hooks/use-rice-crops"
 import { localFarmingService } from "@/lib/local-farming-service"
-import { RiceCrop, WeighingRecord } from "@/models/rice-farming"
+import { WeighingRecord } from "@/models/rice-farming"
 import dayjs from "dayjs"
 import httpClient from "@/lib/http"
 import { toast } from "@/hooks/use-toast"
@@ -39,7 +39,7 @@ export default function RiceWeighingTool({
   const [step, setStep] = useState<"select-crop" | "weighing" | "history">("select-crop")
   const [selectedCropId, setSelectedCropId] = useState<number | string | null>(null)
   const [customCropName, setCustomCropName] = useState("")
-  const [pricePerUnit, setPricePerUnit] = useState<number>(0)
+  const [pricePerUnit] = useState<number>(0)
   const [localCrops, setLocalCrops] = useState<any[]>([])
   const [history, setHistory] = useState<WeighingRecord[]>([])
   

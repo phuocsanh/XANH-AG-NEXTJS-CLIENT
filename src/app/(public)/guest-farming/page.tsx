@@ -25,8 +25,7 @@ import {
   getCropStatusColor,
   type RiceCrop,
 } from "@/models/rice-farming"
-import { Eye, Smartphone, Plus, SmartphoneIcon, LogIn } from "lucide-react"
-import Link from "next/link"
+import { Eye, Plus } from "lucide-react"
 import CreateGuestRiceCropModal from "./components/CreateGuestRiceCropModal"
 
 export default function GuestFarmingPage() {
