@@ -6,6 +6,12 @@ const nextConfig = {
         protocol: "https",
         hostname: "**", // Chấp nhận tất cả hostname
       },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
   eslint: {
