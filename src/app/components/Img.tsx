@@ -51,7 +51,7 @@ export default function Img({
   return (
     <div
       style={{ width: "100%", height: "100%", position: "relative" }}
-      className={`bg-gray-50 flex items-center justify-center overflow-hidden ${className}`}
+      className={`flex items-center justify-center overflow-hidden ${className.includes('bg-') ? '' : 'bg-gray-50'} ${className}`}
     >
       {useNative && !imgError ? (
         <img

@@ -34,6 +34,7 @@ export default function Footer() {
                     alt="Xanh AG Logo"
                     src="/assets/logo3.png"
                     fill
+                    className="bg-transparent"
                     classNameImg="object-contain scale-150"
                   />
                 </div>

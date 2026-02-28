@@ -91,12 +91,13 @@ export default function Navbar() {
               href='/'
               className='text-sm md:text-lg font-semibold text-foreground truncate flex items-center'
             >
-              <div className='relative w-10 h-10 sm:w-12 sm:h-12 overflow-hidden'>
+              <div className='relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-white shadow-sm border border-emerald-600/20 transition-transform hover:scale-105'>
                 <Img
                   alt='Xanh AG Logo'
                   src='/assets/logo3.png'
                   fill
-                  className='object-contain scale-150'
+                  className='bg-transparent p-1'
+                  classNameImg='object-contain scale-150'
                 />
               </div>
             </Link>
