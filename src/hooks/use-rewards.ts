@@ -32,8 +32,8 @@ export function useMyRewardTracking() {
   return useQuery({
     queryKey: ["my-reward-tracking"],
     queryFn: async () => {
-      const response = await http.get<RewardTracking>("/customer-rewards/my-tracking")
-      return response
+      const response = await http.get<{ data: RewardTracking }>("/customer-rewards/my-tracking")
+      return response.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -46,8 +46,8 @@ export function useMyRewardHistory(page: number = 1, limit: number = 10) {
   return useQuery({
     queryKey: ["my-reward-history", page, limit],
     queryFn: async () => {
-      const response = await http.get<RewardHistoryResponse>(`/customer-rewards/my-history?page=${page}&limit=${limit}`)
-      return response
+      const response = await http.get<{ data: RewardHistoryResponse }>(`/customer-rewards/my-history?page=${page}&limit=${limit}`)
+      return response.data
     },
   })
 }

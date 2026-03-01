@@ -138,11 +138,8 @@ export default function ProductDetailModal({
             </div>
 
             <div className="space-y-6">
-              {/* Code & Volume */}
+              {/* Volume */}
               <div className="flex flex-wrap gap-4 text-sm">
-                <span className="text-gray-500 bg-gray-100 px-3 py-1 rounded-full text-xs">
-                  Mã: <span className="font-semibold">{product.code}</span>
-                </span>
                 {product.volume && (
                   <span className="text-gray-500 bg-agri-50 px-3 py-1 rounded-full text-xs">
                     Dung tích: <span className="font-semibold text-agri-700">{product.volume}</span>
@@ -201,23 +198,7 @@ export default function ProductDetailModal({
                 </div>
               )}
 
-              {/* Unit & Symbol */}
-              {(product.unit || product.symbol) && (
-                <div className="flex gap-6 pt-2 border-t border-gray-100">
-                  {product.unit && (
-                    <div className="text-xs">
-                      <span className="text-gray-400 block mb-1">Đơn vị tính</span>
-                      <span className="font-semibold text-gray-700">{product.unit.name}</span>
-                    </div>
-                  )}
-                  {product.symbol && (
-                    <div className="text-xs">
-                      <span className="text-gray-400 block mb-1">Ký hiệu</span>
-                      <span className="font-semibold text-gray-700">{product.symbol.name}</span>
-                    </div>
-                  )}
-                </div>
-              )}
+
 
               {/* Notes */}
               {product.notes && (
