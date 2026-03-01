@@ -169,6 +169,15 @@ export default function Navbar() {
                   Dịch bệnh
                 </Link>
               )}
+              {user && (
+                <Link
+                  href='/rewards'
+                  className='text-white bg-white/10 px-3 py-1 rounded-full border border-white/20 hover:bg-yellow-400 hover:text-emerald-900 hover:border-yellow-400 font-bold transition-all flex items-center gap-2'
+                >
+                  <Star size={16} className="fill-current" />
+                  Tích lũy
+                </Link>
+              )}
               <Link
                 href='/lunar-calendar'
                 className='text-white hover:text-yellow-300 font-medium transition-colors'

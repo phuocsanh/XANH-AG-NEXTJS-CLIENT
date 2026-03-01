@@ -18,7 +18,7 @@ export default function RewardsPage() {
   const { data: tracking, isLoading: isTrackingLoading } = useMyRewardTracking()
   const { data: history, isLoading: isHistoryLoading } = useMyRewardHistory(page)
 
-  const REWARD_THRESHOLD = 60000000 // 60 Triệu
+  const threshold = tracking?.reward_threshold || 60000000 // Fallback 60 Triệu nếu chưa load kịp
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -48,7 +48,7 @@ export default function RewardsPage() {
               {user.user_profile?.nickname?.charAt(0).toUpperCase() || user.account.charAt(0).toUpperCase()}
             </div>
             <div className="text-center md:text-left">
-              <h1 className="text-2xl md:text-3xl font-bold">Chào chú, {user.user_profile?.nickname || user.account}!</h1>
+              <h1 className="text-2xl md:text-3xl font-bold">Xin chào, {user.user_profile?.nickname || user.account}!</h1>
               <p className="opacity-90 flex items-center justify-center md:justify-start gap-2 mt-1 font-medium">
                 <CheckCircle2 size={16} /> Thành viên thân thiết Xanh AG
               </p>
@@ -78,7 +78,7 @@ export default function RewardsPage() {
                     Tiến trình nhận quà
                   </CardTitle>
                   <Badge variant="outline" className="border-emerald-200 text-emerald-700 bg-white px-3 py-1">
-                    Mốc 60 triệu
+                    Mốc {Math.round(threshold / 1000000)} triệu
                   </Badge>
                 </div>
               </CardHeader>
@@ -93,7 +93,7 @@ export default function RewardsPage() {
                     <div className="space-y-6">
                       <div className="flex justify-between items-end">
                         <div className="space-y-1">
-                          <p className="text-sm font-bold text-slate-400 uppercase tracking-tighter">Số tiền đã mua hàng vụ này</p>
+                          <p className="text-sm font-bold text-slate-400 uppercase tracking-tighter">Tích lũy đến hiện tại</p>
                           <p className="text-4xl font-black text-emerald-600 tabular-nums">
                             {formatCurrency(Number(tracking?.pending_amount || 0))}
                           </p>
@@ -109,14 +109,14 @@ export default function RewardsPage() {
                       <div className="relative pt-2">
                         <Progress 
                           value={Math.min(
-                            Math.round((Number(tracking?.pending_amount || 0) / REWARD_THRESHOLD) * 100),
+                            Math.round((Number(tracking?.pending_amount || 0) / threshold) * 100),
                             100
                           )} 
                           className="h-5 bg-slate-100 rounded-full [&>div]:bg-gradient-to-r [&>div]:from-emerald-400 [&>div]:to-emerald-600"
                         />
                         <div className="flex justify-between mt-3 text-xs font-bold text-slate-400 uppercase">
                           <span>0 đ</span>
-                          <span className="text-emerald-600">Mục tiêu: 60 Triệu đ</span>
+                          <span className="text-emerald-600">Mục tiêu: {Math.round(threshold / 1000000)} Triệu đ</span>
                         </div>
                       </div>
                     </div>

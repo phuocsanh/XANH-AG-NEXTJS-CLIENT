@@ -5,6 +5,7 @@ export interface RewardTracking {
   pending_amount: number
   total_accumulated: number
   reward_count: number
+  reward_threshold: number
   shortage_to_next: number
   last_reward_date?: string
 }
