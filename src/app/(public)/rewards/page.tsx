@@ -71,36 +71,36 @@ export default function RewardsPage() {
           <TabsContent value="overview" className="space-y-6 outline-none">
             {/* Main Progress Card */}
             <Card className="border-none shadow-xl border-slate-100 overflow-hidden bg-white rounded-2xl">
-              <CardHeader className="bg-emerald-50/50 border-b border-emerald-100">
+              <CardHeader className="bg-emerald-50/50 border-b border-emerald-100 p-4 md:p-6">
                 <div className="flex justify-between items-center">
-                  <CardTitle className="flex items-center gap-2 text-emerald-800">
-                    <Gift className="text-emerald-500" />
+                  <CardTitle className="flex items-center gap-2 text-emerald-800 text-base md:text-xl">
+                    <Gift className="text-emerald-500 w-5 h-5 md:w-6 md:h-6" />
                     Tiến trình nhận quà
                   </CardTitle>
-                  <Badge variant="outline" className="border-emerald-200 text-emerald-700 bg-white px-3 py-1">
+                  <Badge variant="outline" className="border-emerald-200 text-emerald-700 bg-white px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs">
                     Mốc {Math.round(threshold / 1000000)} triệu
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="pt-8">
+              <CardContent className="pt-6 md:pt-8 p-4 md:p-6">
                 {isTrackingLoading ? (
                   <div className="space-y-4">
                     <Skeleton className="h-8 w-full" />
                     <Skeleton className="h-4 w-2/3" />
                   </div>
                 ) : (
-                  <div className="space-y-10">
+                  <div className="space-y-8 md:space-y-10">
                     <div className="space-y-6">
-                      <div className="flex justify-between items-end">
+                      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-0">
                         <div className="space-y-1">
-                          <p className="text-sm font-bold text-slate-400 uppercase tracking-tighter">Tích lũy đến hiện tại</p>
-                          <p className="text-4xl font-black text-emerald-600 tabular-nums">
+                          <p className="text-[10px] md:text-sm font-bold text-slate-400 uppercase tracking-tight md:tracking-tighter">Tích lũy đến hiện tại</p>
+                          <p className="text-2xl md:text-4xl font-black text-emerald-600 tabular-nums">
                             {formatCurrency(Number(tracking?.pending_amount || 0))}
                           </p>
                         </div>
-                        <div className="text-right space-y-1">
-                          <p className="text-sm font-bold text-slate-400 uppercase tracking-tighter">Còn thiếu</p>
-                          <p className="text-xl font-bold text-orange-500 tabular-nums">
+                        <div className="md:text-right space-y-1 p-3 rounded-xl bg-orange-50 border border-orange-100 md:bg-transparent md:border-none">
+                          <p className="text-[10px] md:text-sm font-bold text-slate-400 uppercase tracking-tight md:tracking-tighter">Còn thiếu đến quà tặng kế</p>
+                          <p className="text-lg md:text-xl font-bold text-orange-500 tabular-nums">
                             {formatCurrency(tracking?.shortage_to_next || 0)}
                           </p>
                         </div>
@@ -112,23 +112,23 @@ export default function RewardsPage() {
                             Math.round((Number(tracking?.pending_amount || 0) / threshold) * 100),
                             100
                           )} 
-                          className="h-5 bg-slate-100 rounded-full [&>div]:bg-gradient-to-r [&>div]:from-emerald-400 [&>div]:to-emerald-600"
+                          className="h-4 md:h-5 bg-slate-100 rounded-full [&>div]:bg-gradient-to-r [&>div]:from-emerald-400 [&>div]:to-emerald-600"
                         />
-                        <div className="flex justify-between mt-3 text-xs font-bold text-slate-400 uppercase">
+                        <div className="flex justify-between mt-3 text-[10px] md:text-xs font-bold text-slate-400 uppercase">
                           <span>0 đ</span>
                           <span className="text-emerald-600">Mục tiêu: {Math.round(threshold / 1000000)} Triệu đ</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-100">
-                      <div className="text-center p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100/50 transition-colors hover:bg-emerald-50">
-                        <p className="text-xs text-emerald-700/60 mb-1 uppercase tracking-wider font-bold">Tổng tích lũy trọn đời</p>
-                        <p className="text-xl font-black text-slate-700">{formatCurrency(Number(tracking?.total_accumulated || 0))}</p>
+                    <div className="grid grid-cols-2 gap-3 md:gap-4 pt-6 border-t border-slate-100">
+                      <div className="text-left md:text-center p-3 md:p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100/50 transition-colors hover:bg-emerald-50">
+                        <p className="text-[10px] text-emerald-700/60 mb-1 uppercase tracking-wider font-bold">Tổng tích lũy</p>
+                        <p className="text-sm md:text-xl font-black text-slate-700">{formatCurrency(Number(tracking?.total_accumulated || 0))}</p>
                       </div>
-                      <div className="text-center p-4 rounded-2xl bg-amber-50/50 border border-amber-100/50 transition-colors hover:bg-amber-50">
-                        <p className="text-xs text-amber-700/60 mb-1 uppercase tracking-wider font-bold">Quà đã nhận</p>
-                        <p className="text-xl font-black text-amber-900">{tracking?.reward_count || 0} lần</p>
+                      <div className="text-left md:text-center p-3 md:p-4 rounded-2xl bg-amber-50/50 border border-amber-100/50 transition-colors hover:bg-amber-50">
+                        <p className="text-[10px] text-amber-700/60 mb-1 uppercase tracking-wider font-bold">Quà đã nhận</p>
+                        <p className="text-sm md:text-xl font-black text-amber-900">{tracking?.reward_count || 0} lần</p>
                       </div>
                     </div>
                   </div>
@@ -183,28 +183,31 @@ export default function RewardsPage() {
                     {history?.items?.map((item) => (
                       <div 
                         key={item.id} 
-                        className="p-5 md:p-8 hover:bg-slate-50/80 transition-all group border-l-4 border-transparent hover:border-emerald-500"
+                        className="p-4 md:p-8 hover:bg-slate-50/80 transition-all group border-l-4 border-transparent hover:border-emerald-500"
                       >
-                        <div className="flex justify-between items-start gap-4">
-                          <div className="flex gap-5">
-                            <div className="h-14 w-14 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0 group-hover:scale-110 transition-transform duration-300">
-                              <Gift size={28} />
+                        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                          <div className="flex gap-4 md:gap-5 w-full sm:w-auto">
+                            <div className="h-12 w-12 md:h-14 md:w-14 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0 group-hover:scale-110 transition-transform duration-300">
+                              <Gift className="w-6 h-6 md:w-7 md:h-7" />
                             </div>
-                            <div className="space-y-2">
-                              <h4 className="font-black text-slate-800 text-xl leading-tight">
-                                {item.gift_description}
-                              </h4>
-                              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-                                <span className="flex items-center gap-2 font-bold text-slate-400">
-                                  <Calendar size={16} />
+                            <div className="space-y-2 flex-grow">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <h4 className="font-black text-slate-800 text-lg md:text-xl leading-tight">
+                                  {item.gift_description}
+                                </h4>
+                                <Badge className="sm:hidden bg-emerald-600 shadow-sm uppercase tracking-widest text-[8px] px-2 py-0.5">Thành công</Badge>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs md:text-sm">
+                                <span className="flex items-center gap-1.5 font-bold text-slate-400">
+                                  <Calendar size={14} className="md:w-4 md:h-4" />
                                   Ngày {format(new Date(item.reward_date), 'dd/MM/yyyy', { locale: vi })}
                                 </span>
                                 {item.season_names?.length > 0 && (
                                   <div className="flex items-center gap-2">
-                                     <span className="text-slate-400 font-bold tracking-tighter uppercase text-[10px]">Tích lũy từ vụ:</span>
-                                     <div className="flex gap-1">
+                                     <span className="text-slate-400 font-bold tracking-tighter uppercase text-[9px] md:text-[10px]">Từ vụ:</span>
+                                     <div className="flex flex-wrap gap-1">
                                        {item.season_names.map((name, i) => (
-                                         <Badge key={i} className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-100 shadow-none font-bold">
+                                         <Badge key={i} className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-100 shadow-none font-bold text-[10px]">
                                            {name}
                                          </Badge>
                                        ))}
@@ -214,7 +217,7 @@ export default function RewardsPage() {
                               </div>
                             </div>
                           </div>
-                          <Badge className="bg-emerald-600 shadow-lg shadow-emerald-200 uppercase tracking-widest px-3 py-1">Thành công</Badge>
+                          <Badge className="hidden sm:flex bg-emerald-600 shadow-lg shadow-emerald-200 uppercase tracking-widest px-3 py-1">Thành công</Badge>
                         </div>
                       </div>
                     ))}
