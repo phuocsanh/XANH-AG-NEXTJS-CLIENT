@@ -19,6 +19,7 @@ interface Product {
   pictures?: string[]
   ingredient?: string[]
   notes?: string
+  mechanism?: string
   show_price_on_web?: boolean
   unit?: {
     id: number

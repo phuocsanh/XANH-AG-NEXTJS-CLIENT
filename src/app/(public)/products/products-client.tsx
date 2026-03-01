@@ -26,6 +26,7 @@ interface Product {
   pictures?: string[]
   ingredient?: string[]
   notes?: string
+  mechanism?: string
   type: number
   is_sold_on_web?: boolean
   show_price_on_web?: boolean

@@ -28,6 +28,7 @@ interface Product {
   pictures?: string[]
   ingredient?: string[]
   notes?: string
+  mechanism?: string
   type: number
   show_price_on_web?: boolean
   unit?: {
