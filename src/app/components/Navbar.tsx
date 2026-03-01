@@ -8,6 +8,7 @@ import {
   Menu,
   User,
   X,
+  Star,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -209,6 +210,15 @@ export default function Navbar() {
               >
                 {user ? (
                   <>
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem asChild>
+                        <Link href="/rewards" className="cursor-pointer">
+                          <Star className='mr-2 h-4 w-4 text-emerald-600' />
+                          <span>Tích lũy & Quà tặng</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <div className="border-t border-border my-1" />
                     <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
                       <LogOut className='mr-2 h-4 w-4' />
                       <span>Đăng xuất</span>
@@ -301,6 +311,16 @@ export default function Navbar() {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Dịch bệnh
+                </Link>
+              )}
+              {user && (
+                <Link
+                  href='/rewards'
+                  className='block py-2 text-yellow-300 hover:text-yellow-200 font-bold text-sm flex items-center gap-2 transition-colors'
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Star size={16} />
+                  Tích lũy & Quà tặng
                 </Link>
               )}
               <Link

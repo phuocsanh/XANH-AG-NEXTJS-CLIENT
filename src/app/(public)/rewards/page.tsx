@@ -1,0 +1,237 @@
+"use client"
+
+import { useMyRewardTracking, useMyRewardHistory } from "@/hooks/use-rewards"
+import { useCurrentUser } from "@/hooks/use-user-profile"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { Gift, History, Award, CheckCircle2, AlertCircle, Calendar, Star } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { format } from "date-fns"
+import { vi } from "date-fns/locale"
+import { useState } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
+
+export default function RewardsPage() {
+  const [page, setPage] = useState(1)
+  const { data: user } = useCurrentUser()
+  const { data: tracking, isLoading: isTrackingLoading } = useMyRewardTracking()
+  const { data: history, isLoading: isHistoryLoading } = useMyRewardHistory(page)
+
+  const REWARD_THRESHOLD = 60000000 // 60 Triệu
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(amount)
+  }
+
+  // Nếu chưa login hoặc đang load user
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <AlertCircle className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
+        <h2 className="text-xl font-bold">Vui lòng đăng nhập</h2>
+        <p className="text-muted-foreground mt-2">Bạn cần đăng nhập để xem thông tin tích lũy và quà tặng.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50/50 pb-20">
+      {/* Header Profile Section */}
+      <div className="bg-gradient-to-r from-emerald-600 to-teal-500 pt-10 pb-24 px-4 text-white">
+        <div className="container mx-auto max-w-4xl">
+          <div className="flex flex-col md:flex-row items-center gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="h-20 w-20 rounded-full border-4 border-white/30 bg-white/20 flex items-center justify-center text-3xl font-bold shadow-xl backdrop-blur-sm">
+              {user.user_profile?.nickname?.charAt(0).toUpperCase() || user.account.charAt(0).toUpperCase()}
+            </div>
+            <div className="text-center md:text-left">
+              <h1 className="text-2xl md:text-3xl font-bold">Chào chú, {user.user_profile?.nickname || user.account}!</h1>
+              <p className="opacity-90 flex items-center justify-center md:justify-start gap-2 mt-1 font-medium">
+                <CheckCircle2 size={16} /> Thành viên thân thiết Xanh AG
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto max-w-4xl px-4 -mt-16">
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 bg-white/80 backdrop-blur shadow-sm border border-slate-200 p-1 h-12 rounded-xl">
+            <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-emerald-500 data-[state=active]:text-white transition-all font-bold">
+              <Star size={16} className="mr-2" /> Tích lũy hiện tại
+            </TabsTrigger>
+            <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-emerald-500 data-[state=active]:text-white transition-all font-bold">
+              <History size={16} className="mr-2" /> Lịch sử quà tặng
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6 outline-none">
+            {/* Main Progress Card */}
+            <Card className="border-none shadow-xl border-slate-100 overflow-hidden bg-white rounded-2xl">
+              <CardHeader className="bg-emerald-50/50 border-b border-emerald-100">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="flex items-center gap-2 text-emerald-800">
+                    <Gift className="text-emerald-500" />
+                    Tiến trình nhận quà
+                  </CardTitle>
+                  <Badge variant="outline" className="border-emerald-200 text-emerald-700 bg-white px-3 py-1">
+                    Mốc 60 triệu
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-8">
+                {isTrackingLoading ? (
+                  <div className="space-y-4">
+                    <Skeleton className="h-8 w-full" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                ) : (
+                  <div className="space-y-10">
+                    <div className="space-y-6">
+                      <div className="flex justify-between items-end">
+                        <div className="space-y-1">
+                          <p className="text-sm font-bold text-slate-400 uppercase tracking-tighter">Số tiền đã mua hàng vụ này</p>
+                          <p className="text-4xl font-black text-emerald-600 tabular-nums">
+                            {formatCurrency(Number(tracking?.pending_amount || 0))}
+                          </p>
+                        </div>
+                        <div className="text-right space-y-1">
+                          <p className="text-sm font-bold text-slate-400 uppercase tracking-tighter">Còn thiếu</p>
+                          <p className="text-xl font-bold text-orange-500 tabular-nums">
+                            {formatCurrency(tracking?.shortage_to_next || 0)}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="relative pt-2">
+                        <Progress 
+                          value={Math.min(
+                            Math.round((Number(tracking?.pending_amount || 0) / REWARD_THRESHOLD) * 100),
+                            100
+                          )} 
+                          className="h-5 bg-slate-100 rounded-full [&>div]:bg-gradient-to-r [&>div]:from-emerald-400 [&>div]:to-emerald-600"
+                        />
+                        <div className="flex justify-between mt-3 text-xs font-bold text-slate-400 uppercase">
+                          <span>0 đ</span>
+                          <span className="text-emerald-600">Mục tiêu: 60 Triệu đ</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-100">
+                      <div className="text-center p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100/50 transition-colors hover:bg-emerald-50">
+                        <p className="text-xs text-emerald-700/60 mb-1 uppercase tracking-wider font-bold">Tổng tích lũy trọn đời</p>
+                        <p className="text-xl font-black text-slate-700">{formatCurrency(Number(tracking?.total_accumulated || 0))}</p>
+                      </div>
+                      <div className="text-center p-4 rounded-2xl bg-amber-50/50 border border-amber-100/50 transition-colors hover:bg-amber-50">
+                        <p className="text-xs text-amber-700/60 mb-1 uppercase tracking-wider font-bold">Quà đã nhận</p>
+                        <p className="text-xl font-black text-amber-900">{tracking?.reward_count || 0} lần</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <div className="bg-emerald-600 rounded-2xl p-6 border border-emerald-700 shadow-xl text-white relative overflow-hidden group">
+              <div className="absolute top-0 right-0 -mt-4 -mr-4 bg-white/10 h-24 w-24 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+              <div className="flex gap-5 relative z-10">
+                <div className="bg-white/20 h-12 w-12 shrink-0 rounded-2xl flex items-center justify-center text-white backdrop-blur-md border border-white/20">
+                  <Award size={28} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white text-xl">Chương trình tri ân nhà nông</h3>
+                  <p className="text-emerald-50 mt-2 leading-relaxed font-light">
+                    Cám ơn chú đã tin tưởng đồng hành cùng Xanh AG. Khi chú đạt mốc tích lũy <span className="font-bold text-yellow-300">60 Triệu đồng</span>, 
+                    hệ thống sẽ gửi tặng chú một phần quà tri ân thay lời cảm ơn chân thành.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="history" className="outline-none">
+            <Card className="border-none shadow-xl bg-white overflow-hidden rounded-2xl">
+              <CardHeader className="bg-slate-50 border-b border-slate-100">
+                <CardTitle className="text-slate-800 flex items-center gap-2">
+                  <Gift className="text-orange-500" />
+                  Lịch sử tri ân
+                </CardTitle>
+                <CardDescription className="font-medium text-slate-500">
+                  Danh sách những món quà chú đã nhận từ cửa hàng
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                {isHistoryLoading ? (
+                  <div className="p-6 space-y-4">
+                    <Skeleton className="h-20 w-full rounded-xl" />
+                    <Skeleton className="h-20 w-full rounded-xl" />
+                    <Skeleton className="h-20 w-full rounded-xl" />
+                  </div>
+                ) : history?.items?.length === 0 ? (
+                  <div className="p-16 text-center">
+                    <div className="bg-slate-50 h-20 w-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                       <AlertCircle className="h-10 w-10 text-slate-300" />
+                    </div>
+                    <p className="text-slate-500 font-medium">Chú chưa nhận món quà nào. Hãy tiếp tục ủng hộ cửa hàng chú nhé!</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-slate-50">
+                    {history?.items?.map((item) => (
+                      <div 
+                        key={item.id} 
+                        className="p-5 md:p-8 hover:bg-slate-50/80 transition-all group border-l-4 border-transparent hover:border-emerald-500"
+                      >
+                        <div className="flex justify-between items-start gap-4">
+                          <div className="flex gap-5">
+                            <div className="h-14 w-14 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0 group-hover:scale-110 transition-transform duration-300">
+                              <Gift size={28} />
+                            </div>
+                            <div className="space-y-2">
+                              <h4 className="font-black text-slate-800 text-xl leading-tight">
+                                {item.gift_description}
+                              </h4>
+                              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+                                <span className="flex items-center gap-2 font-bold text-slate-400">
+                                  <Calendar size={16} />
+                                  Ngày {format(new Date(item.reward_date), 'dd/MM/yyyy', { locale: vi })}
+                                </span>
+                                {item.season_names?.length > 0 && (
+                                  <div className="flex items-center gap-2">
+                                     <span className="text-slate-400 font-bold tracking-tighter uppercase text-[10px]">Tích lũy từ vụ:</span>
+                                     <div className="flex gap-1">
+                                       {item.season_names.map((name, i) => (
+                                         <Badge key={i} className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-100 shadow-none font-bold">
+                                           {name}
+                                         </Badge>
+                                       ))}
+                                     </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <Badge className="bg-emerald-600 shadow-lg shadow-emerald-200 uppercase tracking-widest px-3 py-1">Thành công</Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {/* Floating Support Button for farmers */}
+      <div className="fixed bottom-6 right-6 z-40 sm:hidden">
+        <div className="h-14 w-14 rounded-full bg-orange-500 shadow-xl flex items-center justify-center text-white animate-pulse">
+           <Star fill="currentColor" size={28} />
+        </div>
+      </div>
+    </div>
+  )
+}
