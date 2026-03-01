@@ -218,6 +218,29 @@ export default function RewardsPage() {
                         </div>
                       </div>
                     ))}
+                    
+                    {/* Phân trang - Sử dụng setPage để fix lỗi lint */}
+                    {history && history.total > 10 && (
+                      <div className="p-4 flex justify-between items-center border-t border-slate-100 bg-slate-50/30">
+                        <button 
+                          onClick={() => setPage(p => Math.max(1, p - 1))}
+                          disabled={page === 1}
+                          className="px-4 py-2 text-sm font-bold text-slate-600 disabled:opacity-30 transition-opacity"
+                        >
+                          Trang trước
+                        </button>
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                          Trang {page} / {Math.ceil(history.total / 10)}
+                        </span>
+                        <button 
+                          onClick={() => setPage(p => p + 1)}
+                          disabled={page * 10 >= history.total}
+                          className="px-4 py-2 text-sm font-bold text-emerald-600 disabled:opacity-30 transition-opacity"
+                        >
+                          Trang sau
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
