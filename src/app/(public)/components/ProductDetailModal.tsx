@@ -133,11 +133,8 @@ export default function ProductDetailModal({
             {/* Product Name & Trade Name */}
             <div className="mb-6">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                {product.name}
+                {product.trade_name || product.name}
               </h2>
-              {product.trade_name && product.trade_name !== product.name && (
-                <p className="text-lg text-agri-600 font-medium">{product.trade_name}</p>
-              )}
             </div>
 
             <div className="space-y-6">
@@ -225,7 +222,11 @@ export default function ProductDetailModal({
               {/* Notes */}
               {product.notes && (
                 <div className="bg-yellow-50 border border-yellow-100 p-4 rounded-xl text-sm italic text-yellow-800">
-                  <strong>Ghi chú:</strong> {product.notes}
+                  <strong className="block mb-1 not-italic">Ghi chú:</strong>
+                  <div 
+                    className="prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: product.notes }}
+                  />
                 </div>
               )}
 

@@ -172,9 +172,8 @@ export default function Navbar() {
               {user && (
                 <Link
                   href='/rewards'
-                  className='text-white bg-white/10 px-3 py-1 rounded-full border border-white/20 hover:bg-yellow-400 hover:text-emerald-900 hover:border-yellow-400 font-bold transition-all flex items-center gap-2'
+                  className='text-white hover:text-yellow-300 font-medium transition-colors'
                 >
-                  <Star size={16} className="fill-current" />
                   Tích lũy
                 </Link>
               )}
@@ -325,11 +324,10 @@ export default function Navbar() {
               {user && (
                 <Link
                   href='/rewards'
-                  className='block py-2 text-yellow-300 hover:text-yellow-200 font-bold text-sm flex items-center gap-2 transition-colors'
+                  className='block py-2 text-white hover:text-yellow-300 font-medium text-sm transition-colors'
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  <Star size={16} />
-                  Tích lũy & Quà tặng
+                  Tích lũy
                 </Link>
               )}
               <Link

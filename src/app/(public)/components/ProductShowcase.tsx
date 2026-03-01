@@ -262,7 +262,7 @@ export default function ProductShowcase() {
                   {/* Product info */}
                   <div className="relative z-10 p-4 bg-white">
                     <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-2 line-clamp-2 min-h-[2.5rem]">
-                      {product.name}
+                      {product.trade_name || product.name}
                     </h3>
                     <p className="text-lg md:text-xl font-bold text-agri-600">
                       {product.show_price_on_web !== false && product.price && Number(product.price) > 0

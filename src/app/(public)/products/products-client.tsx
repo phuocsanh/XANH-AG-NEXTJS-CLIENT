@@ -338,7 +338,7 @@ export default function ProductsClient() {
                           {/* Product info */}
                           <div className="relative z-10 p-3 bg-white">
                             <h3 className="text-xs md:text-sm font-semibold text-gray-800 mb-1 line-clamp-2 min-h-[2rem]">
-                              {product.name}
+                              {product.trade_name || product.name}
                             </h3>
                             <p className="text-sm md:text-base font-bold text-agri-600">
                               {product.show_price_on_web !== false && product.price && Number(product.price) > 0
