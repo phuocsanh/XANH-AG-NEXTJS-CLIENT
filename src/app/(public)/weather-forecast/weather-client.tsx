@@ -303,8 +303,8 @@ export default function WeatherForecastPage() {
           </Link>
 
           <div className="mb-4 sm:mb-6">
-            <p className="text-[10px] sm:text-xs font-bold text-agri-100/80 italic">
-              * Dự báo thời tiết mang tính chất tham khảo không thể chính xác hoàn toàn!
+            <p className="text-sm sm:text-lg font-black text-red-400 uppercase tracking-tight">
+              ⚠️ Dự báo thời tiết mang tính chất tham khảo không thể chính xác hoàn toàn!
             </p>
           </div>
 

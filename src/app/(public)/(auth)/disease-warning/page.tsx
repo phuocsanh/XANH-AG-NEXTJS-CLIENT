@@ -62,8 +62,8 @@ export default function DiseaseWarningPage() {
            <h1 className="text-2xl md:text-3xl font-black text-emerald-900 tracking-tight flex items-center gap-3">
              🌾 Cảnh Báo Dịch Bệnh
            </h1>
-           <p className="text-muted-foreground mt-1 text-sm md:text-base font-medium">
-             Phân tích rủi ro sâu bệnh hại dựa trên dữ liệu thời tiết, <span className="text-emerald-700 font-bold">"dự báo mang tính chất tham khảo"</span>. Quý bà con nông dân cần quan sát thêm tình hình thực tế từ ruộng lúa và các ruộng xung quanh.
+           <p className="text-red-400 mt-2 text-sm md:text-lg font-black uppercase tracking-tight">
+             ⚠️ Phân tích rủi ro sâu bệnh hại dựa trên dữ liệu thời tiết, "dự báo mang tính chất tham khảo". Quý bà con nông dân cần quan sát thêm tình hình thực tế từ ruộng lúa và các ruộng xung quanh.
            </p>
         </div>
       </div>

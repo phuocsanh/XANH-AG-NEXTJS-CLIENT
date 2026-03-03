@@ -63,19 +63,21 @@ export default function RiceCropsPage() {
   // Gọi API lấy danh sách ruộng lúa
   const { data, isLoading } = useRiceCrops(filters)
 
-  // Mặc định chọn mùa vụ mới nhất khi danh sách mùa vụ được tải xong
+  // Mặc định chọn mùa vụ mới nhất khi danh sách mùa vụ được tải xong (chỉ chạy 1 lần đầu)
+  const [isSeasonInitialized, setIsSeasonInitialized] = useState(false)
   useEffect(() => {
-    if (seasons.length > 0 && !filters.season_id) {
-      // Tìm mùa vụ có ID lớn nhất (giả sử là mới nhất) hoặc sắp xếp theo ngày nếu cần
+    if (seasons.length > 0 && !isSeasonInitialized) {
+      // Tìm mùa vụ có ID lớn nhất (giả sử là mới nhất)
       const latestSeason = [...seasons].sort((a, b) => b.id - a.id)[0]
       if (latestSeason) {
         setFilters((prev) => ({
           ...prev,
           season_id: latestSeason.id,
         }))
+        setIsSeasonInitialized(true)
       }
     }
-  }, [seasons, filters.season_id])
+  }, [seasons, isSeasonInitialized])
 
   // Handlers
   const handleFilterChange = (key: string, value: string) => {
