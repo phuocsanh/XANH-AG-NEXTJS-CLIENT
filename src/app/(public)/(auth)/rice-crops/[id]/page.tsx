@@ -20,7 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ArrowLeft, Edit } from "lucide-react"
 import dayjs from "dayjs"
-import { cn } from "@/lib/utils"
+import { cn, calculateDaysDiff } from "@/lib/utils"
 
 import FarmingSchedulesTab from "./components/FarmingSchedulesTab"
 import GrowthTrackingTab from "./components/GrowthTrackingTab"
@@ -236,7 +236,14 @@ export default function RiceCropDetailPage() {
                   label="Ngày gieo" 
                   value={
                     <div className="flex flex-col">
-                       <span>{riceCrop.sowing_date ? dayjs(riceCrop.sowing_date).format("DD/MM/YYYY") : "-"}</span>
+                       <div className="flex items-center gap-2">
+                         <span>{riceCrop.sowing_date ? dayjs(riceCrop.sowing_date).format("DD/MM/YYYY") : "-"}</span>
+                         {riceCrop.status === 'active' && riceCrop.sowing_date && (
+                           <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-100 text-[10px] h-5">
+                             {calculateDaysDiff(riceCrop.sowing_date)} ngày sau gieo
+                           </Badge>
+                         )}
+                       </div>
                        {riceCrop.sowing_lunar_date && (
                          <span className="text-[10px] text-agri-600 font-bold">{riceCrop.sowing_lunar_date}</span>
                        )}
@@ -247,7 +254,14 @@ export default function RiceCropDetailPage() {
                   label="Ngày cấy" 
                   value={
                     <div className="flex flex-col">
-                       <span>{riceCrop.transplanting_date ? dayjs(riceCrop.transplanting_date).format("DD/MM/YYYY") : "-"}</span>
+                       <div className="flex items-center gap-2">
+                         <span>{riceCrop.transplanting_date ? dayjs(riceCrop.transplanting_date).format("DD/MM/YYYY") : "-"}</span>
+                         {riceCrop.status === 'active' && riceCrop.transplanting_date && (
+                           <Badge variant="secondary" className="bg-sky-50 text-sky-700 border-sky-100 text-[10px] h-5">
+                             {calculateDaysDiff(riceCrop.transplanting_date)} ngày sau cấy
+                           </Badge>
+                         )}
+                       </div>
                        {riceCrop.transplanting_lunar_date && (
                          <span className="text-[10px] text-agri-600 font-bold">{riceCrop.transplanting_lunar_date}</span>
                        )}

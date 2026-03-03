@@ -100,3 +100,11 @@ export const getAccessTokenFromLocalStorage = () => {
 export const getRefreshTokenFromLocalStorage = () => {
   return localStorage.getItem("refreshToken");
 };
+import dayjs from "dayjs";
+
+export const calculateDaysDiff = (date?: string | Date | null) => {
+  if (!date) return null;
+  const start = dayjs(date).startOf('day');
+  const now = dayjs().startOf('day');
+  return now.diff(start, 'day');
+};
