@@ -238,8 +238,8 @@ export default function RiceCropDetailPage() {
                     <div className="flex flex-col">
                        <div className="flex items-center gap-2">
                          <span>{riceCrop.sowing_date ? dayjs(riceCrop.sowing_date).format("DD/MM/YYYY") : "-"}</span>
-                         {riceCrop.status === 'active' && riceCrop.sowing_date && (
-                           <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-100 text-[10px] h-5">
+                         {String(riceCrop.status).toLowerCase().includes('active') && riceCrop.sowing_date && (
+                           <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] h-5 font-bold shadow-sm">
                              {calculateDaysDiff(riceCrop.sowing_date)} ngày sau gieo
                            </Badge>
                          )}
@@ -256,8 +256,8 @@ export default function RiceCropDetailPage() {
                     <div className="flex flex-col">
                        <div className="flex items-center gap-2">
                          <span>{riceCrop.transplanting_date ? dayjs(riceCrop.transplanting_date).format("DD/MM/YYYY") : "-"}</span>
-                         {riceCrop.status === 'active' && riceCrop.transplanting_date && (
-                           <Badge variant="secondary" className="bg-sky-50 text-sky-700 border-sky-100 text-[10px] h-5">
+                         {String(riceCrop.status).toLowerCase().includes('active') && riceCrop.transplanting_date && (
+                           <Badge variant="outline" className="bg-sky-50 text-sky-700 border-sky-200 text-[10px] h-5 font-bold shadow-sm">
                              {calculateDaysDiff(riceCrop.transplanting_date)} ngày sau cấy
                            </Badge>
                          )}

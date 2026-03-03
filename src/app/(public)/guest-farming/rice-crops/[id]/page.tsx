@@ -148,8 +148,8 @@ export default function GuestRiceCropDetailPage() {
                     <div className="text-right flex flex-col items-end">
                        <div className="flex items-center gap-2">
                          <p className="font-bold text-gray-900">{dayjs(riceCrop.sowing_date).format("DD/MM/YYYY")}</p>
-                         {riceCrop.status === 'active' && riceCrop.sowing_date && (
-                           <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-100 text-[9px] h-4 py-0 px-1.5 font-black uppercase tracking-tighter">
+                         {String(riceCrop.status).toLowerCase().includes('active') && riceCrop.sowing_date && (
+                           <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[9px] h-4 py-0 px-1.5 font-bold uppercase tracking-tight shadow-sm">
                              {calculateDaysDiff(riceCrop.sowing_date)} ngày sau gieo
                            </Badge>
                          )}
@@ -165,8 +165,8 @@ export default function GuestRiceCropDetailPage() {
                       <div className="text-right flex flex-col items-end">
                         <div className="flex items-center gap-2">
                           <p className="font-bold text-gray-900">{dayjs(riceCrop.transplanting_date).format("DD/MM/YYYY")}</p>
-                          {riceCrop.status === 'active' && (
-                            <Badge variant="outline" className="bg-sky-50 text-sky-700 border-sky-100 text-[9px] h-4 py-0 px-1.5 font-black uppercase tracking-tighter">
+                          {String(riceCrop.status).toLowerCase().includes('active') && (
+                            <Badge variant="outline" className="bg-sky-50 text-sky-700 border-sky-200 text-[9px] h-4 py-0 px-1.5 font-bold uppercase tracking-tight shadow-sm">
                               {calculateDaysDiff(riceCrop.transplanting_date)} ngày sau cấy
                             </Badge>
                           )}

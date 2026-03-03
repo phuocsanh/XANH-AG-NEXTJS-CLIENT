@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { clsx, type ClassValue } from "clsx";
 import { UseFormSetError } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
@@ -100,7 +101,6 @@ export const getAccessTokenFromLocalStorage = () => {
 export const getRefreshTokenFromLocalStorage = () => {
   return localStorage.getItem("refreshToken");
 };
-import dayjs from "dayjs";
 
 export const calculateDaysDiff = (date?: string | Date | null) => {
   if (!date) return null;
