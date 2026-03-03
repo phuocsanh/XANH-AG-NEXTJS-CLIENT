@@ -33,8 +33,15 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
   const [editingItem, setEditingItem] = useState<MergedPurchase | null>(null)
   const [viewingItem, setViewingItem] = useState<MergedPurchase | null>(null)
 
-  const { data: purchases, isLoading } = useMergedPurchases(riceCropId)
+  const { data: purchasesResponse, isLoading } = useMergedPurchases(riceCropId)
   const deleteMutation = useDeleteExternalPurchase()
+
+  const purchases = purchasesResponse?.data || []
+  const summary = purchasesResponse?.summary || {
+    total_amount: 0,
+    paid_amount: 0,
+    remaining_amount: 0,
+  }
 
   const handleEdit = (item: MergedPurchase) => {
     setEditingItem(item)
@@ -74,9 +81,9 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
     }
   }
 
-  const totalAmount = (purchases || []).reduce((sum, item) => sum + Number(item.total_amount || 0), 0)
-  const totalPaid = (purchases || []).reduce((sum, item) => sum + Number(item.paid_amount || 0), 0)
-  const totalRemaining = totalAmount - totalPaid
+  const totalAmount = summary.total_amount
+  const totalPaid = summary.paid_amount
+  const totalRemaining = summary.remaining_amount
 
   const columns: DataColumn<MergedPurchase>[] = [
     {

@@ -8,7 +8,8 @@ import { useApiQuery, useApiMutation } from "./use-api"
 import type { 
   ExternalPurchase, 
   CreateExternalPurchaseDto,
-  MergedPurchase
+  MergedPurchase,
+  MergedPurchasesResponse
 } from "@/models/rice-farming"
 
 const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:3003"
@@ -27,7 +28,7 @@ export const useExternalPurchases = (riceCropId: number) => {
  * Lấy tất cả hóa đơn (system + external) đã merge
  */
 export const useMergedPurchases = (riceCropId: number) => {
-  return useApiQuery<MergedPurchase[]>(`${API_URL}/rice-crops/${riceCropId}/all-purchases`, {
+  return useApiQuery<MergedPurchasesResponse>(`${API_URL}/rice-crops/${riceCropId}/all-purchases`, {
     queryKey: ["merged-purchases", riceCropId?.toString() || ""],
     enabled: !!riceCropId,
   })

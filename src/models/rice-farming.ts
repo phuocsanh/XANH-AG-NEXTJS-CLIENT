@@ -348,6 +348,17 @@ export interface MergedPurchase {
   created_by?: number
 }
 
+export interface MergedPurchasesResponse {
+  data: MergedPurchase[]
+  summary: {
+    total_amount: number
+    paid_amount: number
+    remaining_amount: number
+    system_count: number
+    external_count: number
+  }
+}
+
 /** Báo cáo lợi nhuận */
 export interface ProfitReport {
   total_revenue: number
