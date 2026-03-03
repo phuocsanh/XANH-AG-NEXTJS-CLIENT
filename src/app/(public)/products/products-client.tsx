@@ -113,6 +113,41 @@ export default function ProductsClient() {
     fetchInitialProducts()
   }, [])
 
+  // Xử lý cuộn đến section khi có hash trên URL (ví dụ: #type-5)
+  useEffect(() => {
+    if (!loading && productsByType.length > 0) {
+      const handleHashScroll = () => {
+        const hash = window.location.hash
+        if (hash) {
+          // Xóa tìm kiếm để đảm bảo các section hiển thị đầy đủ trước khi cuộn
+          setSearchQuery('')
+          
+          // Đợi một chút để React re-render sau khi xóa search query
+          setTimeout(() => {
+            const id = hash.replace('#', '')
+            const element = document.getElementById(id)
+            if (element) {
+              const yOffset = -100
+              const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+              window.scrollTo({ top: y, behavior: 'smooth' })
+            }
+          }, 100)
+        }
+      }
+
+      // Chạy ngay khi load xong
+      // Dùng timeout ngắn để đảm bảo DOM đã render hoàn toàn
+      const timeoutId = setTimeout(handleHashScroll, 100)
+
+      // Lắng nghe sự kiện đổi hash (khi người dùng nhấn menu khi đang ở chính trang này)
+      window.addEventListener('hashchange', handleHashScroll)
+      return () => {
+        clearTimeout(timeoutId)
+        window.removeEventListener('hashchange', handleHashScroll)
+      }
+    }
+  }, [loading, productsByType])
+
   // Filter products by search query
   const filteredProductsByType = productsByType.map(group => ({
     ...group,
