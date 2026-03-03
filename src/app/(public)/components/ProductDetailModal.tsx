@@ -182,6 +182,7 @@ export default function ProductDetailModal({
                 </div>
               )}
 
+
               {/* Ingredients */}
               {product.ingredient && product.ingredient.length > 0 && (
                 <div>
