@@ -100,7 +100,14 @@ export function ResponsiveDataTable<T extends Record<string, any>>({
               </TableRow>
             ) : data.length > 0 ? (
               data.map((record) => (
-                <TableRow key={getRowId(record)} className="hover:bg-agri-50/30 transition-colors">
+                <TableRow 
+                  key={getRowId(record)} 
+                  className={cn(
+                    "transition-colors",
+                    onView ? "cursor-pointer hover:bg-agri-50" : "hover:bg-agri-50/30"
+                  )}
+                  onClick={() => onView?.(record)}
+                >
                   {columns.map((col) => (
                     <TableCell key={col.key} className={col.className}>
                       {renderValue(col, record)}
@@ -110,17 +117,17 @@ export function ResponsiveDataTable<T extends Record<string, any>>({
                     <TableCell className="text-right pr-4">
                       <div className="flex justify-end gap-1">
                         {onView && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-agri-600" onClick={() => onView(record)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-agri-600" onClick={(e) => { e.stopPropagation(); onView(record); }}>
                             <Eye className="h-4 w-4" />
                           </Button>
                         )}
                         {onEdit && (!canEdit || canEdit(record)) && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-sky-600" onClick={() => onEdit(record)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-sky-600" onClick={(e) => { e.stopPropagation(); onEdit(record); }}>
                             <Edit className="h-4 w-4" />
                           </Button>
                         )}
                         {onDelete && (!canDelete || canDelete(record)) && (
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(record)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={(e) => { e.stopPropagation(); onDelete(record); }}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         )}
@@ -146,7 +153,14 @@ export function ResponsiveDataTable<T extends Record<string, any>>({
           <div className="py-12"><LoadingSpinner /></div>
         ) : data.length > 0 ? (
           data.map((record) => (
-            <Card key={getRowId(record)} className="border-agri-100 shadow-sm overflow-hidden active:scale-[0.98] transition-transform">
+            <Card 
+              key={getRowId(record)} 
+              className={cn(
+                "border-agri-100 shadow-sm overflow-hidden active:scale-[0.98] transition-transform",
+                onView && "cursor-pointer hover:border-agri-300"
+              )}
+              onClick={() => onView?.(record)}
+            >
               <CardContent className="p-4 space-y-3">
                 <div className="flex justify-between items-start gap-4">
                   <div className="flex-1 space-y-2">
@@ -163,17 +177,17 @@ export function ResponsiveDataTable<T extends Record<string, any>>({
                     {(onEdit || onDelete || onView) && (
                       <div className="flex gap-1">
                          {onView && (
-                          <Button variant="outline" size="icon" className="h-9 w-9 rounded-full" onClick={() => onView(record)}>
+                          <Button variant="outline" size="icon" className="h-9 w-9 rounded-full" onClick={(e) => { e.stopPropagation(); onView(record); }}>
                             <Eye className="h-4 w-4" />
                           </Button>
                         )}
                         {onEdit && (!canEdit || canEdit(record)) && (
-                          <Button variant="outline" size="icon" className="h-9 w-9 rounded-full text-sky-600 border-sky-100 bg-sky-50" onClick={() => onEdit(record)}>
+                          <Button variant="outline" size="icon" className="h-9 w-9 rounded-full text-sky-600 border-sky-100 bg-sky-50" onClick={(e) => { e.stopPropagation(); onEdit(record); }}>
                             <Edit className="h-4 w-4" />
                           </Button>
                         )}
                         {onDelete && (!canDelete || canDelete(record)) && (
-                          <Button variant="outline" size="icon" className="h-9 w-9 rounded-full text-destructive border-red-100 bg-red-50" onClick={() => onDelete(record)}>
+                          <Button variant="outline" size="icon" className="h-9 w-9 rounded-full text-destructive border-red-100 bg-red-50" onClick={(e) => { e.stopPropagation(); onDelete(record); }}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         )}

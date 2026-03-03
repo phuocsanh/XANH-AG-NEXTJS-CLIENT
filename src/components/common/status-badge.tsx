@@ -49,6 +49,8 @@ export function StatusBadge({
     paid: { label: "Đã thanh toán", className: "bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-200" },
     partial: { label: "Trả một phần", className: "bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200" },
     unpaid: { label: "Chưa trả", className: "bg-rose-100 text-rose-700 border-rose-200 hover:bg-rose-200" },
+    confirmed: { label: "Đã xác nhận", className: "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200" },
+    cancelled: { label: "Đã hủy", className: "bg-red-100 text-red-700 border-red-200 hover:bg-red-200" },
   }
 
   // Ưu tiên: customConfig > defaultStatusConfig
