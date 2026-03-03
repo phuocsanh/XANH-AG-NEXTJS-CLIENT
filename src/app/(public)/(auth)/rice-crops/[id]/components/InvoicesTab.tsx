@@ -89,8 +89,9 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
     {
       title: "Nguồn",
       key: "source",
-      render: (_, record) => (
-        record.source === 'external' ? (
+      dataIndex: "source",
+      render: (val) => (
+        val === 'external' ? (
           <Badge variant="outline" className="gap-1 font-normal text-[10px] py-0 h-5 border-agri-200">
             <FileText className="h-2.5 w-2.5" /> Tự nhập
           </Badge>
@@ -105,9 +106,10 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
     {
       title: "Nhà cung cấp",
       key: "supplier",
-      render: (_, record) => (
+      dataIndex: "supplier",
+      render: (val, record) => (
         <div className="flex flex-col">
-          <span className="font-bold text-gray-800">{record.supplier}</span>
+          <span className="font-bold text-gray-800">{val}</span>
           <span className="text-[10px] text-muted-foreground">{record.code}</span>
         </div>
       ),
@@ -116,12 +118,14 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
     {
       title: "Ngày",
       key: "date",
+      dataIndex: "date",
       render: (val) => val ? dayjs(val).format("DD/MM/YYYY") : "-",
       priority: "medium",
     },
     {
       title: "Tổng tiền",
       key: "total_amount",
+      dataIndex: "total_amount",
       render: (val) => <span className="font-bold text-gray-900">{convertCurrency(val)}</span>,
       priority: "high",
       className: "text-right",
@@ -129,6 +133,7 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
     {
       title: "Còn nợ",
       key: "remaining_amount",
+      dataIndex: "remaining_amount",
       render: (val) => (
         <span className={Number(val) > 0 ? "font-bold text-destructive" : "text-emerald-600"}>
           {convertCurrency(val)}
@@ -140,6 +145,7 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
     {
       title: "Trạng thái",
       key: "status",
+      dataIndex: "status",
       render: (val) => <StatusBadge status={val} />,
       priority: "high",
     }
@@ -173,8 +179,10 @@ export default function InvoicesTab({ riceCropId }: InvoicesTabProps) {
         data={purchases || []}
         isLoading={isLoading}
         onView={handleView}
-        onEdit={(item) => item.source === 'external' ? handleEdit(item) : undefined}
-        onDelete={(item) => item.source === 'external' ? handleDelete(item) : undefined}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        canEdit={(item) => item.source === 'external'}
+        canDelete={(item) => item.source === 'external'}
         emptyText="Chưa có hóa đơn nào liên quan đến vụ mùa này."
       />
 

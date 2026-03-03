@@ -8,7 +8,6 @@ import { useApiQuery, useApiMutation } from "./use-api"
 import type { 
   ExternalPurchase, 
   CreateExternalPurchaseDto,
-  MergedPurchase,
   MergedPurchasesResponse
 } from "@/models/rice-farming"
 

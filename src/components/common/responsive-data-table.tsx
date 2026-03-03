@@ -34,6 +34,8 @@ interface ResponsiveDataTableProps<T> {
   onEdit?: (record: T) => void
   onDelete?: (record: T) => void
   onView?: (record: T) => void
+  canEdit?: (record: T) => boolean
+  canDelete?: (record: T) => boolean
   emptyText?: string
   rowKey?: keyof T | ((record: T) => string | number)
   className?: string
@@ -51,6 +53,8 @@ export function ResponsiveDataTable<T extends Record<string, any>>({
   onEdit,
   onDelete,
   onView,
+  canEdit,
+  canDelete,
   emptyText = "Chưa có dữ liệu nào.",
   rowKey = "id" as keyof T,
   className,
@@ -62,7 +66,8 @@ export function ResponsiveDataTable<T extends Record<string, any>>({
   }
 
   const renderValue = (column: DataColumn<T>, record: T) => {
-    const value = column.dataIndex ? record[column.dataIndex as keyof T] : undefined
+    const dataKey = (column.dataIndex || column.key) as keyof T
+    const value = record[dataKey]
     return column.render ? column.render(value, record) : value || "-"
   }
 
@@ -109,12 +114,12 @@ export function ResponsiveDataTable<T extends Record<string, any>>({
                             <Eye className="h-4 w-4" />
                           </Button>
                         )}
-                        {onEdit && (
+                        {onEdit && (!canEdit || canEdit(record)) && (
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-sky-600" onClick={() => onEdit(record)}>
                             <Edit className="h-4 w-4" />
                           </Button>
                         )}
-                        {onDelete && (
+                        {onDelete && (!canDelete || canDelete(record)) && (
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => onDelete(record)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -162,12 +167,12 @@ export function ResponsiveDataTable<T extends Record<string, any>>({
                             <Eye className="h-4 w-4" />
                           </Button>
                         )}
-                        {onEdit && (
+                        {onEdit && (!canEdit || canEdit(record)) && (
                           <Button variant="outline" size="icon" className="h-9 w-9 rounded-full text-sky-600 border-sky-100 bg-sky-50" onClick={() => onEdit(record)}>
                             <Edit className="h-4 w-4" />
                           </Button>
                         )}
-                        {onDelete && (
+                        {onDelete && (!canDelete || canDelete(record)) && (
                           <Button variant="outline" size="icon" className="h-9 w-9 rounded-full text-destructive border-red-100 bg-red-50" onClick={() => onDelete(record)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
