@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { StatusBadge } from "@/components/common/status-badge"
 import { 
   Loader2, 
   TrendingUp, 
@@ -130,7 +131,9 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
               {cost_breakdown.length > 0 ? (
                 cost_breakdown.map((item, index) => (
                   <TableRow key={index}>
-                    <TableCell className="pl-6 font-medium">{item.category}</TableCell>
+                    <TableCell className="pl-6 font-medium">
+                      <StatusBadge status={item.category} />
+                    </TableCell>
                     <TableCell className="text-right">{convertCurrency(item.amount)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2 px-4">

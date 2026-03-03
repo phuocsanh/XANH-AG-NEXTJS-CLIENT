@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table"
 import { convertCurrency } from "@/lib/utils"
 import dayjs from "dayjs"
+import { StatusBadge } from "@/components/common/status-badge"
 import { ShoppingCart, FileText, Calendar, Store, CreditCard } from "lucide-react"
 import type { MergedPurchase } from "@/models/rice-farming"
 
@@ -35,26 +36,6 @@ export default function InvoiceDetailModal({
   data,
 }: InvoiceDetailModalProps) {
   if (!data) return null
-
-  const getStatusText = (status: string) => {
-    const map: Record<string, string> = {
-      paid: "Đã thanh toán",
-      partial: "Thanh toán một phần",
-      pending: "Chưa thanh toán",
-      confirmed: "Đã xác nhận",
-    }
-    return map[status] || status
-  }
-
-  const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" | "success" | "warning" => {
-    const map: Record<string, "default" | "secondary" | "destructive" | "outline" | "success" | "warning"> = {
-      paid: "success",
-      partial: "warning",
-      pending: "destructive",
-      confirmed: "secondary",
-    }
-    return map[status] || "default"
-  }
 
   const getPaymentMethodText = (method: string) => {
     const map: Record<string, string> = {
@@ -116,9 +97,7 @@ export default function InvoiceDetailModal({
                 <div className="min-w-0 flex-1">
                   <span className="block font-medium text-muted-foreground text-[10px] uppercase mb-0.5">Trạng thái & Thanh toán</span>
                   <div className="flex flex-wrap items-center gap-2 mt-1">
-                    <Badge variant={getStatusVariant(data.status)} className="px-1.5 py-0 h-4.5 text-[9px] font-bold">
-                      {getStatusText(data.status)}
-                    </Badge>
+                    <StatusBadge status={data.status} />
                     <span className="text-foreground font-bold text-sm">{getPaymentMethodText(data.payment_method)}</span>
                   </div>
                 </div>
