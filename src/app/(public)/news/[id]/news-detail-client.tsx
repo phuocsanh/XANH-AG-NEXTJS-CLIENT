@@ -4,6 +4,21 @@ import { useParams } from 'next/navigation'
 import { Calendar, ArrowLeft, Share2, Facebook, Twitter } from 'lucide-react'
 import Link from 'next/link'
 import Img from '@/app/components/Img'
+import { useApiQuery } from '@/hooks/use-api'
+import { format } from 'date-fns'
+
+interface NewsItem {
+  id: number
+  title: string
+  slug: string
+  content: string
+  thumbnail_url: string
+  images: string[]
+  created_at: string
+  author: string
+  category: string
+  tags: string[]
+}
 
 /**
  * News Detail Client Component
@@ -11,35 +26,29 @@ import Img from '@/app/components/Img'
  */
 export default function NewsDetailClient() {
   const params = useParams()
-  const id = params.id
+  const slug = params.id as string
 
-  // In real app, fetch data based on ID
-  const news = {
-    id,
-    title: 'Kỹ thuật trồng lúa bền vững cho năng suất cao',
-    date: '28/12/2024',
-    author: 'Nguyễn Văn A',
-    category: 'Kỹ thuật canh tác',
-    image: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=1200&h=600&fit=crop',
-    content: `
-      <p className="mb-6">Nông nghiệp bền vững không chỉ là một xu hướng mà là con đường tất yếu để bảo vệ môi trường và đảm bảo an ninh lương thực. Đối với cây lúa, việc áp dụng các kỹ thuật canh tác tiên tiến giúp giảm đáng kể chi phí phân bón và thuốc trừ sâu.</p>
-      
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">1. Chọn giống lúa chất lượng cao</h2>
-      <p className="mb-6">Việc chọn giống là khâu quan trọng nhất. Nên ưu tiên các giống lúa có khả năng chống chịu sâu bệnh tốt, chịu phèn mặn và phù hợp với thổ nhưỡng từng vùng. Các giống lúa thơm xuất khẩu đang là lựa chọn ưu tiên của bà con.</p>
-      
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">2. Kỹ thuật làm đất và bón lót</h2>
-      <p className="mb-6">Đất cần được cày ải kỹ, phơi đất ít nhất 15 ngày trước khi xuống giống để diệt mầm bệnh. Bón lót bằng phân hữu cơ vi sinh thay vì chỉ dùng phân hóa học giúp cải tạo đất và tạo nền tảng tốt cho bộ rễ phát triển mạnh.</p>
-      
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">3. Quản lý nước thông minh</h2>
-      <p className="mb-6">Áp dụng kỹ thuật tưới "ướt khô xen kẽ" không chỉ tiết kiệm nước mà còn giúp rễ lúa ăn sâu, cây cứng cáp, ít đổ ngã và giảm phát thải khí nhà kính.</p>
-      
-      <blockquote className="border-l-4 border-agri-500 pl-6 py-4 my-8 bg-agri-50 italic text-gray-700">
-        "Áp dụng kỹ thuật đúng giúp tăng năng suất trung bình từ 15-20% trong khi giảm 30% chi phí đầu vào." - Chuyên gia nông nghiệp chia sẻ.
-      </blockquote>
-      
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">4. Phòng trừ sâu bệnh theo hướng sinh học</h2>
-      <p className="mb-6">Ưu tiên sử dụng các chế phẩm sinh học, nấm đối kháng để quản lý sâu bệnh. Chỉ sử dụng thuốc bảo vệ thực vật khi thật sự cần thiết và tuân thủ nguyên tắc 4 đúng.</p>
-    `
+  // Fetch data từ API theo slug
+  const { data: news, isLoading, error } = useApiQuery<NewsItem>(`/news/slug/${slug}`, {
+    queryKey: ['news-detail', slug],
+    enabled: !!slug,
+  })
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-agri-600"></div>
+      </div>
+    )
+  }
+
+  if (error || !news) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white p-4">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Không tìm thấy bài viết</h2>
+        <Link href="/news" className="text-agri-600 font-bold hover:underline"> Quay lại danh sách tin tức</Link>
+      </div>
+    )
   }
 
   return (
@@ -47,7 +56,7 @@ export default function NewsDetailClient() {
       {/* Article Header */}
       <div className="relative h-[400px] md:h-[500px]">
         <Img 
-          src={news.image} 
+          src={news.thumbnail_url || 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=1200&h=600&fit=crop'} 
           alt={news.title}
           className="object-cover"
         />
@@ -63,11 +72,11 @@ export default function NewsDetailClient() {
             </Link>
             <div className="flex items-center gap-4 text-agri-200 mb-4">
               <span className="bg-agri-600 text-white px-3 py-1 rounded-md text-sm font-bold pb-1 shadow-lg">
-                {news.category}
+                {news.category || 'Tin tức'}
               </span>
               <div className="flex items-center gap-1 text-sm bg-black/20 px-2 py-1 rounded">
                 <Calendar className="w-4 h-4" />
-                <span>{news.date}</span>
+                <span>{format(new Date(news.created_at), 'dd/MM/yyyy')}</span>
               </div>
             </div>
             <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight max-w-4xl tracking-tight">
@@ -75,10 +84,10 @@ export default function NewsDetailClient() {
             </h1>
             <div className="flex items-center gap-3 text-white/90">
               <div className="w-10 h-10 rounded-full bg-agri-500 flex items-center justify-center font-bold border-2 border-white/50">
-                {news.author[0]}
+                {(news.author || 'A')[0]}
               </div>
               <div>
-                <p className="font-bold text-sm leading-none mb-1">{news.author}</p>
+                <p className="font-bold text-sm leading-none mb-1">{news.author || 'Ban biên tập Xanh AG'}</p>
                 <p className="text-xs text-white/60">Tác giả chuyên mục Tin tức</p>
               </div>
             </div>
@@ -94,15 +103,37 @@ export default function NewsDetailClient() {
                  dangerouslySetInnerHTML={{ __html: news.content }}>
             </div>
             
+            {/* Gallery images nếu có nhiều ảnh */}
+            {news.images && news.images.length > 0 && (
+              <div className="mt-12">
+                <h3 className="text-xl font-bold text-gray-800 mb-6 font-primary">Hình ảnh liên quan</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {news.images.map((img, idx) => (
+                    <div key={idx} className="rounded-2xl overflow-hidden shadow-md h-64 relative group">
+                      <Img 
+                        src={img} 
+                        alt={`${news.title} - ${idx + 1}`}
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Tags & Action */}
             <div className="mt-12 pt-8 border-t border-gray-100 flex flex-wrap items-center justify-between gap-6">
               <div className="flex items-center gap-3">
                 <span className="text-sm font-bold text-gray-400">Từ khóa:</span>
-                {['Kỹ thuật', 'Lúa', 'Năng suất', 'Bền vững'].map(tag => (
-                  <span key={tag} className="px-3 py-1 bg-gray-100 rounded-full text-xs text-gray-500 hover:bg-agri-50 hover:text-agri-600 cursor-pointer transition-colors">
-                    #{tag}
-                  </span>
-                ))}
+                {(news.tags || []).length > 0 ? (
+                  news.tags.map(tag => (
+                    <span key={tag} className="px-3 py-1 bg-gray-100 rounded-full text-xs text-gray-500 hover:bg-agri-50 hover:text-agri-600 cursor-pointer transition-colors">
+                      #{tag}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-xs text-gray-400 italic">Không có từ khóa</span>
+                )}
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-sm font-bold text-gray-400">Chia sẻ:</span>
@@ -122,9 +153,9 @@ export default function NewsDetailClient() {
           {/* Sidebar */}
           <div className="lg:w-1/3">
             <div className="sticky top-28 space-y-10">
-              {/* Related Products */}
+              {/* Related Products Widget */}
               <div className="bg-agri-50 p-8 rounded-3xl border border-agri-100">
-                <h3 className="font-bold text-xl text-agri-800 mb-6 flex items-center gap-2">
+                <h3 className="font-bold text-xl text-agri-800 mb-6 flex items-center gap-2 font-primary">
                   Sản phẩm liên quan
                 </h3>
                 <div className="space-y-6">
@@ -141,7 +172,7 @@ export default function NewsDetailClient() {
                         <h4 className="text-sm font-bold text-gray-800 group-hover:text-agri-600 transition-colors line-clamp-2">
                           Phân bón lá NPK cao cấp giúp lúa trổ đều
                         </h4>
-                        <p className="text-agri-600 font-bold mt-1 text-sm">Liên hệ</p>
+                        <p className="text-agri-600 font-bold mt-1 text-sm font-primary">Liên hệ</p>
                       </div>
                     </div>
                   ))}
@@ -156,7 +187,7 @@ export default function NewsDetailClient() {
 
               {/* Newsletter */}
               <div className="relative overflow-hidden bg-gradient-to-br from-agri-600 to-agri-800 p-8 rounded-3xl text-white shadow-xl">
-                 <h4 className="text-xl font-bold mb-4 z-10 relative">Bản tin Xanh AG</h4>
+                 <h4 className="text-xl font-bold mb-4 z-10 relative font-primary">Bản tin Xanh AG</h4>
                  <p className="text-agri-100 text-sm mb-6 pb-2 border-b border-agri-500/30 z-10 relative leading-relaxed">
                    Đăng ký nhận những kỹ thuật canh tác mới nhất từ đội ngũ kỹ sư của chúng tôi.
                  </p>
@@ -170,11 +201,6 @@ export default function NewsDetailClient() {
                       Đăng ký ngay
                     </button>
                  </div>
-                 <div className="absolute top-0 right-0 w-32 h-32 opacity-20 transform translate-x-10 -translate-y-10">
-                    <svg viewBox="0 0 100 100" className="w-full h-full text-white fill-current">
-                      <path d="M50,10 Q80,30 90,60 Q85,80 60,90 Q40,85 30,60 Q20,30 50,10 Z" />
-                    </svg>
-                 </div>
               </div>
             </div>
           </div>
@@ -184,6 +210,10 @@ export default function NewsDetailClient() {
       <style jsx>{`
         .product-description :global(p) { margin-bottom: 1.5rem; }
         .product-description :global(h2) { margin-top: 2.5rem; margin-bottom: 1rem; color: #1f2937; }
+        .product-description :global(ul) { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.5rem; }
+        .product-description :global(ol) { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1.5rem; }
+        .product-description :global(li) { margin-bottom: 0.5rem; }
+        .product-description :global(img) { border-radius: 1rem; margin: 2rem 0; width: 100%; height: auto; }
       `}</style>
     </div>
   )

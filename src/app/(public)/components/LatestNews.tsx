@@ -3,53 +3,38 @@
 import { Calendar, User, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import Img from '@/app/components/Img'
+import { useApiQuery } from '@/hooks/use-api'
+import { format } from 'date-fns'
 
 interface NewsItem {
   id: number
   title: string
-  excerpt: string
-  image: string
-  date: string
+  slug: string
+  content: string
+  thumbnail_url: string
+  created_at: string
   author: string
   category: string
 }
 
-// Mock data - sẽ được thay thế bằng data từ API
-const mockNews: NewsItem[] = [
-  {
-    id: 1,
-    title: 'Kỹ thuật trồng lúa bền vững cho năng suất cao',
-    excerpt: 'Hướng dẫn chi tiết các bước trồng lúa theo phương pháp bền vững, giúp tăng năng suất và giảm chi phí đầu vào...',
-    image: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=600&fit=crop',
-    date: '28/12/2024',
-    author: 'Nguyễn Văn A',
-    category: 'Kỹ thuật canh tác'
-  },
-  {
-    id: 2,
-    title: 'Phòng trừ sâu bệnh hiệu quả trong mùa mưa',
-    excerpt: 'Những biện pháp phòng trừ sâu bệnh an toàn và hiệu quả cho cây trồng trong điều kiện thời tiết mưa nhiều...',
-    image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800&h=600&fit=crop',
-    date: '25/12/2024',
-    author: 'Trần Thị B',
-    category: 'Bảo vệ thực vật'
-  },
-  {
-    id: 3,
-    title: 'Xu hướng nông nghiệp công nghệ cao 2025',
-    excerpt: 'Tìm hiểu về các công nghệ mới trong nông nghiệp và cách ứng dụng vào sản xuất để tăng hiệu quả...',
-    image: 'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=800&h=600&fit=crop',
-    date: '22/12/2024',
-    author: 'Lê Văn C',
-    category: 'Công nghệ'
-  }
-]
+interface NewsResponse {
+  data: NewsItem[]
+  total: number
+}
 
 /**
  * Latest News Component
  * Section "TIN TỨC MỚI NHẤT" hiển thị các bài viết mới nhất
  */
 export default function LatestNews() {
+  const { data: newsResponse, isLoading } = useApiQuery<NewsResponse>('/news/search', {
+    queryKey: ['latest-news'],
+    method: 'POST',
+    body: { page: 1, limit: 3 },
+  })
+
+  const newsList = newsResponse?.data || []
+
   return (
     <section className="py-16 md:py-20 bg-gradient-to-b from-white to-agri-50">
       <div className="container mx-auto px-4">
@@ -74,65 +59,72 @@ export default function LatestNews() {
         </div>
 
         {/* News Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {mockNews.map((news, index) => (
-            <article
-              key={news.id}
-              className="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300"
-              style={{
-                animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`,
-              }}
-            >
-              {/* Image */}
-              <div className="relative h-48 md:h-56 overflow-hidden">
-                <Img
-                  src={news.image}
-                  alt={news.title}
-                  className="object-cover transform group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute top-4 left-4">
-                  <span className="bg-accent-gold text-white px-3 py-1 rounded-full text-xs font-semibold">
-                    {news.category}
-                  </span>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="p-6">
-                {/* Meta */}
-                <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>{news.date}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <User className="w-4 h-4" />
-                    <span>{news.author}</span>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-56">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-agri-600"></div>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {newsList.map((news, index) => (
+              <article
+                key={news.id}
+                className="group bg-white rounded-lg overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 h-full flex flex-col"
+                style={{
+                  animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`,
+                }}
+              >
+                {/* Image */}
+                <div className="relative h-48 md:h-56 overflow-hidden flex-shrink-0">
+                  <Img
+                    src={news.thumbnail_url || 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=600&fit=crop'}
+                    alt={news.title}
+                    className="object-cover transform group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute top-4 left-4">
+                    <span className="bg-accent-gold text-white px-3 py-1 rounded-full text-xs font-semibold">
+                      {news.category || 'Tin tức'}
+                    </span>
                   </div>
                 </div>
 
-                {/* Title */}
-                <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-agri-600 transition-colors">
-                  {news.title}
-                </h3>
+                {/* Content */}
+                <div className="p-6 flex flex-col flex-grow">
+                  {/* Meta */}
+                  <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      <span>{format(new Date(news.created_at), 'dd/MM/yyyy')}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <User className="w-4 h-4" />
+                      <span>{news.author || 'Ban biên tập'}</span>
+                    </div>
+                  </div>
 
-                {/* Excerpt */}
-                <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                  {news.excerpt}
-                </p>
+                  {/* Title */}
+                  <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2 group-hover:text-agri-600 transition-colors">
+                    {news.title}
+                  </h3>
 
-                {/* Read More */}
-                <Link
-                  href={`/news/${news.id}`}
-                  className="inline-flex items-center gap-2 text-agri-600 hover:text-agri-700 font-semibold text-sm group-hover:gap-3 transition-all"
-                >
-                  <span>Đọc thêm</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
+                  {/* Excerpt */}
+                  <div 
+                    className="text-sm text-gray-600 mb-4 line-clamp-3 overflow-hidden flex-grow"
+                    dangerouslySetInnerHTML={{ __html: news.content }}
+                  />
+
+                  {/* Read More */}
+                  <Link
+                    href={`/news/${news.slug}`}
+                    className="inline-flex items-center gap-2 text-agri-600 hover:text-agri-700 font-semibold text-sm group-hover:gap-3 transition-all mt-auto"
+                  >
+                    <span>Đọc thêm</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
 
         {/* View All Button */}
         <div className="flex justify-center mt-12">

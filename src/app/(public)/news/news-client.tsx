@@ -3,61 +3,38 @@
 import { Calendar, ArrowRight, Search } from 'lucide-react'
 import Link from 'next/link'
 import Img from '@/app/components/Img'
+import { useApiQuery } from '@/hooks/use-api'
+import { format } from 'date-fns'
 
 interface NewsItem {
   id: number
   title: string
-  excerpt: string
-  image: string
-  date: string
+  slug: string
+  content: string
+  thumbnail_url: string
+  created_at: string
   author: string
   category: string
 }
 
-const allNews: NewsItem[] = [
-  {
-    id: 1,
-    title: 'Kỹ thuật trồng lúa bền vững cho năng suất cao',
-    excerpt: 'Hướng dẫn chi tiết các bước trồng lúa theo phương pháp bền vững, giúp tăng năng suất và giảm chi phí đầu vào. Phương pháp này không chỉ bảo vệ môi trường mà còn đem lại hiệu quả kinh tế lâu dài cho nhà nông.',
-    image: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=600&fit=crop',
-    date: '28/12/2024',
-    author: 'Nguyễn Văn A',
-    category: 'Kỹ thuật canh tác'
-  },
-  {
-    id: 2,
-    title: 'Phòng trừ sâu bệnh hiệu quả trong mùa mưa',
-    excerpt: 'Những biện pháp phòng trừ sâu bệnh an toàn và hiệu quả cho cây trồng trong điều kiện thời tiết mưa nhiều. Thời điểm này vi khuẩn và nấm mốc phát triển mạnh, đòi hỏi sự can thiệp kịp thời bằng các chế phẩm sinh học.',
-    image: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800&h=600&fit=crop',
-    date: '25/12/2024',
-    author: 'Trần Thị B',
-    category: 'Bảo vệ thực vật'
-  },
-  {
-    id: 3,
-    title: 'Xu hướng nông nghiệp công nghệ cao 2025',
-    excerpt: 'Tìm hiểu về các công nghệ mới trong nông nghiệp và cách ứng dụng vào sản xuất để tăng hiệu quả. Từ IoT đến drone, công nghệ đang thay đổi diện mạo của cánh đồng Việt Nam.',
-    image: 'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=800&h=600&fit=crop',
-    date: '22/12/2024',
-    author: 'Lê Văn C',
-    category: 'Công nghệ'
-  },
-  {
-    id: 4,
-    title: 'Thị trường gạo xuất khẩu: Cơ hội và thách thức',
-    excerpt: 'Phân tích tình hình xuất khẩu gạo của Việt Nam trong quý cuối năm và dự báo cho năm mới. Những thị trường tiềm năng như EU và Trung Đông đang mở ra nhiều cơ hội cho giống lúa chất lượng cao.',
-    image: 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=600&fit=crop',
-    date: '15/12/2024',
-    author: 'Phạm Văn D',
-    category: 'Thị trường'
-  }
-]
+interface NewsResponse {
+  data: NewsItem[]
+  total: number
+}
 
 /**
  * News Client Component
  * Trang hiển thị danh sách tất cả tin tức
  */
 export default function NewsClient() {
+  const { data: newsData, isLoading } = useApiQuery<NewsResponse>('/news/search', {
+    queryKey: ['news-list'],
+    method: 'POST',
+    body: { page: 1, limit: 12 },
+  })
+
+  const allNews = newsData?.data || []
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -74,48 +51,55 @@ export default function NewsClient() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Main Content */}
           <div className="lg:w-2/3">
-            <div className="grid gap-8">
-              {allNews.map((news) => (
-                <article key={news.id} className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all group flex flex-col md:flex-row">
-                  <div className="md:w-2/5 relative h-56 md:h-auto overflow-hidden">
-                    <Img 
-                      src={news.image} 
-                      alt={news.title}
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <div className="md:w-3/5 p-6 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-xs font-bold text-agri-600 px-2 py-1 bg-agri-50 rounded uppercase pb-1">
-                          {news.category}
-                        </span>
-                        <div className="flex items-center gap-1 text-xs text-gray-400">
-                          <Calendar className="w-3 h-3" />
-                          <span>{news.date}</span>
-                        </div>
-                      </div>
-                      <h2 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-agri-600 transition-colors tracking-tight">
-                        {news.title}
-                      </h2>
-                      <p className="text-gray-600 text-sm line-clamp-3 mb-4 leading-relaxed">
-                        {news.excerpt}
-                      </p>
+            {isLoading ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-agri-600"></div>
+              </div>
+            ) : (
+              <div className="grid gap-8">
+                {allNews.map((news) => (
+                  <article key={news.id} className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all group flex flex-col md:flex-row">
+                    <div className="md:w-2/5 relative h-56 md:h-auto overflow-hidden">
+                      <Img 
+                        src={news.thumbnail_url || 'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&h=600&fit=crop'} 
+                        alt={news.title}
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
                     </div>
-                    <Link 
-                      href={`/news/${news.id}`}
-                      className="inline-flex items-center gap-2 text-agri-600 font-bold text-sm hover:gap-3 transition-all"
-                    >
-                      Đọc tiếp
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </article>
-              ))}
-            </div>
+                    <div className="md:w-3/5 p-6 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-xs font-bold text-agri-600 px-2 py-1 bg-agri-50 rounded uppercase pb-1">
+                            {news.category || 'Tin tức'}
+                          </span>
+                          <div className="flex items-center gap-1 text-xs text-gray-400">
+                            <Calendar className="w-3 h-3" />
+                            <span>{format(new Date(news.created_at), 'dd/MM/yyyy')}</span>
+                          </div>
+                        </div>
+                        <h2 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-agri-600 transition-colors tracking-tight">
+                          {news.title}
+                        </h2>
+                        <div 
+                          className="text-gray-600 text-sm line-clamp-3 mb-4 leading-relaxed"
+                          dangerouslySetInnerHTML={{ __html: news.content }}
+                        />
+                      </div>
+                      <Link 
+                        href={`/news/${news.slug}`}
+                        className="inline-flex items-center gap-2 text-agri-600 font-bold text-sm hover:gap-3 transition-all"
+                      >
+                        Đọc tiếp
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Sidebar */}
+          {/* Sidebar ... (Giữ nguyên) */}
           <div className="lg:w-1/3">
             <div className="sticky top-28 space-y-8">
               {/* Search Widget */}
