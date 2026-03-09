@@ -11,8 +11,12 @@ import { format } from "date-fns"
 import { vi } from "date-fns/locale"
 import { useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
 
 export default function RewardsPage() {
+  const router = useRouter()
   const [page, setPage] = useState(1)
   const { data: user } = useCurrentUser()
   const { data: tracking, isLoading: isTrackingLoading } = useMyRewardTracking()
@@ -44,6 +48,14 @@ export default function RewardsPage() {
       <div className="bg-gradient-to-r from-emerald-600 to-teal-500 pt-10 pb-24 px-4 text-white">
         <div className="container mx-auto max-w-4xl">
           <div className="flex flex-col md:flex-row items-center gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <Button 
+                variant="outline" 
+                size="icon" 
+                className="rounded-full bg-white/20 border-white/30 text-white hover:bg-white/30 shrink-0"
+                onClick={() => router.back()}
+              >
+                <ArrowLeft className="h-4 w-4" />
+            </Button>
             <div className="h-20 w-20 rounded-full border-4 border-white/30 bg-white/20 flex items-center justify-center text-3xl font-bold shadow-xl backdrop-blur-sm">
               {user.user_profile?.nickname?.charAt(0).toUpperCase() || user.account.charAt(0).toUpperCase()}
             </div>

@@ -44,10 +44,10 @@ export default function EditRiceCropModal({
     resolver: zodResolver(UpdateRiceCropBody),
     defaultValues: {
       field_name: riceCrop.field_name,
-      customer_name: riceCrop.customer_name || "",
-      season_name: riceCrop.season_name || "",
-      amount_of_land: riceCrop.amount_of_land || 0,
-      field_area: riceCrop.field_area,
+      customer_name: riceCrop.customer_name || riceCrop.customer?.name || "",
+      season_name: riceCrop.season_name || riceCrop.season?.name || "",
+      amount_of_land: Number(riceCrop.amount_of_land || 0),
+      field_area: Number(riceCrop.field_area || 0),
       rice_variety: riceCrop.rice_variety,
       seed_source: riceCrop.seed_source || "",
       location: riceCrop.location || "",
@@ -77,8 +77,8 @@ export default function EditRiceCropModal({
     if (watchedTransplantingDate) {
       const solarDate = dayjs(watchedTransplantingDate)
       if (solarDate.isValid()) {
-        const [lDay, lMonth] = convertSolar2Lunar(solarDate.date(), solarDate.month() + 1, solarDate.year())
-        form.setValue("transplanting_lunar_date", `${lDay}/${lMonth} (Âm lịch)`)
+        const [lDay, lMonth, lYear] = convertSolar2Lunar(solarDate.date(), solarDate.month() + 1, solarDate.year())
+        form.setValue("transplanting_lunar_date", `${lDay}/${lMonth}/${lYear} (Âm lịch)`)
       }
     } else {
       form.setValue("transplanting_lunar_date", "")
@@ -90,8 +90,8 @@ export default function EditRiceCropModal({
     if (watchedSowingDate) {
       const solarDate = dayjs(watchedSowingDate)
       if (solarDate.isValid()) {
-        const [lDay, lMonth] = convertSolar2Lunar(solarDate.date(), solarDate.month() + 1, solarDate.year())
-        form.setValue("sowing_lunar_date", `${lDay}/${lMonth} (Âm lịch)`)
+        const [lDay, lMonth, lYear] = convertSolar2Lunar(solarDate.date(), solarDate.month() + 1, solarDate.year())
+        form.setValue("sowing_lunar_date", `${lDay}/${lMonth}/${lYear} (Âm lịch)`)
       }
     }
   }, [watchedSowingDate, form])
@@ -101,8 +101,8 @@ export default function EditRiceCropModal({
     if (watchedExpectedHarvestDate) {
       const solarDate = dayjs(watchedExpectedHarvestDate)
       if (solarDate.isValid()) {
-        const [lDay, lMonth] = convertSolar2Lunar(solarDate.date(), solarDate.month() + 1, solarDate.year())
-        form.setValue("expected_harvest_lunar_date", `${lDay}/${lMonth} (Âm lịch)`)
+        const [lDay, lMonth, lYear] = convertSolar2Lunar(solarDate.date(), solarDate.month() + 1, solarDate.year())
+        form.setValue("expected_harvest_lunar_date", `${lDay}/${lMonth}/${lYear} (Âm lịch)`)
       }
     }
   }, [watchedExpectedHarvestDate, form])
@@ -117,10 +117,10 @@ export default function EditRiceCropModal({
     if (isOpen) {
       form.reset({
         field_name: riceCrop.field_name,
-        customer_name: riceCrop.customer_name || "",
-        season_name: riceCrop.season_name || "",
-        amount_of_land: riceCrop.amount_of_land || 0,
-        field_area: riceCrop.field_area,
+        customer_name: riceCrop.customer_name || riceCrop.customer?.name || "",
+        season_name: riceCrop.season_name || riceCrop.season?.name || "",
+        amount_of_land: Number(riceCrop.amount_of_land || 0),
+        field_area: Number(riceCrop.field_area || 0),
         rice_variety: riceCrop.rice_variety,
         seed_source: riceCrop.seed_source || "",
         location: riceCrop.location || "",
@@ -133,7 +133,7 @@ export default function EditRiceCropModal({
         expected_harvest_date: riceCrop.expected_harvest_date || undefined,
         expected_harvest_lunar_date: riceCrop.expected_harvest_lunar_date || "",
         actual_harvest_date: riceCrop.actual_harvest_date || undefined,
-        area_per_com: (riceCrop.field_area && riceCrop.amount_of_land) ? (Math.round(riceCrop.field_area / riceCrop.amount_of_land) === 1296 ? 1296 : 1000) : 1000,
+        area_per_com: (riceCrop.field_area && riceCrop.amount_of_land) ? (Math.round(Number(riceCrop.field_area) / Number(riceCrop.amount_of_land)) === 1296 ? 1296 : 1000) : 1000,
       })
     }
   }, [isOpen, riceCrop, form])
@@ -205,7 +205,7 @@ export default function EditRiceCropModal({
                 label="Số công đất"
                 placeholder="0"
                 required
-                decimalScale={3}
+                decimalScale={2}
               />
                 <FormComboBox
                   control={form.control}

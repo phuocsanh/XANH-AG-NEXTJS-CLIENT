@@ -35,7 +35,7 @@ import {
   type GrowthStage,
   type CropStatus,
 } from "@/models/rice-farming"
-import { Eye, Search } from "lucide-react"
+import { Eye, Search, ArrowLeft } from "lucide-react"
 
 export default function RiceCropsPage() {
   const router = useRouter()
@@ -107,11 +107,21 @@ export default function RiceCropsPage() {
 
   return (
     <div className="container mx-auto py-6 px-4">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">🌾 Quản Lý Canh Tác</h1>
-        <p className="text-muted-foreground">
-          Xem và quản lý các ruộng lúa của bạn
-        </p>
+      <div className="flex items-center gap-4 mb-6">
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="rounded-full shrink-0"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold mb-1">🌾 Quản Lý Canh Tác</h1>
+          <p className="text-muted-foreground text-sm">
+            Xem và quản lý các ruộng lúa của bạn
+          </p>
+        </div>
       </div>
 
       {/* Table */}
@@ -256,7 +266,7 @@ export default function RiceCropsPage() {
                           {crop.season?.year && ` (${crop.season.year})`}
                         </TableCell>
                         <TableCell className="text-center">
-                          {crop.amount_of_land || 0}
+                          {Number(crop.amount_of_land || 0).toLocaleString('vi-VN', { maximumFractionDigits: 2 })}
                         </TableCell>
                         <TableCell className="text-center sm:text-left">
                           {Number(crop.field_area).toLocaleString("vi-VN")}

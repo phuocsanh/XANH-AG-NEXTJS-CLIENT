@@ -14,7 +14,7 @@ export interface NumberInputProps extends Omit<NumericFormatProps, "value" | "de
 }
 
 const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
-  ({ className, decimalScale = 0, value, onValueChange, ...props }, ref) => {
+  ({ className, value, onValueChange, ...props }, ref) => {
     return (
       <NumericFormat
         customInput={Input}
@@ -22,8 +22,8 @@ const NumberInput = React.forwardRef<HTMLInputElement, NumberInputProps>(
         className={cn(className)}
         thousandSeparator="."
         decimalSeparator=","
-        decimalScale={decimalScale}
         allowNegative={false}
+        fixedDecimalScale={false}
         value={value ?? ""}
         onValueChange={onValueChange}
         {...props}

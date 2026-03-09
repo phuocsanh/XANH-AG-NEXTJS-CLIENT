@@ -245,7 +245,7 @@ export default function RiceCropDetailPage() {
                          )}
                        </div>
                        {riceCrop.sowing_lunar_date && (
-                         <span className="text-[10px] text-agri-600 font-bold">{riceCrop.sowing_lunar_date}</span>
+                         <span className="text-[13px] text-agri-600 font-bold">{riceCrop.sowing_lunar_date}</span>
                        )}
                     </div>
                   } 
@@ -263,7 +263,7 @@ export default function RiceCropDetailPage() {
                          )}
                        </div>
                        {riceCrop.transplanting_lunar_date && (
-                         <span className="text-[10px] text-agri-600 font-bold">{riceCrop.transplanting_lunar_date}</span>
+                         <span className="text-[13px] text-agri-600 font-bold">{riceCrop.transplanting_lunar_date}</span>
                        )}
                     </div>
                   } 
@@ -274,7 +274,7 @@ export default function RiceCropDetailPage() {
                     <div className="flex flex-col">
                        <span>{riceCrop.expected_harvest_date ? dayjs(riceCrop.expected_harvest_date).format("DD/MM/YYYY") : "-"}</span>
                        {riceCrop.expected_harvest_lunar_date && (
-                         <span className="text-[10px] text-agri-600 font-bold">{riceCrop.expected_harvest_lunar_date}</span>
+                         <span className="text-[13px] text-agri-600 font-bold">{riceCrop.expected_harvest_lunar_date}</span>
                        )}
                     </div>
                   } 

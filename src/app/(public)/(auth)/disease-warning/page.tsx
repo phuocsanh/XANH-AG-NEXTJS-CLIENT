@@ -3,12 +3,15 @@
 import React, { useState } from "react"
 import { 
   AlertCircle, 
-  Info
+  Info,
+  ArrowLeft
 } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { 
   useDiseaseLocation, 
   useDiseaseWarning
 } from "@/hooks/use-disease-warning"
+import { Button } from "@/components/ui/button"
 import {
   LocationForm,
   DailyDataTable,
@@ -20,6 +23,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function DiseaseWarningPage() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState("rice-blast")
   
   // Queries
@@ -57,7 +61,15 @@ export default function DiseaseWarningPage() {
   return (
     <div className="container mx-auto py-6 px-4 max-w-5xl">
       {/* Header Area */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <div className="flex items-center gap-4 mb-8">
+        <Button 
+          variant="outline" 
+          size="icon" 
+          className="rounded-full shrink-0"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
         <div>
            <h1 className="text-2xl md:text-3xl font-black text-emerald-900 tracking-tight flex items-center gap-3">
              🌾 Cảnh Báo Dịch Bệnh
