@@ -106,7 +106,13 @@ export function ResponsiveDataTable<T extends Record<string, any>>({
                     "transition-colors",
                     onView ? "cursor-pointer hover:bg-agri-50" : "hover:bg-agri-50/30"
                   )}
-                  onClick={() => onView?.(record)}
+                  onClick={(event) => {
+                    const selection = window.getSelection();
+                    if (selection && selection.toString().length > 0) return;
+                    const target = event.target as HTMLElement;
+                    if (target.closest('button') || target.closest('a')) return;
+                    onView?.(record);
+                  }}
                 >
                   {columns.map((col) => (
                     <TableCell key={col.key} className={col.className}>
@@ -159,7 +165,13 @@ export function ResponsiveDataTable<T extends Record<string, any>>({
                 "border-agri-100 shadow-sm overflow-hidden active:scale-[0.98] transition-transform",
                 onView && "cursor-pointer hover:border-agri-300"
               )}
-              onClick={() => onView?.(record)}
+              onClick={(event) => {
+                const selection = window.getSelection();
+                if (selection && selection.toString().length > 0) return;
+                const target = event.target as HTMLElement;
+                if (target.closest('button') || target.closest('a')) return;
+                onView?.(record);
+              }}
             >
               <CardContent className="p-4 space-y-3">
                 <div className="flex justify-between items-start gap-4">

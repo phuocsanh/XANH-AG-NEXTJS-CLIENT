@@ -150,6 +150,7 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
         columns={columns}
         data={records || []}
         isLoading={isLoading}
+        onView={handleEdit}
         onEdit={handleEdit}
         onDelete={handleDelete}
         emptyText="Chưa có bản ghi thu hoạch nào được ghi nhận."

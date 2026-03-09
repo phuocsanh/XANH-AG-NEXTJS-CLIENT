@@ -34,6 +34,7 @@ interface DataTableProps<TData, TValue> {
   searchKey?: string
   searchPlaceholder?: string
   loading?: boolean
+  onView?: (record: TData) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -42,6 +43,7 @@ export function DataTable<TData, TValue>({
   searchKey,
   searchPlaceholder = "Tìm kiếm...",
   loading = false,
+  onView,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -80,7 +82,17 @@ export function DataTable<TData, TValue>({
         )}
         <div className="grid gap-4">
           {table.getRowModel().rows.map((row) => (
-            <Card key={row.id}>
+            <Card 
+              key={row.id}
+              className={onView ? "cursor-pointer hover:bg-muted/50 transition-colors" : ""}
+              onClick={(event) => {
+                const selection = window.getSelection();
+                if (selection && selection.toString().length > 0) return;
+                const target = event.target as HTMLElement;
+                if (target.closest('button') || target.closest('a')) return;
+                if (onView) onView(row.original);
+              }}
+            >
               <CardContent className="p-4 grid gap-2">
                 {row.getVisibleCells().map((cell) => {
                   // Chỉ hiển thị các cell có header (không phải action menu)
@@ -165,6 +177,14 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className={onView ? "cursor-pointer hover:bg-muted/50 transition-colors" : ""}
+                  onClick={(event) => {
+                    const selection = window.getSelection();
+                    if (selection && selection.toString().length > 0) return;
+                    const target = event.target as HTMLElement;
+                    if (target.closest('button') || target.closest('a')) return;
+                    if (onView) onView(row.original);
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
