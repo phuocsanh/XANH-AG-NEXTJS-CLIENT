@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Leaf } from 'lucide-react'
+import { Leaf, ArrowRight } from 'lucide-react'
 import ProductDetailModal from './ProductDetailModal'
 import Img from '@/app/components/Img'
 
@@ -43,75 +43,54 @@ interface Product {
 
 /**
  * Product Showcase Component
- * Section "DANH MỤC SẢN PHẨM" với category tabs và product grid
+ * Hiển thị sản phẩm phân theo từng danh mục
  */
 export default function ProductShowcase() {
-  const [productTypes, setProductTypes] = useState<ProductType[]>([])
-  const [activeTypeId, setActiveTypeId] = useState<number | null>(null)
-  const [products, setProducts] = useState<Product[]>([])
+  const [productsByType, setProductsByType] = useState<{ type: ProductType, products: Product[] }[]>([])
   const [loading, setLoading] = useState(true)
-  const [productsLoading, setProductsLoading] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  // State để track lỗi khi fetch data
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch product types khi component mount
+  // Fetch product types and initial products
   useEffect(() => {
-    async function fetchProductTypes() {
+    async function fetchInitialData() {
       try {
-        const response = await fetch('/api/product-types')
-        if (!response.ok) throw new Error('Failed to fetch product types')
+        const typesResponse = await fetch('/api/product-types')
+        if (!typesResponse.ok) throw new Error('Failed to fetch product types')
         
-        const data = await response.json()
-        // Backend trả về { success, data, meta }
-        if (data.success && data.data) {
-          setProductTypes(data.data)
-          // Set active type là type đầu tiên
-          if (data.data.length > 0) {
-            setActiveTypeId(data.data[0].id)
-          }
+        const typesData = await typesResponse.json()
+        
+        if (typesData.success && typesData.data) {
+          const types: ProductType[] = typesData.data
+          
+          // Fetch products for each type (Max 10 per type for homepage)
+          const productsPromises = types.map(async (type) => {
+            const productsResponse = await fetch(`/api/products/by-type/${type.id}?limit=10`)
+            if (!productsResponse.ok) return { type, products: [] }
+            
+            const productsData = await productsResponse.json()
+            return {
+              type,
+              products: productsData.success && productsData.data ? productsData.data : []
+            }
+          })
+          
+          const results = await Promise.all(productsPromises)
+          // Only show types that have products
+          setProductsByType(results.filter(r => r.products.length > 0))
         }
       } catch (error) {
-        console.error('Error fetching product types:', error)
-        setError('Không thể tải danh mục sản phẩm. Vui lòng thử lại sau.')
+        console.error('Error fetching showcase data:', error)
+        setError('Không thể tải sản phẩm. Vui lòng thử lại sau.')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchProductTypes()
+    fetchInitialData()
   }, [])
 
-  // Fetch products khi activeTypeId thay đổi
-  useEffect(() => {
-    if (!activeTypeId) return
-
-    async function fetchProducts() {
-      setProductsLoading(true)
-      try {
-        const response = await fetch(`/api/products/by-type/${activeTypeId}`)
-        if (!response.ok) throw new Error('Failed to fetch products')
-        
-        const data = await response.json()
-        // Backend trả về { success, data, meta }
-        if (data.success && data.data) {
-          // Lấy tối đa 8 sản phẩm để hiển thị
-          setProducts(data.data.slice(0, 8))
-        }
-      } catch (error) {
-        console.error('Error fetching products:', error)
-        setProducts([])
-        setError('Không thể tải sản phẩm. Vui lòng thử lại sau.')
-      } finally {
-        setProductsLoading(false)
-      }
-    }
-
-    fetchProducts()
-  }, [activeTypeId])
-
-  // Hiển thị loading state
   if (loading) {
     return (
       <section className="py-16 md:py-20 bg-white">
@@ -124,177 +103,147 @@ export default function ProductShowcase() {
     )
   }
 
-  // Không hiển thị gì nếu có lỗi hoặc không có danh mục sản phẩm
-  if (error || productTypes.length === 0) {
+  if (error || productsByType.length === 0) {
     return null
   }
 
   return (
-    <section className="py-5 md:py-20 bg-white">
+    <section className="py-8 md:py-20 bg-white">
       <div className="container mx-auto px-4">
-        {/* Section heading */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-accent-gold mb-4">
-            DANH MỤC SẢN PHẨM
+        {/* Section Heading */}
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-5xl font-black text-agri-900 mb-4 uppercase tracking-tighter">
+            Danh mục <span className="text-accent-gold">sản phẩm</span>
           </h2>
-          <div className="flex justify-center mb-6">
-            <svg width="80" height="20" viewBox="0 0 80 20" className="text-accent-gold">
-              <path
-                d="M5,10 Q10,5 15,10 T25,10 T35,10 T45,10 T55,10 T65,10 T75,10"
-                stroke="currentColor"
-                strokeWidth="2"
-                fill="none"
-              />
-            </svg>
+          <div className="flex justify-center items-center gap-4 mb-2">
+             <div className="h-[2px] w-12 bg-agri-200" />
+             <Leaf className="w-6 h-6 text-agri-500" />
+             <div className="h-[2px] w-12 bg-agri-200" />
           </div>
         </div>
 
-        {/* Category tabs */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {productTypes.map((type) => (
-            <button
-              key={type.id}
-              onClick={() => setActiveTypeId(type.id)}
-              className={`px-6 py-2.5 rounded-full font-medium transition-all duration-300 ${
-                activeTypeId === type.id
-                  ? 'bg-agri-500 text-white shadow-lg scale-105'
-                  : 'bg-gray-100 text-gray-700 hover:bg-agri-100 hover:text-agri-700'
-              }`}
-            >
-              {type.name}
-            </button>
+        {/* Product Sections by Type */}
+        <div className="space-y-16 md:space-y-24">
+          {productsByType.map((group: { type: ProductType, products: Product[] }) => (
+            <div key={group.type.id} className="relative">
+              {/* Category Header */}
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 border-b border-gray-100 pb-4">
+                <div>
+                  <h3 className="text-2xl md:text-3xl font-bold text-gray-900 flex items-center gap-3">
+                    <span className="w-2 h-8 bg-agri-500 rounded-full" />
+                    {group.type.name}
+                  </h3>
+                  <p className="text-gray-500 mt-2 font-medium">Sản phẩm chất lượng cao từ Xanh AG</p>
+                </div>
+                
+                <Link
+                  href={`/products#type-${group.type.id}`}
+                  className="inline-flex items-center gap-2 text-agri-600 font-bold hover:text-agri-700 group/link transition-all"
+                >
+                  Xem tất cả
+                  <ArrowRight className="w-5 h-5 group-hover/link:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+
+              {/* Product Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-8">
+                {group.products.map((product: Product, index: number) => (
+                  <button
+                    key={product.id}
+                    onClick={() => {
+                      setSelectedProduct(product)
+                      setIsModalOpen(true)
+                    }}
+                    className="group"
+                    style={{
+                      animation: `fadeInUp 0.6s ease-out ${index * 0.05}s both`,
+                    }}
+                  >
+                    <div className="bg-white rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-50 relative">
+                      {/* Product Image */}
+                      <div className="relative w-full aspect-square bg-gray-50 flex items-center justify-center p-4 overflow-hidden">
+                        {product.pictures && product.pictures.length > 0 ? (
+                          <Img
+                            src={product.pictures[0] || ''}
+                            alt={product.name}
+                            className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-700"
+                          />
+                        ) : product.thumb ? (
+                          <Img
+                            src={product.thumb || ''}
+                            alt={product.name}
+                            className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-700"
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center">
+                            <Leaf className="w-16 h-16 text-gray-200" />
+                          </div>
+                        )}
+                        
+                        {/* Status Badge if needed */}
+                        <div className="absolute top-3 left-3">
+                           <div className="bg-white/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-agri-700 border border-agri-100 uppercase tracking-tighter">
+                             Xanh AG
+                           </div>
+                        </div>
+                      </div>
+
+                      {/* Info */}
+                      <div className="p-4 bg-white text-left">
+                        <h4 className="text-sm md:text-base font-bold text-gray-900 line-clamp-2 min-h-[3rem] group-hover:text-agri-600 transition-colors">
+                          {product.trade_name || product.name}
+                        </h4>
+                        <div className="mt-2 flex items-center justify-between">
+                          <p className="text-base md:text-lg font-black text-agri-600">
+                            {product.show_price_on_web !== false && product.price && Number(product.price) > 0
+                              ? new Intl.NumberFormat('vi-VN', {
+                                  style: 'currency',
+                                  currency: 'VND',
+                                }).format(Number(product.price))
+                              : 'Liên hệ'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Subtle hover overlay */}
+                      <div className="absolute inset-0 border-2 border-agri-500/0 group-hover:border-agri-500/20 rounded-[1.5rem] transition-all pointer-events-none" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+              
+              {/* Mobile View All Button - visible only on small screens */}
+              <div className="mt-8 flex md:hidden justify-center">
+                <Link
+                  href={`/products#type-${group.type.id}`}
+                  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2.5 rounded-full text-sm font-bold transition-all w-full text-center"
+                >
+                  Xem thêm sản phẩm {group.type.name}
+                </Link>
+              </div>
+            </div>
           ))}
         </div>
 
-        {/* Product grid */}
-        {productsLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin w-12 h-12 border-4 border-agri-500 border-t-transparent rounded-full mx-auto" />
-          </div>
-        ) : products.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            Chưa có sản phẩm trong danh mục này
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
-            {products.map((product, index) => (
-              <button
-                key={product.id}
-                onClick={() => {
-                  setSelectedProduct(product)
-                  setIsModalOpen(true)
-                }}
-                className="group text-left w-full"
-                style={{
-                  animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both`,
-                }}
+        {/* Global View All Section */}
+        <div className="mt-20 flex flex-col items-center">
+          <div className="bg-gradient-to-br from-agri-600 to-agri-800 rounded-[2.5rem] p-8 md:p-12 w-full max-w-4xl shadow-2xl relative overflow-hidden text-center text-white">
+             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-20 translate-x-20" />
+             <div className="relative z-10">
+               <h3 className="text-2xl md:text-4xl font-extrabold mb-4 uppercase">Bạn đang tìm kiếm gì khác?</h3>
+               <p className="text-agri-100 mb-8 max-w-xl mx-auto italic font-medium opacity-80">"Xanh AG cam kết mang đến những sản phẩm nông nghiệp sạch, chất lượng và giải pháp canh tác thông minh nhất cho bà con."</p>
+               <Link
+                href="/products"
+                className="inline-flex items-center gap-3 bg-yellow-500 hover:bg-yellow-400 text-black px-10 py-4 rounded-2xl font-black transition-all transform hover:scale-105 shadow-xl uppercase tracking-wider"
               >
-                <div className="relative bg-white rounded-lg overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                  {/* Leaf decoration - top left */}
-                  <div className="absolute top-0 left-0 w-16 h-16 opacity-20 z-10">
-                    <svg viewBox="0 0 100 100" className="w-full h-full text-agri-500">
-                      <path
-                        d="M10,10 Q30,20 40,40 Q35,50 20,55 Q10,50 5,40 Q5,20 10,10 Z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  </div>
-
-                  {/* Leaf decoration - bottom right */}
-                  <div className="absolute bottom-0 right-0 w-16 h-16 opacity-20 z-10 rotate-180">
-                    <svg viewBox="0 0 100 100" className="w-full h-full text-agri-500">
-                      <path
-                        d="M10,10 Q30,20 40,40 Q35,50 20,55 Q10,50 5,40 Q5,20 10,10 Z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  </div>
-
-                  {/* Product image with Blurred Backdrop Effect */}
-                  <div className="relative w-full aspect-square bg-gray-100 overflow-hidden group-hover:scale-105 transition-transform duration-500">
-                    {product.pictures && product.pictures.length > 0 ? (
-                      <>
-                        {/* Background Blurred Image */}
-                        <div className="absolute inset-0 w-full h-full blur-xl scale-110 opacity-50">
-                          <Img
-                            src={product.pictures[0] || ''}
-                            alt=""
-                            className="object-cover"
-                          />
-                        </div>
-                        {/* Foreground Original Image */}
-                        <div className="relative z-10 w-full h-full">
-                          <Img
-                            src={product.pictures[0] || ''}
-                            alt={product.name}
-                            className="object-cover"
-                          />
-                        </div>
-                      </>
-                    ) : product.thumb ? (
-                      <>
-                        {/* Background Blurred Image */}
-                        <div className="absolute inset-0 w-full h-full blur-xl scale-110 opacity-50">
-                          <Img
-                            src={product.thumb || ''}
-                            alt=""
-                            className="object-cover"
-                          />
-                        </div>
-                        {/* Foreground Original Image */}
-                        <div className="relative z-10 w-full h-full">
-                          <Img
-                            src={product.thumb || ''}
-                            alt={product.name}
-                            className="object-cover"
-                          />
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <Leaf className="w-20 h-20 text-gray-200" />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-br from-agri-50 to-agri-100 opacity-50" />
-                      </>
-                    )}
-                  </div>
-
-                  {/* Product info */}
-                  <div className="relative z-10 p-4 bg-white">
-                    <h3 className="text-sm md:text-base font-semibold text-gray-800 mb-2 line-clamp-2 min-h-[2.5rem]">
-                      {product.trade_name || product.name}
-                    </h3>
-                    <p className="text-lg md:text-xl font-bold text-agri-600">
-                      {product.show_price_on_web !== false && product.price && Number(product.price) > 0
-                        ? new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND',
-                          }).format(Number(product.price))
-                        : 'Liên hệ'}
-                    </p>
-                  </div>
-
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-agri-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                </div>
-              </button>
-            ))}
+                Khám phá tất cả sản phẩm
+                <ArrowRight className="w-6 h-6" />
+              </Link>
+             </div>
           </div>
-        )}
-
-        {/* View all button */}
-        <div className="flex justify-center mt-12">
-          <Link
-            href="/products"
-            className="bg-yellow-500 hover:bg-yellow-600 text-black px-8 py-3 rounded-lg font-bold transition-all transform hover:scale-105 shadow-lg"
-          >
-            Xem tất cả sản phẩm
-          </Link>
         </div>
       </div>
 
-      {/* Product Detail Modal */}
       <ProductDetailModal
         product={selectedProduct}
         isOpen={isModalOpen}
@@ -304,12 +253,11 @@ export default function ProductShowcase() {
         }}
       />
 
-      {/* Add fadeInUp animation */}
       <style jsx>{`
         @keyframes fadeInUp {
           from {
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(20px);
           }
           to {
             opacity: 1;
