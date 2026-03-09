@@ -132,6 +132,7 @@ export default function CostItemsTab({ riceCropId }: CostItemsTabProps) {
         isLoading={isLoading}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        onView={handleEdit}
         emptyText="Chưa có chi phí canh tác nào được ghi nhận."
       />
 

@@ -241,7 +241,16 @@ export default function RiceCropsPage() {
                       <TableRow 
                         key={crop.id} 
                         className="whitespace-nowrap cursor-pointer hover:bg-muted/50 transition-colors"
-                        onClick={() => router.push(`/rice-crops/${crop.id}`)}
+                        onClick={(e) => {
+                          // Không nhảy nếu đang chọn text
+                          const selection = window.getSelection();
+                          if (selection && selection.toString().length > 0) return;
+
+                          // Không nhảy nếu bấm vào các element tương tác khác
+                          if ((e.target as HTMLElement).closest('button, a, input, [role="button"]')) return;
+
+                          router.push(`/rice-crops/${crop.id}`)
+                        }}
                       >
                         <TableCell className="font-medium whitespace-normal min-w-[200px]">
                           {crop.field_name}
