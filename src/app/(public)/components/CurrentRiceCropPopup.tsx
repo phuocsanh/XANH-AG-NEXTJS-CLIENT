@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import {
   Dialog,
   DialogContent,
@@ -23,7 +23,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { convertCurrency, calculateDaysDiff } from '@/lib/utils'
-import { getGrowthStageText, getCropStatusText } from '@/models/rice-farming'
+import { getGrowthStageText } from '@/models/rice-farming'
 import dayjs from 'dayjs'
 import { convertSolar2Lunar } from '@/lib/lunar-calendar'
 
