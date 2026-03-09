@@ -106,9 +106,7 @@ export function ResponsiveDataTable<T extends Record<string, any>>({
                     "transition-colors",
                     onView ? "cursor-pointer hover:bg-agri-50" : "hover:bg-agri-50/30"
                   )}
-                  onClick={(event) => {
-                    const selection = window.getSelection();
-                    if (selection && selection.toString().length > 0) return;
+                  onDoubleClick={(event) => {
                     const target = event.target as HTMLElement;
                     if (target.closest('button') || target.closest('a')) return;
                     onView?.(record);
@@ -165,9 +163,7 @@ export function ResponsiveDataTable<T extends Record<string, any>>({
                 "border-agri-100 shadow-sm overflow-hidden active:scale-[0.98] transition-transform",
                 onView && "cursor-pointer hover:border-agri-300"
               )}
-              onClick={(event) => {
-                const selection = window.getSelection();
-                if (selection && selection.toString().length > 0) return;
+              onDoubleClick={(event) => {
                 const target = event.target as HTMLElement;
                 if (target.closest('button') || target.closest('a')) return;
                 onView?.(record);

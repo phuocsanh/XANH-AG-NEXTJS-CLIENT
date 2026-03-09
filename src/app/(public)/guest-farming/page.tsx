@@ -128,7 +128,7 @@ export default function GuestFarmingPage() {
                       <TableRow 
                         key={crop.id} 
                         className="group border-gray-50 hover:bg-agri-50/30 transition-all cursor-pointer"
-                        onClick={() => router.push(`/guest-farming/rice-crops/${crop.id}`)}
+                        onDoubleClick={() => router.push(`/guest-farming/rice-crops/${crop.id}`)}
                       >
                         <TableCell className="py-5 px-6 font-bold text-gray-800">
                           {crop.field_name}
