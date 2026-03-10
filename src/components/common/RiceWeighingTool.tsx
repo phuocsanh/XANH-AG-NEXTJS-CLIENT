@@ -174,8 +174,6 @@ export default function RiceWeighingTool({
     
     if (numbers.length >= 3 && numbers.length <= 4) {
       const currentIndex = activeIndexRef.current
-      const currentWeights = weightsRef.current
-      const isEditing = (currentWeights[currentIndex] || "") !== ""
       
       updateWeight(currentIndex, numbers)
       
@@ -908,7 +906,6 @@ export default function RiceWeighingTool({
                             onClick={() => {
                               const currentVal = weightsRef.current[activeIndex] || ""
                               if (currentVal.length < 4) {
-                                const isEditing = currentVal !== ""
                                 const newVal = currentVal + n
                                 updateWeight(activeIndex, newVal)
                                 if (newVal.length >= 3) {
