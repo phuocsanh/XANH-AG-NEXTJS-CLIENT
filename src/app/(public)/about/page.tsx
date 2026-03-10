@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import StaticPageWrapper from '../components/StaticPageWrapper'
-import { CheckCircle, Award, Users, Target } from 'lucide-react'
+import { CheckCircle, Award, Target } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Giới thiệu về Xanh AG | Giải pháp nông nghiệp bền vững',

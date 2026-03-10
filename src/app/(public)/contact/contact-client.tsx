@@ -1,40 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-import { MapPin, Phone, Mail, Clock, Send } from 'lucide-react'
-import { useToast } from '@/hooks/use-toast'
+import { MapPin, Phone, Mail, Clock } from 'lucide-react'
 
 /**
  * Contact Page
  * Trang liên hệ với form và thông tin bản đồ
  */
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: ''
-  })
-
-  const { toast } = useToast()
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    // Gửi thông báo thành công
-    toast({
-      title: "Gửi tin nhắn thành công!",
-      description: "Cảm ơn bạn đã liên hệ. Xanh AG sẽ phản hồi sớm nhất có thể.",
-    })
-    
-    setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-agri-50 to-white pb-20">
