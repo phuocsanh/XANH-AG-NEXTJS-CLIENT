@@ -46,7 +46,7 @@ export default function NewsClient() {
     body: { 
       page: 1, 
       limit: 12,
-      query: debouncedQuery 
+      keyword: debouncedQuery 
     },
   })
 
