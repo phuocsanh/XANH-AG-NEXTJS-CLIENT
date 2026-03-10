@@ -42,6 +42,7 @@ export default function RiceWeighingTool({
   const [pricePerUnit] = useState<number>(0)
   const [localCrops, setLocalCrops] = useState<any[]>([])
   const [history, setHistory] = useState<WeighingRecord[]>([])
+  const [editingRecordId, setEditingRecordId] = useState<number | null>(null)
   
   const { isLogin } = useAppStore()
   const { data: onlineCropsData } = useRiceCrops({ limit: 100 }, isOpen && isLogin)
@@ -171,17 +172,40 @@ export default function RiceWeighingTool({
     }
 
     try {
-      await localFarmingService.createWeighingRecord(weighingData)
+      if (editingRecordId) {
+        await localFarmingService.updateWeighingRecord(editingRecordId, weighingData)
+        toast({ title: "Đã cập nhật 🎉", description: "Đã lưu thay đổi vào bản ghi." })
+      } else {
+        await localFarmingService.createWeighingRecord(weighingData)
+        toast({ title: "Thành công 🎉", description: "Đã lưu bản ghi cân lúa mới." })
+      }
+      
       onSave(total)
-      toast({ title: "Thành công 🎉", description: "Đã lưu bản ghi cân lúa." })
       
       // Reset after success
       setWeights(new Array(MAX_CELLS).fill(""))
+      setEditingRecordId(null)
+      const h = await localFarmingService.getAllWeighingRecords()
+      setHistory(h)
       setStep("history") // Chuyển sang xem lịch sử
     } catch (error) {
       console.error("Error saving weighing record:", error)
       toast({ title: "Lỗi", description: "Không thể lưu bản ghi.", variant: "destructive" })
     }
+  }
+
+  const handleViewDetail = (record: WeighingRecord) => {
+    const newWeights = new Array(MAX_CELLS).fill("")
+    record.weights_data.forEach((w, i) => {
+      if (i < MAX_CELLS) newWeights[i] = w
+    })
+    setWeights(newWeights)
+    setCustomCropName(record.crop_name || "")
+    setSelectedCropId(record.rice_crop_id || null)
+    setEditingRecordId(record.id || null)
+    setStep("weighing")
+    setActiveIndex(0)
+    toast({ title: "Đã tải dữ liệu", description: `Đang xem lại: ${record.crop_name}` })
   }
 
   const handleSyncToCrop = async (record: WeighingRecord) => {
@@ -352,7 +376,10 @@ export default function RiceWeighingTool({
                       <div className="grid grid-cols-1 gap-3">
                          <Button 
                             variant="outline"
-                            onClick={() => setSelectedCropId(null)}
+                            onClick={() => {
+                               setSelectedCropId(null)
+                               setEditingRecordId(null)
+                             }}
                             className={cn(
                               "h-16 justify-between rounded-2xl border-2 text-lg font-bold transition-all",
                               selectedCropId === null ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-100" : "bg-white text-slate-500 border-slate-100"
@@ -408,8 +435,23 @@ export default function RiceWeighingTool({
 
                    <div className="pt-8">
                       <Button 
-                        onClick={() => setStep("weighing")}
-                        className="w-full h-16 rounded-3xl bg-blue-600 hover:bg-blue-700 text-white text-xl font-black shadow-2xl shadow-blue-200 group active:scale-95 transition-all"
+                        onClick={() => {
+                          if (selectedCropId === null && !customCropName.trim()) {
+                            toast({
+                              title: "Thông báo",
+                              description: "Vui lòng nhập tên ruộng hoặc chọn vụ lúa để tiếp tục.",
+                              variant: "destructive"
+                            })
+                            return
+                          }
+                          setStep("weighing")
+                        }}
+                        className={cn(
+                          "w-full h-16 rounded-3xl text-white text-xl font-black shadow-2xl group active:scale-95 transition-all",
+                          (selectedCropId !== null || customCropName.trim()) 
+                            ? "bg-blue-600 hover:bg-blue-700 shadow-blue-200" 
+                            : "bg-slate-300 cursor-not-allowed shadow-none"
+                        )}
                       >
                          TIẾP TỤC
                          <ArrowRight className="ml-3 w-6 h-6 group-hover:translate-x-2 transition-transform" />
@@ -606,10 +648,7 @@ export default function RiceWeighingTool({
                        <div className="flex gap-2">
                           <Button 
                             className="flex-1 h-12 rounded-xl bg-slate-800 text-white font-bold text-sm tracking-tight"
-                            onClick={() => {
-                               // Logic để xem lại chi tiết bảng (Nếu cần)
-                               toast({ title: "Thông báo", description: "Tính năng đang hoàn thiện." })
-                            }}
+                            onClick={() => handleViewDetail(record)}
                           >
                              CHI TIẾT BẢNG
                           </Button>

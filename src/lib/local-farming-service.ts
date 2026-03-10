@@ -166,5 +166,12 @@ export const localFarmingService = {
 
   deleteWeighingRecord: async (id: number) => {
     return await localDB.weighingRecords.delete(id);
+  },
+
+  updateWeighingRecord: async (id: number, data: any) => {
+    return await localDB.weighingRecords.update(id, {
+      ...data,
+      updated_at: new Date().toISOString()
+    });
   }
 };
