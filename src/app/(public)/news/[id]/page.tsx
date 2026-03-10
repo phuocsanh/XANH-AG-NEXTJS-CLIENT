@@ -11,6 +11,9 @@ interface NewsItem {
   content: string
   thumbnail_url: string
   category: string
+  author?: string
+  created_at: string
+  updated_at?: string
 }
 
 /**
@@ -30,18 +33,20 @@ export async function generateMetadata(
      console.error('Error fetching news metadata:', error)
   }
   
+  const cleanDescription = news?.content 
+        ? news.content.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim().substring(0, 160) + '...'
+        : 'Chia sẻ kiến thức kỹ thuật nông nghiệp, kinh nghiệm canh tác và giải pháp nông nghiệp bền vững từ chuyên gia Xanh AG.'
+
   const title = news?.title 
     ? `${news.title} | Xanh AG` 
     : 'Chi tiết tin tức nông nghiệp | Xanh AG'
     
   return {
     title,
-    description: news?.content 
-       ? news.content.replace(/<[^>]*>?/gm, '').substring(0, 160) + '...'
-       : 'Chia sẻ kiến thức kỹ thuật nông nghiệp, kinh nghiệm canh tác và giải pháp nông nghiệp bền vững từ chuyên gia Xanh AG.',
+    description: cleanDescription,
     openGraph: {
       title,
-      description: news?.title || 'Chia sẻ kiến thức kỹ thuật nông nghiệp từ Xanh AG',
+      description: cleanDescription,
       type: 'article',
       url: `https://xanhag.com/news/${slug}`,
       images: news?.thumbnail_url ? [news.thumbnail_url] : [],
@@ -55,6 +60,48 @@ export async function generateMetadata(
 /**
  * News Detail Page - Server Component
  */
-export default function NewsDetailPage() {
-  return <NewsDetailClient />
+export default async function NewsDetailPage({ params }: Props) {
+  const { id: slug } = await params
+  
+  let news: NewsItem | null = null
+  try {
+     const response = await httpClient.get<any>(`/news/slug/${slug}`)
+     news = response.data || response;
+  } catch (e) {}
+
+  // JSON-LD for Article
+  const jsonLd = news ? {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: news.title,
+    image: [news.thumbnail_url],
+    datePublished: news.created_at,
+    dateModified: news.updated_at || news.created_at,
+    author: [{
+      '@type': 'Person',
+      name: news.author || 'Ban biên tập Xanh AG',
+      url: 'https://xanhag.com',
+    }],
+    publisher: {
+      '@type': 'Organization',
+      name: 'Xanh AG',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://xanhag.com/logo.png', // Assuming logo path
+      }
+    },
+    description: news.content ? news.content.replace(/<[^>]*>?/gm, ' ').substring(0, 200).trim() : '',
+  } : null
+
+  return (
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      <NewsDetailClient />
+    </>
+  )
 }
