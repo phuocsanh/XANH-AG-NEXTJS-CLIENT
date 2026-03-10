@@ -110,7 +110,7 @@ export default function Footer() {
               <li className="flex items-center gap-3 text-agri-100/80">
                 <FaEnvelope className="flex-shrink-0 text-accent-gold" />
                 <a href="mailto:phuocsanhtps@gmail.com" className="hover:text-white transition-colors">
-                  contact@xanhag.com
+                  phuocsanhtps@gmail.com
                 </a>
               </li>
             </ul>
