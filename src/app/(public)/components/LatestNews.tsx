@@ -1,6 +1,6 @@
 'use client'
 
-import { Calendar, User, ArrowRight } from 'lucide-react'
+import { Calendar, User, ArrowRight, Pin } from 'lucide-react'
 import Link from 'next/link'
 import Img from '@/app/components/Img'
 import { useApiQuery } from '@/hooks/use-api'
@@ -15,6 +15,7 @@ interface NewsItem {
   created_at: string
   author: string
   category: string
+  is_pinned: boolean
 }
 
 interface NewsResponse {
@@ -80,11 +81,17 @@ export default function LatestNews() {
                     alt={news.title}
                     className="object-cover transform group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-accent-gold text-white px-3 py-1 rounded-full text-xs font-semibold">
-                      {news.category || 'Tin tức'}
-                    </span>
-                  </div>
+                    <div className="absolute top-4 left-4 flex gap-2">
+                       {news.is_pinned && (
+                        <span className="bg-orange-500 text-white px-2 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 shadow-lg animate-pulse">
+                          <Pin className="w-3 h-3 fill-current" />
+                          GHIM
+                        </span>
+                      )}
+                      <span className="bg-accent-gold text-white px-3 py-1 rounded-full text-xs font-semibold">
+                        {news.category || 'Tin tức'}
+                      </span>
+                    </div>
                 </div>
 
                 {/* Content */}

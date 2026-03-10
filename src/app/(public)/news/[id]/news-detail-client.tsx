@@ -8,17 +8,6 @@ import Img from '@/app/components/Img'
 import { useApiQuery } from '@/hooks/use-api'
 import { format } from 'date-fns'
 import { convertCurrency } from '@/lib/utils'
-import { ProductItem } from '@/models/product'
-
-// Local override or extension if needed, but we'll cast or use proper fields
-interface Product {
-  id: number
-  name: string
-  trade_name?: string
-  price?: string
-  thumb?: string
-}
-
 interface NewsItem {
   id: number
   title: string

@@ -1,6 +1,7 @@
 'use client'
 
-import { Calendar, ArrowRight, Search } from 'lucide-react'
+import { Calendar, ArrowRight, Search, Loader2, Pin } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Img from '@/app/components/Img'
 import { useApiQuery } from '@/hooks/use-api'
@@ -15,6 +16,7 @@ interface NewsItem {
   created_at: string
   author: string
   category: string
+  is_pinned: boolean
 }
 
 interface NewsResponse {
@@ -27,10 +29,25 @@ interface NewsResponse {
  * Trang hiển thị danh sách tất cả tin tức
  */
 export default function NewsClient() {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
   const { data: newsData, isLoading } = useApiQuery<NewsResponse>('/news/search', {
-    queryKey: ['news-list'],
+    queryKey: ['news-list', debouncedQuery],
     method: 'POST',
-    body: { page: 1, limit: 12 },
+    body: { 
+      page: 1, 
+      limit: 12,
+      query: debouncedQuery 
+    },
   })
 
   const allNews = newsData?.data || []
@@ -83,6 +100,12 @@ export default function NewsClient() {
                       <div className="md:w-3/5 p-6 md:p-8 flex flex-col justify-between">
                         <div>
                           <div className="flex items-center gap-3 mb-4">
+                            {news.is_pinned && (
+                              <span className="text-[10px] font-bold text-white px-3 py-1 bg-orange-500 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                                <Pin className="w-3 h-3 fill-current" />
+                                Nổi bật
+                              </span>
+                            )}
                             <span className="text-[10px] font-bold text-agri-700 px-3 py-1 bg-agri-50 rounded-full uppercase tracking-wider">
                               {news.category || 'Tin tức'}
                             </span>
@@ -132,9 +155,14 @@ export default function NewsClient() {
                   <input 
                     type="text" 
                     placeholder="Nhập nội dung cần tìm..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-agri-500 focus:bg-white transition-all text-sm"
                   />
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4.5 h-4.5 group-focus-within:text-agri-600 transition-colors" />
+                  {searchQuery !== debouncedQuery && (
+                    <Loader2 className="absolute right-4 top-1/2 transform -translate-y-1/2 text-agri-500 w-4 h-4 animate-spin" />
+                  )}
                 </div>
               </div>
 
