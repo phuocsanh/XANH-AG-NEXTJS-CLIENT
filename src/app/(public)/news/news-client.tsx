@@ -138,24 +138,6 @@ export default function NewsClient() {
                 </div>
               </div>
 
-              {/* Categories Widget */}
-              <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100">
-                <h3 className="font-bold text-gray-800 mb-5 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-agri-600 rounded-full"></span>
-                  Chuyên mục chính
-                </h3>
-                <ul className="space-y-4">
-                  {['Kỹ thuật canh tác', 'Bảo vệ thực vật', 'Thị trường nông sản', 'Công nghệ xanh', 'Bền vững'].map(cat => (
-                    <li key={cat}>
-                      <a href="#" className="flex items-center justify-between text-sm text-gray-600 hover:text-agri-600 transition-colors group">
-                        <span className="group-hover:translate-x-1 transition-transform">{cat}</span>
-                        <span className="bg-agri-50 text-agri-600 px-2.5 py-0.5 rounded-lg text-[10px] font-bold group-hover:bg-agri-600 group-hover:text-white transition-colors tracking-tighter uppercase italic">12</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
               {/* Banner Widget */}
               <div className="relative h-64 rounded-3xl overflow-hidden group shadow-lg">
                 <Img 

@@ -10,6 +10,15 @@ import { format } from 'date-fns'
 import { convertCurrency } from '@/lib/utils'
 import { ProductItem } from '@/models/product'
 
+// Local override or extension if needed, but we'll cast or use proper fields
+interface Product {
+  id: number
+  name: string
+  trade_name?: string
+  price?: string
+  thumb?: string
+}
+
 interface NewsItem {
   id: number
   title: string
@@ -40,7 +49,7 @@ export default function NewsDetailClient() {
 
   // Fetch sản phẩm liên quan nếu có
   const relatedProductIds = news?.related_product_ids || []
-  const { data: relatedProductsResponse, isLoading: isProductsLoading } = useApiQuery<{ data: ProductItem[] }>(`/products/search`, {
+  const { data: relatedProductsResponse, isLoading: isProductsLoading } = useApiQuery<{ data: any[] }>(`/products/search`, {
     queryKey: ['related-products', JSON.stringify(relatedProductIds)],
     method: 'POST',
     body: {
@@ -202,7 +211,7 @@ export default function NewsDetailClient() {
                     </div>
                   ) : relatedProducts.length > 0 ? (
                     <div className="space-y-6">
-                      {relatedProducts.map(product => (
+                      {relatedProducts.map((product: any) => (
                         <Link 
                           key={product.id} 
                           href={`/products?id=${product.id}`}
@@ -210,19 +219,19 @@ export default function NewsDetailClient() {
                         >
                           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-xl overflow-hidden shadow-sm flex-shrink-0 relative">
                             <Img 
-                              src={product.productThumb || `https://images.unsplash.com/photo-1594771804886-a933bb2d609b?w=200&h=200&fit=crop`} 
-                              alt={product.productName}
+                              src={product.thumb || product.productThumb || `https://images.unsplash.com/photo-1628352081506-83c43123ed6d?w=200&h=200&fit=crop`} 
+                              alt={product.trade_name || product.name || product.productName}
                               className="bg-transparent"
                               classNameImg="object-cover group-hover:scale-110 transition-transform"
                             />
                           </div>
                           <div className="flex flex-col justify-center">
                             <h4 className="text-xs sm:text-sm font-bold text-gray-800 group-hover:text-agri-600 transition-colors line-clamp-2">
-                              {product.productName}
+                              {product.trade_name || product.name || product.productName}
                             </h4>
                             <p className="text-agri-600 font-bold mt-1 text-xs sm:text-sm font-primary">
-                              {product.productPrice && parseFloat(product.productPrice) > 0 
-                                ? convertCurrency(parseFloat(product.productPrice)) 
+                              { (product.price || product.productPrice) && parseFloat(product.price || product.productPrice) > 0 
+                                ? convertCurrency(parseFloat(product.price || product.productPrice)) 
                                 : 'Liên hệ'}
                             </p>
                           </div>

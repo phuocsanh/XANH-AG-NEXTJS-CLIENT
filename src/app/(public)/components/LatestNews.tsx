@@ -107,10 +107,9 @@ export default function LatestNews() {
                   </h3>
 
                   {/* Excerpt */}
-                  <div 
-                    className="text-sm text-gray-600 mb-4 line-clamp-3 overflow-hidden flex-grow"
-                    dangerouslySetInnerHTML={{ __html: news.content }}
-                  />
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-3 overflow-hidden flex-grow leading-relaxed">
+                    {news.content.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim()}
+                  </p>
 
                   {/* Read More */}
                   <Link
