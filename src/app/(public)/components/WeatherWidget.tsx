@@ -162,6 +162,12 @@ export default function WeatherWidget() {
                 {getWeatherIcon(day.weatherCode)}
               </div>
               <p className="text-sm font-bold text-gray-700">{day.tempMax}°</p>
+              {day.precipitationProbabilityMax > 0 && (
+                <div className="flex items-center gap-0.5 text-[9px] font-black text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded-full">
+                  <CloudRain className="w-2.5 h-2.5" />
+                  <span>{day.precipitationProbabilityMax}%</span>
+                </div>
+              )}
             </div>
           ))}
         </div>

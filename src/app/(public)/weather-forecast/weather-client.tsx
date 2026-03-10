@@ -463,6 +463,16 @@ export default function WeatherForecastPage() {
                       {getWeatherIcon(day.weatherCode, "w-8 h-8 sm:w-12 sm:h-12")}
                     </div>
                     <p className={`text-sm sm:text-lg font-black ${activeTab === i ? 'text-white' : 'text-gray-800'}`}>{day.tempMax}°<span className="opacity-40 font-bold mx-1">/</span>{day.tempMin}°</p>
+                    
+                    {/* Khả năng mưa mini badge */}
+                    <div className={`mt-2 flex items-center gap-1 px-2 py-0.5 rounded-full border text-[9px] sm:text-[10px] tabular-nums ${
+                      activeTab === i 
+                        ? 'bg-white/20 border-white/30 text-white' 
+                        : getPopStyle(day.precipitationProbabilityMax)
+                    }`}>
+                      <Droplets className={`w-3 h-3 ${activeTab === i ? 'text-white' : ''}`} />
+                      <span>{day.precipitationProbabilityMax}%</span>
+                    </div>
                   </button>
                 ))}
               </div>
