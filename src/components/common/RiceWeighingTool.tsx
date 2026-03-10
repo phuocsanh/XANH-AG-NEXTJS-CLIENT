@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { 
-  Mic, MicOff, X, ChevronLeft, Save, Database, History, Info, Scale, ArrowRight, Trash2, RotateCw, Keyboard, ChevronDown
+  Mic, MicOff, X, ChevronLeft, Save, Database, History, Info, Scale, ArrowRight, Trash2, RotateCw, Keyboard, ChevronDown, Calculator, Check
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAppStore } from "@/stores"
@@ -39,10 +39,18 @@ export default function RiceWeighingTool({
   const [step, setStep] = useState<"select-crop" | "weighing" | "history">("select-crop")
   const [selectedCropId, setSelectedCropId] = useState<number | string | null>(null)
   const [customCropName, setCustomCropName] = useState("")
-  const [pricePerUnit] = useState<number>(0)
   const [localCrops, setLocalCrops] = useState<any[]>([])
   const [history, setHistory] = useState<WeighingRecord[]>([])
   const [editingRecordId, setEditingRecordId] = useState<number | null>(null)
+  
+  // New calculation states
+  const [unitPrice, setUnitPrice] = useState<number>(0)
+  const [tarePerBag, setTarePerBag] = useState<number>(1) // Trừ bì mặc định 1kg/bao
+  const [impurityWeight, setImpurityWeight] = useState<number>(0)
+  const [depositAmount, setDepositAmount] = useState<number>(0)
+  const [paidAmount, setPaidAmount] = useState<number>(0)
+  const [isPaidFull, setIsPaidFull] = useState<boolean>(false)
+  const [showResultPopup, setShowResultPopup] = useState<boolean>(false)
   
   const { isLogin } = useAppStore()
   const { data: onlineCropsData } = useRiceCrops({ limit: 100 }, isOpen && isLogin)
@@ -69,11 +77,44 @@ export default function RiceWeighingTool({
   // Đồng bộ Refs để tránh stale closures
   useEffect(() => {
     activeIndexRef.current = activeIndex
-    const activeElement = document.getElementById(`cell-${activeIndex}`)
-    if (activeElement && scrollContainerRef.current) {
-      activeElement.scrollIntoView({ behavior: "smooth", block: "center" })
+    
+    const scrollToActive = () => {
+      const activeElement = document.getElementById(`cell-${activeIndex}`)
+      const container = scrollContainerRef.current
+      
+      if (activeElement && container) {
+        // Chiều cao bàn phím ảo (Xấp xỉ 320px)
+        const keyboardOverlayHeight = showKeyboard ? 340 : 0 
+        const containerRect = container.getBoundingClientRect()
+        const elementRect = activeElement.getBoundingClientRect()
+        
+        // Kiểm tra xem ô có bị che bởi bàn phím ảo hay không
+        // elementRect.bottom so với containerRect.bottom - keyboardOverlayHeight
+        const bottomThreshold = containerRect.bottom - keyboardOverlayHeight
+        const topThreshold = containerRect.top + 100 // Một chút khoảng trống phía trên
+        
+        const isObscured = elementRect.bottom > bottomThreshold || elementRect.top < topThreshold
+        
+        if (isObscured) {
+          // Vùng hiển thị thực tế
+          const viewportHeight = container.clientHeight - keyboardOverlayHeight
+          
+          // Ưu tiên đưa ô lên khoảng 1/4 - 1/3 phía trên của vùng hiển thị (để bà con nhìn rõ)
+          const elementOffsetTop = activeElement.offsetTop
+          const targetScroll = elementOffsetTop - (viewportHeight * 0.25)
+          
+          container.scrollTo({
+            top: Math.max(0, targetScroll),
+            behavior: "smooth"
+          })
+        }
+      }
     }
-  }, [activeIndex])
+
+    // Đợi 50ms để đảm bảo các bảng mới (nếu có) đã render xong
+    const timer = setTimeout(scrollToActive, 50)
+    return () => clearTimeout(timer)
+  }, [activeIndex, showKeyboard, weights[activeIndex]])
 
   useEffect(() => {
     weightsRef.current = weights
@@ -104,6 +145,29 @@ export default function RiceWeighingTool({
     }
   }, [])
 
+  const getNextIndex = (currentIndex: number) => {
+    const tableIdx = Math.floor(currentIndex / 25) // Mỗi bảng 25 ô
+    const tableStart = tableIdx * 25
+    const relative = currentIndex - tableStart
+    
+    const row = Math.floor(relative / 5) // 5 hàng
+    const col = relative % 5 // 5 cột
+    
+    // Nguyên tắc: Hết một cột mới sang cột tiếp theo
+    // Nhảy xuống dòng tiếp theo nếu chưa hết cột
+    if (row < 4) {
+      return tableStart + (row + 1) * 5 + col
+    }
+    
+    // Nếu là dòng cuối (Row 4), nhảy lên đầu của cột tiếp theo (Row 0, Col + 1)
+    if (col < 4) {
+      return tableStart + 0 * 5 + (col + 1)
+    }
+    
+    // Nếu hết bảng, nhảy xuống dòng 0 cột 0 của bảng tiếp theo
+    return tableStart + 25
+  }
+
   const handleVoiceInput = (text: string) => {
     let numbers = text.replace(/[^0-9]/g, "")
     if (numbers.length === 2) numbers += "0"
@@ -115,17 +179,9 @@ export default function RiceWeighingTool({
       
       updateWeight(currentIndex, numbers)
       
-      if (isEditing) {
-        const updatedWeights = [...currentWeights]
-        updatedWeights[currentIndex] = numbers
-        const firstEmpty = updatedWeights.findIndex(w => w === "")
-        if (firstEmpty !== -1) {
-          setActiveIndex(firstEmpty)
-        } else {
-          setActiveIndex(currentIndex < MAX_CELLS - 1 ? currentIndex + 1 : currentIndex)
-        }
-      } else {
-        if (currentIndex < MAX_CELLS - 1) setActiveIndex(currentIndex + 1)
+      // Sau khi nhập đủ số, tự động nhảy xuống ô bên dưới (theo chiều dọc)
+      if (currentIndex < MAX_CELLS - 1) {
+        setActiveIndex(getNextIndex(currentIndex))
       }
     }
   }
@@ -150,10 +206,13 @@ export default function RiceWeighingTool({
   }
 
   const handleComplete = async () => {
-    const total = weights.reduce((sum, w) => sum + (w ? parseFloat(w) / 10 : 0), 0)
-    const revenue = total * pricePerUnit
+    const totalGross = weights.reduce((sum, w) => sum + (w ? parseFloat(w) / 10 : 0), 0)
+    const bagCount = weights.filter(w => w !== "").length
+    const totalTare = bagCount * tarePerBag
+    const netWeight = Math.max(0, totalGross - totalTare - impurityWeight)
+    const revenue = netWeight * unitPrice
 
-    if (total === 0) {
+    if (totalGross === 0) {
       toast({ title: "Thông báo", description: "Vui lòng nhập sản lượng cân lúa." })
       return
     }
@@ -165,9 +224,15 @@ export default function RiceWeighingTool({
         : (customCropName.trim() || "Vụ tự do"),
       is_guest: !isLogin,
       weighing_date: dayjs().toISOString(),
-      total_weight: total,
-      price_per_unit: pricePerUnit,
+      total_weight: totalGross,
+      tare_weight: totalTare,
+      impurity_weight: impurityWeight,
+      net_weight: netWeight,
+      price_per_unit: unitPrice,
       total_revenue: revenue,
+      deposit_amount: depositAmount,
+      paid_amount: paidAmount,
+      is_paid_full: isPaidFull,
       weights_data: weights.filter(w => w !== ""),
     }
 
@@ -180,11 +245,16 @@ export default function RiceWeighingTool({
         toast({ title: "Thành công 🎉", description: "Đã lưu bản ghi cân lúa mới." })
       }
       
-      onSave(total)
+      onSave(netWeight)
       
       // Reset after success
       setWeights(new Array(MAX_CELLS).fill(""))
       setEditingRecordId(null)
+      setUnitPrice(0)
+      setDepositAmount(0)
+      setPaidAmount(0)
+      setImpurityWeight(0)
+      setIsPaidFull(false)
       const h = await localFarmingService.getAllWeighingRecords()
       setHistory(h)
       setStep("history") // Chuyển sang xem lịch sử
@@ -203,9 +273,207 @@ export default function RiceWeighingTool({
     setCustomCropName(record.crop_name || "")
     setSelectedCropId(record.rice_crop_id || null)
     setEditingRecordId(record.id || null)
+    
+    // Khôi phục các giá trị tính toán
+    setUnitPrice(record.price_per_unit || 0)
+    setTarePerBag((record.tare_weight || 0) / (record.weights_data.length || 1) || 1)
+    setImpurityWeight(record.impurity_weight || 0)
+    setDepositAmount(record.deposit_amount || 0)
+    setPaidAmount(record.paid_amount || 0)
+    setIsPaidFull(record.is_paid_full || false)
+
     setStep("weighing")
     setActiveIndex(0)
     toast({ title: "Đã tải dữ liệu", description: `Đang xem lại: ${record.crop_name}` })
+  }
+
+  const renderResultContent = () => {
+    const totalGross = weights.reduce((sum, w) => sum + (w ? parseFloat(w) / 10 : 0), 0)
+    const bagCount = weights.filter(w => w !== "").length
+    const totalTare = bagCount * tarePerBag
+    const netWeight = Math.max(0, totalGross - totalTare - impurityWeight)
+    const totalRevenue = netWeight * unitPrice
+    const remainBalance = totalRevenue - depositAmount - paidAmount
+
+    return (
+      <div className="bg-white border-2 border-[#d32f2f] rounded-b-2xl shadow-xl overflow-hidden divide-y divide-gray-100">
+         {/* Tên Nông Dân */}
+         <div className="p-4 grid grid-cols-5 gap-3 items-center">
+            <div className="col-span-2 text-sm font-black text-slate-500 uppercase">Tên nông dân</div>
+            <div className="col-span-3 text-right text-lg font-black text-blue-900 truncate">
+              {selectedCropId 
+                ? (isLogin ? onlineCrops : localCrops).find(c => c.id === selectedCropId)?.field_name 
+                : (customCropName || "Chưa nhập")}
+            </div>
+         </div>
+
+         {/* Tổng Khối Lượng Chưa Trừ Bì */}
+         <div className="p-4 bg-yellow-50 grid grid-cols-5 gap-3 items-center house-shadow-inner">
+            <div className="col-span-3">
+               <div className="text-sm font-black text-slate-800 uppercase flex items-center gap-2">
+                  <Scale className="w-4 h-4 text-[#2e7d32]" /> Tổng khối lượng
+               </div>
+               <div className="text-[10px] text-red-500 font-bold italic">(*) Khối lượng CHƯA trừ bì</div>
+            </div>
+            <div className="col-span-2 text-right">
+               <span className="text-2xl font-black text-slate-900">
+                  {totalGross.toLocaleString("vi-VN", { minimumFractionDigits: 1 })}
+               </span>
+               <span className="ml-1 text-sm font-black text-red-500 uppercase">KG</span>
+            </div>
+         </div>
+
+         {/* Số Lần Cân / Bao */}
+         <div className="p-4 grid grid-cols-5 gap-3 items-center">
+            <div className="col-span-3">
+               <div className="text-sm font-black text-slate-800 uppercase flex items-center gap-2">
+                  <Database className="w-4 h-4 text-blue-500" /> Số lần cân (Bao)
+                </div>
+             </div>
+             <div className="col-span-2 text-right">
+                <span className="text-2xl font-black text-slate-900">{bagCount}</span>
+                <span className="ml-1 text-sm font-bold text-slate-400">Bao</span>
+             </div>
+          </div>
+
+          {/* Trừ Bì */}
+          <div className="p-4 grid grid-cols-5 gap-3 items-center bg-blue-50/30">
+             <div className="col-span-2">
+                <div className="text-sm font-black text-slate-800 uppercase">Trừ bì (kg/bao)</div>
+                <div className="text-[10px] text-blue-600 font-bold italic">(*) {bagCount} bao x {tarePerBag} kg = {totalTare.toLocaleString("vi-VN", { minimumFractionDigits: 1 })} kg</div>
+             </div>
+             <div className="col-span-3 flex items-center gap-2 justify-end">
+                <Input 
+                  type="number" 
+                  step="0.1"
+                  className="w-full max-w-[120px] h-12 text-center text-xl font-black text-green-700 bg-white border-blue-200 focus:border-[#d32f2f] focus:ring-0 shadow-sm"
+                  value={tarePerBag}
+                  onChange={(e) => setTarePerBag(parseFloat(e.target.value) || 0)}
+                />
+                <span className="text-sm font-black text-slate-400">KG/BAO</span>
+             </div>
+          </div>
+
+          {/* Trừ Tạp Chất */}
+          <div className="p-4 grid grid-cols-5 gap-3 items-center bg-red-50/30">
+             <div className="col-span-2">
+                <div className="text-sm font-black text-slate-800 uppercase">Trừ tạp chất (-)</div>
+             </div>
+             <div className="col-span-3 flex items-center gap-2 justify-end">
+                <Input 
+                  type="number"
+                  className="w-full max-w-[120px] h-12 text-center text-xl font-black text-red-700 bg-white border-blue-200 focus:border-[#d32f2f] focus:ring-0 shadow-sm"
+                  value={impurityWeight}
+                  onChange={(e) => setImpurityWeight(parseFloat(e.target.value) || 0)}
+                />
+                <span className="text-sm font-black text-slate-400">KG</span>
+             </div>
+          </div>
+
+          {/* Khối Lượng Còn Lại (Sau Trừ Bì) */}
+          <div className="p-4 bg-yellow-400 grid grid-cols-5 gap-3 items-center shadow-inner">
+             <div className="col-span-3">
+                <div className="text-sm font-black text-agri-950 uppercase flex items-center gap-2">
+                   <Scale className="w-4 h-4" /> Khối lượng còn lại
+                </div>
+                <div className="text-[10px] text-[#2e7d32] font-black italic">(*) Khối lượng ĐÃ trừ bì</div>
+             </div>
+             <div className="col-span-2 text-right">
+                <span className="text-2xl font-black text-agri-950">
+                   {netWeight.toLocaleString("vi-VN", { minimumFractionDigits: 1 })}
+                </span>
+                <span className="ml-1 text-sm font-black text-agri-950 uppercase">KG</span>
+             </div>
+          </div>
+
+          {/* Đơn Giá Lúa */}
+          <div className="p-4 grid grid-cols-5 gap-3 items-center bg-green-50/20">
+             <div className="col-span-2 text-sm font-black text-slate-800 uppercase">Đơn giá</div>
+             <div className="col-span-3 flex items-center gap-2 justify-end">
+                <Input 
+                  type="number"
+                  className="w-full max-w-[150px] h-12 text-center text-xl font-black text-slate-900 bg-white border-blue-200 focus:border-[#d32f2f] focus:ring-0 shadow-sm"
+                  placeholder="đ/kg"
+                  value={unitPrice}
+                  onChange={(e) => setUnitPrice(parseFloat(e.target.value) || 0)}
+                />
+                <span className="text-sm font-black text-red-500">vnđ</span>
+             </div>
+          </div>
+
+          {/* Thành Tiền */}
+          <div className="p-4 bg-yellow-100 grid grid-cols-5 gap-3 items-center shadow-inner">
+             <div className="col-span-2">
+                <div className="text-sm font-black text-slate-800 uppercase">Thành tiền</div>
+                <div className="text-[9px] text-slate-400 font-bold italic">(*) KL x Đơn giá</div>
+             </div>
+             <div className="col-span-3 text-right">
+                <span className="text-2xl font-black text-agri-900">
+                   {totalRevenue.toLocaleString("vi-VN")}
+                </span>
+                <span className="ml-1 text-sm font-black text-red-500 italic">vnđ</span>
+             </div>
+          </div>
+
+          {/* Tiền Đặt Cọc */}
+          <div className="p-4 grid grid-cols-5 gap-3 items-center">
+             <div className="col-span-2 text-sm font-black text-slate-800 uppercase">Tiền cọc (-)</div>
+             <div className="col-span-3 flex justify-end gap-2 items-center">
+                <Input 
+                  type="number"
+                  className="w-full max-w-[150px] h-12 text-center text-xl font-bold bg-white border-slate-200"
+                  value={depositAmount}
+                  onChange={(e) => setDepositAmount(parseFloat(e.target.value) || 0)}
+                />
+                <span className="text-sm font-black text-slate-400">vnđ</span>
+             </div>
+          </div>
+
+          {/* Tiền Đã Trả Lúa */}
+          <div className="p-4 grid grid-cols-5 gap-3 items-center">
+             <div className="col-span-2 text-sm font-black text-slate-800 uppercase">Đã trả (-)</div>
+             <div className="col-span-3 flex justify-end gap-2 items-center">
+                <Input 
+                  type="number"
+                  className="w-full max-w-[150px] h-12 text-center text-xl font-bold bg-white border-slate-200"
+                  value={paidAmount}
+                  onChange={(e) => setPaidAmount(parseFloat(e.target.value) || 0)}
+                />
+                <span className="text-sm font-black text-slate-400">vnđ</span>
+             </div>
+          </div>
+
+          {/* Tiền Còn Lại Sau Cùng */}
+          <div className="p-6 bg-slate-900 grid grid-cols-5 gap-3 items-center rounded-b-xl shadow-inner">
+             <div className="col-span-2">
+                <div className="text-sm font-black text-white uppercase tracking-tighter text-lg">TIỀN CÒN</div>
+             </div>
+             <div className="col-span-3 text-right">
+                <span className="text-3xl font-black text-yellow-400">
+                   {remainBalance.toLocaleString("vi-VN")}
+                </span>
+                <span className="ml-1 text-xs font-black text-blue-100 uppercase italic">VNĐ</span>
+             </div>
+          </div>
+
+          {/* Trạng Thái Thanh Toán Toàn Bộ */}
+          <div className="p-5 flex justify-between items-center bg-white">
+             <div className="text-lg font-black text-[#2e7d32] uppercase">Đã trả đủ tiền</div>
+             <button 
+               onClick={() => setIsPaidFull(!isPaidFull)}
+               className={cn(
+                 "w-14 h-8 rounded-full relative transition-all duration-300 shadow-inner",
+                 isPaidFull ? "bg-[#2e7d32]" : "bg-slate-300"
+               )}
+             >
+                <div className={cn(
+                  "absolute top-1 w-6 h-6 bg-white rounded-full transition-all shadow-md",
+                  isPaidFull ? "left-7" : "left-1"
+                )} />
+             </button>
+          </div>
+       </div>
+    )
   }
 
   const handleSyncToCrop = async (record: WeighingRecord) => {
@@ -478,16 +746,100 @@ export default function RiceWeighingTool({
                          <div className="text-[10px] text-blue-500 font-bold uppercase mt-1">Đang thực hiện cân lúa</div>
                       </div>
                    </div>
-                   <div className="bg-blue-900 text-white px-6 py-2 rounded-2xl shadow-inner">
-                      <div className="text-2xl font-black tracking-tighter leading-none">
-                         {weights.reduce((s, w) => s + (w ? parseFloat(w) / 10 : 0), 0).toLocaleString("vi-VN", { minimumFractionDigits: 1 })}
-                      </div>
-                      <div className="text-[9px] uppercase font-black text-blue-300 text-right">Tổng kg</div>
-                   </div>
+                    <div className="flex items-center gap-3">
+                       <Button 
+                         variant="ghost" 
+                         onClick={() => setShowResultPopup(true)}
+                         className="flex flex-col items-center gap-1 h-12 px-2 text-blue-100 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
+                       >
+                          <Calculator className="w-5 h-5 text-yellow-400" />
+                          <span className="text-[10px] font-black uppercase tracking-tighter">Sửa kết quả</span>
+                       </Button>
+                       <div className="bg-blue-900 text-white px-6 py-2 rounded-2xl shadow-inner text-right min-w-[120px]">
+                          <div className="text-2xl font-black tracking-tighter leading-none">
+                             {weights.reduce((s, w) => s + (w ? parseFloat(w) / 10 : 0), 0).toLocaleString("vi-VN", { minimumFractionDigits: 1 })}
+                          </div>
+                          <div className="text-[9px] uppercase font-black text-blue-300">Tổng kg</div>
+                       </div>
+                    </div>
                 </div>
 
-                <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 no-scrollbar pb-40">
-                   {[...Array(MAX_TABLES)].map((_, i) => renderTable(i))}
+                <div 
+                  ref={scrollContainerRef} 
+                  className={cn(
+                    "flex-1 overflow-y-auto p-4 no-scrollbar pb-40 transition-all duration-300 relative",
+                    showKeyboard && "pb-[450px]"
+                  )}
+                >
+                   {[...Array(MAX_TABLES)].map((_, i) => {
+                     const startIdx = i * CELLS_PER_TABLE
+                     const hasData = weights.slice(startIdx, startIdx + CELLS_PER_TABLE).some(w => w !== "")
+                     const isActiveTable = Math.floor(activeIndex / CELLS_PER_TABLE) === i
+                     
+                     // Chỉ render bảng có dữ liệu hoặc bảng đang nhập
+                     if (!hasData && !isActiveTable && i > 0 && weights.slice(0, startIdx).every(w => w === "")) return null
+                     if (!hasData && !isActiveTable && i > 0 && i > Math.floor(activeIndex / CELLS_PER_TABLE) + 1) return null
+
+                     return renderTable(i)
+                   })}
+
+                   {/* BẢNG TÍNH TOÁN KẾT QUẢ - THEO HÌNH 2 & 3 */}
+                   <div className="mt-8 mb-20">
+                      <div className="bg-[#d32f2f] text-white p-4 rounded-t-2xl font-black text-center text-xl uppercase tracking-widest flex items-center justify-center gap-3">
+                         <Calculator className="w-6 h-6" /> KẾT QUẢ
+                      </div>
+                      {renderResultContent()}
+                   </div>
+
+                   {/* Quick Result Popup */}
+                   {showResultPopup && (
+                     <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm animate-in fade-in duration-300 flex flex-col justify-end">
+                        <div 
+                          className="bg-slate-50 rounded-t-[2.5rem] shadow-2xl w-full max-h-[90vh] flex flex-col animate-in slide-in-from-bottom duration-500"
+                          style={{ boxShadow: '0 -20px 60px rgba(0,0,0,0.3)' }}
+                        >
+                           {/* Header Popup */}
+                           <div className="flex justify-between items-center p-6 border-b border-gray-100">
+                              <div className="flex items-center gap-3">
+                                 <div className="w-12 h-12 bg-[#d32f2f] rounded-2xl flex items-center justify-center shadow-lg">
+                                    <Calculator className="w-6 h-6 text-white" />
+                                 </div>
+                                 <div>
+                                    <div className="text-xl font-black text-slate-800 flex items-center gap-2">SỬA KẾT QUẢ <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" /></div>
+                                    <div className="text-[10px] text-slate-400 font-bold uppercase">Cập nhật đơn giá & các loại trừ</div>
+                                 </div>
+                              </div>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => setShowResultPopup(false)}
+                                className="w-12 h-12 rounded-2xl bg-white shadow-sm border border-slate-100 hover:bg-slate-50 transition-all active:scale-90"
+                              >
+                                 <X className="w-6 h-6 text-slate-400" />
+                              </Button>
+                           </div>
+
+                           {/* Body Popup */}
+                           <div className="flex-1 overflow-y-auto p-6 pb-20 no-scrollbar">
+                              {renderResultContent()}
+                              
+                              <div className="mt-8 bg-blue-50/50 p-6 rounded-3xl border border-blue-100">
+                                 <div className="text-sm font-black text-blue-900 uppercase mb-4 text-center">XÁC NHẬN CHỐT SỔ</div>
+                                 <Button 
+                                   onClick={() => {
+                                     setShowResultPopup(false)
+                                     handleComplete()
+                                   }}
+                                   className="w-full h-16 rounded-[1.5rem] bg-blue-900 hover:bg-blue-950 text-white font-black text-xl shadow-xl shadow-blue-200 group relative transition-all active:scale-95"
+                                 >
+                                    HOÀN TẤT & LƯU
+                                    <Check className="ml-3 w-6 h-6 group-hover:scale-125 transition-transform" />
+                                 </Button>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                   )}
                 </div>
 
                 {/* Floating Controls */}
@@ -560,14 +912,9 @@ export default function RiceWeighingTool({
                                 const newVal = currentVal + n
                                 updateWeight(activeIndex, newVal)
                                 if (newVal.length >= 3) {
-                                  const updatedWeights = [...weightsRef.current]
-                                  updatedWeights[activeIndex] = newVal
-                                  if (isEditing) {
-                                    const firstEmpty = updatedWeights.findIndex(w => w === "")
-                                    if (firstEmpty !== -1) setActiveIndex(firstEmpty)
-                                    else setActiveIndex(prev => prev + 1)
-                                  } else {
-                                    setActiveIndex(prev => prev + 1)
+                                  // Sau khi nhập đủ 3-4 số, tự động nhảy xuống ô bên dưới (theo chiều dọc)
+                                  if (activeIndexRef.current < MAX_CELLS - 1) {
+                                    setActiveIndex(getNextIndex(activeIndexRef.current))
                                   }
                                 }
                               }
@@ -581,14 +928,15 @@ export default function RiceWeighingTool({
                           ẨN PHÍM
                         </Button>
                         <Button variant="secondary" className="h-16 text-2xl font-black bg-slate-50 border-b-4 border-slate-200 active:border-b-0 active:translate-y-1 rounded-2xl text-slate-800" onClick={() => {
-                           const currentVal = weightsRef.current[activeIndex] || ""
+                           const currentIdx = activeIndexRef.current
+                           const currentVal = weightsRef.current[currentIdx] || ""
                            if (currentVal.length < 4) {
                               const newVal = currentVal + "0"
-                              updateWeight(activeIndex, newVal)
+                              updateWeight(currentIdx, newVal)
                               if (newVal.length >= 3) {
-                                 const updatedWeights = [...weightsRef.current]
-                                 updatedWeights[activeIndex] = newVal
-                                 setActiveIndex(prev => (updatedWeights.findIndex(w => w === "") !== -1 ? updatedWeights.findIndex(w => w === "") : prev + 1))
+                                if (currentIdx < MAX_CELLS - 1) {
+                                  setActiveIndex(getNextIndex(currentIdx))
+                                }
                               }
                            }
                         }}>0</Button>

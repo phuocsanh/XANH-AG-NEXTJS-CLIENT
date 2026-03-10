@@ -294,9 +294,15 @@ export interface WeighingRecord {
   crop_name?: string
   is_guest?: boolean
   weighing_date: string
-  total_weight: number
-  price_per_unit?: number
-  total_revenue?: number
+  total_weight: number // Tổng khối lượng (chưa trừ bì)
+  tare_weight?: number // Tổng khối lượng bì
+  impurity_weight?: number // Khối lượng tạp chất
+  net_weight?: number // Khối lượng thực tế (đã trừ bì và tạp chất)
+  price_per_unit?: number // Đơn giá
+  total_revenue?: number // Thành tiền (Net weight * Price)
+  deposit_amount?: number // Tiền đặt cọc
+  paid_amount?: number // Tiền đã trả
+  is_paid_full?: boolean // Đã trả đủ tiền?
   weights_data: string[]
   notes?: string
   created_at: string
