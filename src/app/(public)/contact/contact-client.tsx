@@ -57,127 +57,50 @@ export default function ContactPage() {
       <div className="container mx-auto px-4 -mt-10 mb-12 relative z-20">
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Contact Info Cards */}
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-lg p-6 flex items-start gap-4 transform hover:-translate-y-1 transition-transform">
-              <div className="w-12 h-12 bg-agri-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <MapPin className="text-agri-600 w-6 h-6" />
+          <div className="lg:col-span-3">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center gap-4 transform hover:-translate-y-1 transition-transform border-t-4 border-agri-500">
+                <div className="w-12 h-12 bg-agri-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <MapPin className="text-agri-600 w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-800 mb-1">Địa chỉ</h3>
+                  <p className="text-gray-600 text-sm">
+                    Số nhà 257, Tân Hòa A, Tân Hiệp - An Giang
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-gray-800 mb-1">Địa chỉ</h3>
-                <p className="text-gray-600 text-sm">
-                  Số nhà 257, Tân Hòa A, Tân Hiệp - An Giang
-                </p>
-              </div>
-            </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-6 flex items-start gap-4 transform hover:-translate-y-1 transition-transform">
-              <div className="w-12 h-12 bg-agri-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Phone className="text-agri-600 w-6 h-6" />
+              <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center gap-4 transform hover:-translate-y-1 transition-transform border-t-4 border-accent-gold">
+                <div className="w-12 h-12 bg-agri-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Phone className="text-agri-600 w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-800 mb-1">Điện thoại</h3>
+                  <a href="tel:0987383606" className="text-agri-600 text-sm font-bold hover:underline block">0987.383.606</a>
+                  <p className="text-gray-500 text-xs mt-1">Hỗ trợ khách hàng 24/7</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-gray-800 mb-1">Điện thoại</h3>
-                <p className="text-gray-600 text-sm font-semibold">0987.383.606</p>
-                <p className="text-gray-500 text-xs">Hỗ trợ khách hàng 24/7</p>
-              </div>
-            </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-6 flex items-start gap-4 transform hover:-translate-y-1 transition-transform">
-              <div className="w-12 h-12 bg-agri-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Mail className="text-agri-600 w-6 h-6" />
+              <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center gap-4 transform hover:-translate-y-1 transition-transform border-t-4 border-agri-400">
+                <div className="w-12 h-12 bg-agri-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Mail className="text-agri-600 w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-800 mb-1">Email</h3>
+                  <a href="mailto:phuocsanhtps@gmail.com" className="text-gray-600 text-sm hover:text-agri-600 transition-colors block">phuocsanhtps@gmail.com</a>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-gray-800 mb-1">Email</h3>
-                <p className="text-gray-600 text-sm">phuocsanhtps@gmail.com</p>
-              </div>
-            </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-6 flex items-start gap-4 transform hover:-translate-y-1 transition-transform">
-              <div className="w-12 h-12 bg-agri-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Clock className="text-agri-600 w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-800 mb-1">Giờ mở cửa</h3>
-                <p className="text-gray-600 text-sm">Thứ 2 - Chủ Nhật</p>
-                <p className="text-gray-600 text-sm font-semibold">07:00 - 18:00</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Form */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-              <div className="p-8 md:p-10">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Gửi tin nhắn cho chúng tôi</h2>
-                <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">Họ và tên</label>
-                    <input
-                      type="text"
-                      name="name"
-                      required
-                      value={formData.name}
-                      onChange={handleChange}
-                      placeholder="Nhập tên của bạn"
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-agri-500 focus:bg-white transition-all"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">Số điện thoại</label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      required
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="Nhập số điện thoại"
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-agri-500 focus:bg-white transition-all"
-                    />
-                  </div>
-                  <div className="md:col-span-2 space-y-1">
-                    <label className="text-sm font-medium text-gray-700">Địa chỉ Email</label>
-                    <input
-                      type="email"
-                      name="email"
-                      required
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="example@gmail.com"
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-agri-500 focus:bg-white transition-all"
-                    />
-                  </div>
-                  <div className="md:col-span-2 space-y-1">
-                    <label className="text-sm font-medium text-gray-700">Chủ đề</label>
-                    <input
-                      type="text"
-                      name="subject"
-                      value={formData.subject}
-                      onChange={handleChange}
-                      placeholder="Bạn quan tâm đến vấn đề gì?"
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-agri-500 focus:bg-white transition-all"
-                    />
-                  </div>
-                  <div className="md:col-span-2 space-y-1">
-                    <label className="text-sm font-medium text-gray-700">Tin nhắn</label>
-                    <textarea
-                      name="message"
-                      rows={4}
-                      required
-                      value={formData.message}
-                      onChange={handleChange}
-                      placeholder="Lời nhắn của bạn..."
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-agri-500 focus:bg-white transition-all resize-none"
-                    ></textarea>
-                  </div>
-                  <div className="md:col-span-2">
-                    <button
-                      type="submit"
-                      className="w-full md:w-auto bg-agri-600 hover:bg-agri-700 text-white px-8 py-4 rounded-lg font-bold shadow-lg flex items-center justify-center gap-2 transition-all transform hover:scale-105 active:scale-95"
-                    >
-                      <Send className="w-5 h-5" />
-                      Gửi tin nhắn ngay
-                    </button>
-                  </div>
-                </form>
+              <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center gap-4 transform hover:-translate-y-1 transition-transform border-t-4 border-agri-300">
+                <div className="w-12 h-12 bg-agri-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Clock className="text-agri-600 w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-800 mb-1">Giờ mở cửa</h3>
+                  <p className="text-gray-600 text-sm">Thứ 2 - Chủ Nhật</p>
+                  <p className="text-gray-600 text-sm font-semibold">07:00 - 18:00</p>
+                </div>
               </div>
             </div>
           </div>
@@ -186,25 +109,18 @@ export default function ContactPage() {
 
       {/* Map Section */}
       <div className="container mx-auto px-4">
-        <div className="bg-white rounded-2xl shadow-xl p-4 h-[400px] overflow-hidden">
-          {/* Placeholder for Google Maps - in real world use an iframe or map library */}
-          <div className="w-full h-full bg-gray-100 rounded-xl flex items-center justify-center relative group">
-            <div className="text-center z-10">
-              <MapPin className="w-12 h-12 text-agri-500 mx-auto mb-4" />
-              <p className="text-gray-600 font-medium">Bản đồ đang được tải...</p>
-              <p className="text-xs text-gray-400 mt-2">Số nhà 257, Tân Hòa A, Tân Hiệp - An Giang</p>
-            </div>
-            {/* Dark overlay with link to Google Maps */}
-            <a 
-              href="https://www.google.com/maps/search/An+Giang+Tân+Hiệp" 
-              target="_blank" 
-              className="absolute inset-0 bg-agri-900/0 group-hover:bg-agri-900/10 transition-colors flex items-center justify-center"
-            >
-              <span className="opacity-0 group-hover:opacity-100 bg-white text-agri-700 px-4 py-2 rounded-full font-bold shadow-lg transition-opacity duration-300">
-                Mở trong Google Maps
-              </span>
-            </a>
-          </div>
+        <div className="bg-white rounded-2xl shadow-xl p-4 h-[500px] overflow-hidden border border-gray-100">
+          <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d29539.09235150459!2d105.2500775!3d10.1288883!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a0a5cce1d733c7%3A0xa2864e2504d6969c!2zQ-G7rWEgaMOgbmcgVlROTiBYQU5I!5e1!3m2!1svi!2s!4v1773149127517!5m2!1svi!2s" 
+            width="100%" 
+            height="100%" 
+            style={{ border: 0 }} 
+            allowFullScreen={true} 
+            loading="lazy" 
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Vị trí Xanh AG trên Google Maps"
+            className="rounded-xl"
+          ></iframe>
         </div>
       </div>
     </div>

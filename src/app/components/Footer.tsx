@@ -121,8 +121,8 @@ export default function Footer() {
         <div className="pt-8 border-t border-agri-700/50 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-agri-100/60">
           <p>© {new Date().getFullYear()} Xanh AG. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="hover:text-white transition-colors">Bảo mật</Link>
-            <Link href="/terms" className="hover:text-white transition-colors">Điều khoản</Link>
+            <Link href="/bao-mat" className="hover:text-white transition-colors">Bảo mật</Link>
+            <Link href="/dieu-khoan" className="hover:text-white transition-colors">Điều khoản</Link>
             <Link href="/sitemap" className="hover:text-white transition-colors">Sitemap</Link>
           </div>
         </div>
