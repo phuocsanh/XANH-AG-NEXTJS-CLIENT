@@ -67,7 +67,7 @@ export default async function NewsDetailPage({ params }: Props) {
   try {
      const response = await httpClient.get<any>(`/news/slug/${slug}`)
      news = response.data || response;
-  } catch (e) {}
+   } catch {}
 
   // JSON-LD for Article
   const jsonLd = news ? {
