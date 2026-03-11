@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { 
-  Mic, MicOff, X, ChevronLeft, Save, Database, History, Info, Scale, ArrowRight, Trash2, RotateCw, Calculator, Check
+  Mic, X, ChevronLeft, Save, Database, History, Info, Scale, ArrowRight, Trash2, RotateCw, Calculator, Check
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAppStore } from "@/stores"
