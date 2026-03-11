@@ -188,7 +188,7 @@ export default function RiceWeighingTool({
     })
   }
 
-  const toggleListening = async () => {
+  const toggleListening = () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!SpeechRecognition) {
       toast({
@@ -198,111 +198,106 @@ export default function RiceWeighingTool({
       })
       return
     }
-    
+
     if (isListeningRef.current) {
+      // Nếu đang bật mà nhấn lần nữa thì tắt
       try {
-        recognitionRef.current.stop()
-        recognitionRef.current.abort()
+        if (recognitionRef.current) {
+          recognitionRef.current.stop()
+          recognitionRef.current.abort()
+        }
       } catch {}
       isListeningRef.current = false
       setIsListening(false)
-    } else {
-      lastProcessedIndexRef.current = -1
-      
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-      
-      // Mẹo quan trọng cho iOS PWA: 
-      // Không được 'await' getUserMedia vì nó sẽ làm mất 'User Gesture' (mất hiệu lực cú chạm tay)
-      // Thay vào đó, gọi nó chạy song song để hệ thống mở Micro
-      if (isIOS) {
-        navigator.mediaDevices.getUserMedia({ audio: true })
-          .then(stream => {
-            stream.getTracks().forEach(track => track.stop())
-          })
-          .catch(err => console.error("Mic priming failed:", err))
-      }
+      return
+    }
 
-      // Khởi tạo SpeechRecognition ngay lập tức để giữ User Gesture
-      const recognition = new SpeechRecognition()
-      recognition.continuous = false // iOS PWA bắt buộc phải false
-      recognition.interimResults = true
-      recognition.lang = "vi-VN"
-      
-      const stopMic = () => {
-        try {
-          recognition.abort()
-        } catch {}
-        isListeningRef.current = false
-        setIsListening(false)
-      }
+    // 1. ÉP ĐỔI MÀU ĐỎ NGAY LẬP TỨC - Phản hồi UI tối ưu cho PWA
+    setIsListening(true)
+    isListeningRef.current = true
+    lastProcessedIndexRef.current = -1
+    
+    // 2. Khởi tạo Speech mới để đảm bảo 'sạch' cho mỗi lần nhấn
+    const recognition = new SpeechRecognition()
+    recognition.continuous = false
+    recognition.interimResults = true
+    recognition.lang = "vi-VN"
+    
+    const stopMic = () => {
+      try {
+        recognition.abort()
+      } catch {}
+      isListeningRef.current = false
+      setIsListening(false)
+    }
 
-      recognition.onstart = () => {
-        isListeningRef.current = true
-        setIsListening(true)
-      }
+    recognition.onstart = () => {
+      setIsListening(true)
+      isListeningRef.current = true
+    }
 
-      recognition.onresult = (event: any) => {
-        if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current)
-        const lastIndex = event.results.length - 1
-        if (lastIndex < 0) return
-        const result = event.results[lastIndex]
-        const transcript = result[0].transcript
+    recognition.onresult = (event: any) => {
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current)
+      const lastIndex = event.results.length - 1
+      if (lastIndex < 0) return
+      const result = event.results[lastIndex]
+      const transcript = result[0].transcript
 
-        if (result.isFinal) {
-          if (lastIndex > lastProcessedIndexRef.current) {
+      if (result.isFinal) {
+        if (lastIndex > lastProcessedIndexRef.current) {
+          handleVoiceInput(transcript)
+          lastProcessedIndexRef.current = lastIndex
+          stopMic()
+        }
+      } else {
+        silenceTimeoutRef.current = setTimeout(() => {
+          if (lastIndex > lastProcessedIndexRef.current && isListeningRef.current) {
             handleVoiceInput(transcript)
             lastProcessedIndexRef.current = lastIndex
             stopMic()
           }
-        } else {
-          silenceTimeoutRef.current = setTimeout(() => {
-            if (lastIndex > lastProcessedIndexRef.current && isListeningRef.current) {
-              handleVoiceInput(transcript)
-              lastProcessedIndexRef.current = lastIndex
-              stopMic()
-            }
-          }, 450)
-        }
+        }, 450)
       }
+    }
 
-      recognition.onerror = (event: any) => {
+    recognition.onerror = (event: any) => {
+      if (event.error === 'no-speech' || event.error === 'aborted') {
         setIsListening(false)
         isListeningRef.current = false
-        // 'aborted' trên iOS Chrome thường xảy ra khi mic tự dừng hoặc bị ép dừng, không nên báo lỗi
-        if (event.error === 'no-speech' || event.error === 'aborted') return 
-        
-        const errorMessages: Record<string, string> = {
-          'not-allowed': 'Bạn hãy cấp quyền Micro cho Chrome trong Cài đặt iPhone nhé!',
-          'network': 'Lỗi mạng, hãy kiểm tra kết nối để dùng giọng nói.',
-        }
-        
-        if (errorMessages[event.error]) {
-          toast({
-            title: "Lỗi Micro",
-            description: errorMessages[event.error],
-            variant: "destructive"
-          })
-        }
+        return 
       }
-
-      recognition.onend = () => {
-        setIsListening(false)
-        isListeningRef.current = false
-      }
-
-      recognitionRef.current = recognition
       
-      try {
-        recognition.start()
-        setIsListening(true)
-        isListeningRef.current = true
-      } catch (e) {
-        console.error("Speech start failure:", e)
-        try {
-          recognition.abort()
-          setTimeout(() => recognition.start(), 200)
-        } catch {}
+      console.error("Mic error:", event.error)
+      setIsListening(false)
+      isListeningRef.current = false
+      
+      const errorMessages: Record<string, string> = {
+        'not-allowed': 'Bạn hãy cấp quyền Micro trong Cài đặt iPhone nhé!',
+        'network': 'Cần kết nối mạng để nhận diện giọng nói.',
       }
+      
+      if (errorMessages[event.error]) {
+        toast({
+          title: "Lỗi Micro",
+          description: errorMessages[event.error],
+          variant: "destructive"
+        })
+      }
+    }
+
+    recognition.onend = () => {
+      setIsListening(false)
+      isListeningRef.current = false
+    }
+
+    recognitionRef.current = recognition
+    
+    try {
+      recognition.start()
+    } catch (e) {
+      console.error("Mic start failed:", e)
+      setIsListening(false)
+      isListeningRef.current = false
     }
   }
 
