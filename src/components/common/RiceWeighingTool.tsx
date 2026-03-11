@@ -223,10 +223,13 @@ export default function RiceWeighingTool({
       .replace(/bảy/g, "7")
       .replace(/tám/g, "8")
       .replace(/chín/g, "9")
+      .replace(/lẻ|linh|ninh/g, "0")
 
     let numbers = normalized.replace(/[^0-9]/g, "")
-    // Nếu chỉ có 2 số (ví dụ 88), tự hiểu là 880
-    if (numbers.length === 2 && !normalized.includes("mười")) numbers += "0"
+    // Nếu chỉ có 2 số (ví dụ 88), tự hiểu là 880 (trừ trường hợp đọc ba lẻ một)
+    if (numbers.length === 2 && !normalized.includes("mười") && !normalized.includes("0")) {
+      numbers += "0"
+    }
     
     // Giảm điều kiện xuống >= 1 để nhạy hơn
     if (numbers.length >= 1 && numbers.length <= 4) {
