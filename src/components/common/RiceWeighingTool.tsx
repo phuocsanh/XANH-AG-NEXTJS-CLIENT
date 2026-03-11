@@ -984,7 +984,7 @@ export default function RiceWeighingTool({
                    }}
                    className={cn(
                      "w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all active:scale-90 border-4 border-white",
-                     isListening ? "bg-red-600 scale-110" : "bg-emerald-600"
+                     isListening ? "bg-red-600 scale-110 animate-pulse" : "bg-emerald-600"
                    )}
                  >
                    {isListening ? <MicOff className="w-8 h-8 text-white" /> : <Mic className="w-8 h-8 text-white" />}
