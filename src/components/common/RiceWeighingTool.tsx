@@ -163,6 +163,8 @@ export default function RiceWeighingTool({
       .replace(/chục|mươi/g, "0")
 
     let numbers = normalized.replace(/[^0-9]/g, "")
+    console.log("Processed numbers:", numbers)
+    
     // Nếu chỉ có 2 số (ví dụ 88 hoặc 50), tự hiểu là 88.0 hoặc 50.0kg (điền 880, 500)
     if (numbers.length === 2 && !normalized.includes("mười")) {
       numbers += "0"
@@ -189,8 +191,12 @@ export default function RiceWeighingTool({
   }
 
   const toggleListening = () => {
+    const now = new Date().toLocaleTimeString()
+    console.log(`[${now}] --- MIC TOGGLE --- current state:`, isListeningRef.current)
+
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!SpeechRecognition) {
+      console.error(`[${now}] SpeechRecognition API NOT FOUND`)
       toast({
         title: "Không hỗ trợ",
         description: "Trình duyệt này không hỗ trợ Speech API.",
@@ -200,32 +206,54 @@ export default function RiceWeighingTool({
     }
 
     if (isListeningRef.current) {
+      console.log(`[${now}] Action: STOPPING`)
       try {
         if (recognitionRef.current) {
           recognitionRef.current.stop()
           recognitionRef.current.abort()
         }
-      } catch {}
+      } catch (e) {
+        console.error(`[${now}] Error during stop:`, e)
+      }
       isListeningRef.current = false
       setIsListening(false)
       return
     }
 
-    // 1. Cấu hình Speech
+    // 1. UI Feedback
+    console.log(`[${now}] Action: STARTING`)
+    setIsListening(true)
+    isListeningRef.current = true
+    lastProcessedIndexRef.current = -1
+
+    // 2. Kiểm tra quyền cơ bản (MediaDevices)
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      console.log(`[${now}] Checking MediaDevices permission...`)
+      navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(stream => {
+          console.log(`[${now}] MediaDevices permission GRANTED`)
+          stream.getTracks().forEach(track => track.stop()) // Giải phóng ngay
+        })
+        .catch(err => {
+          console.error(`[${now}] MediaDevices permission DENIED:`, err)
+        })
+    }
+
+    // 3. Cấu hình Speech
     const recognition = new SpeechRecognition()
-    recognition.continuous = true // iOS PWA ổn định hơn với continuous
+    recognition.continuous = false 
     recognition.interimResults = true
     recognition.lang = "vi-VN"
     
     const stopMic = () => {
+      console.log(`[${now}] Internal stopMic() called`)
       try { recognition.abort() } catch {}
       isListeningRef.current = false
       setIsListening(false)
     }
 
     recognition.onstart = () => {
-      setIsListening(true)
-      isListeningRef.current = true
+      console.log(`[${now}] EVENT: onstart - Mic is active`)
     }
 
     recognition.onresult = (event: any) => {
@@ -234,31 +262,38 @@ export default function RiceWeighingTool({
       if (lastIndex < 0) return
       const result = event.results[lastIndex]
       const transcript = result[0].transcript
+      
+      console.log(`[${now}] Heard: "${transcript}" | isFinal: ${result.isFinal}`)
 
       if (result.isFinal) {
         if (lastIndex > lastProcessedIndexRef.current) {
+          console.log(`[${now}] Processing FINAL transcript:`, transcript)
           handleVoiceInput(transcript)
           lastProcessedIndexRef.current = lastIndex
-          // Dừng nhẹ nhàng sau khi có kết quả cuối cùng
-          setTimeout(stopMic, 150)
+          setTimeout(stopMic, 100)
         }
       } else {
         silenceTimeoutRef.current = setTimeout(() => {
           if (lastIndex > lastProcessedIndexRef.current && isListeningRef.current) {
+            console.log(`[${now}] Silence Timeout -> Processing INTERIM:`, transcript)
             handleVoiceInput(transcript)
             lastProcessedIndexRef.current = lastIndex
             stopMic()
           }
-        }, 1000) // Tăng thời gian chờ im lặng
+        }, 800)
       }
     }
 
     recognition.onerror = (event: any) => {
+      console.error(`[${now}] EVENT: onerror - Code:`, event.error)
+      
       if (event.error === 'no-speech' || event.error === 'aborted') {
+        console.log(`[${now}] Normal exit:`, event.error)
         setIsListening(false)
         isListeningRef.current = false
         return 
       }
+
       setIsListening(false)
       isListeningRef.current = false
       toast({
@@ -269,6 +304,7 @@ export default function RiceWeighingTool({
     }
 
     recognition.onend = () => {
+      console.log(`[${now}] EVENT: onend - Recognition ended`)
       setIsListening(false)
       isListeningRef.current = false
     }
@@ -276,9 +312,10 @@ export default function RiceWeighingTool({
     recognitionRef.current = recognition
     
     try {
+      console.log(`[${now}] Calling recognition.start()...`)
       recognition.start()
     } catch (e) {
-      console.error("Mic start failed:", e)
+      console.error(`[${now}] CRITICAL: recognition.start() failed:`, e)
       setIsListening(false)
       isListeningRef.current = false
     }
@@ -1023,12 +1060,13 @@ export default function RiceWeighingTool({
                       if (isDragging) return
                       toggleListening()
                     }}
+                    style={{ backgroundColor: isListening ? '#ef4444' : '#10b981' }}
                     className={cn(
                       "w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all active:scale-90 border-4 border-white",
-                      isListening ? "bg-red-500 scale-110 animate-pulse" : "bg-emerald-800"
+                      isListening ? "scale-110 animate-pulse" : ""
                     )}
                   >
-                    {isListening ? <MicOff className="w-8 h-8 text-white" /> : <Mic className="w-8 h-8 text-white" />}
+                    <Mic className="w-8 h-8 text-white" />
                   </Button>
                   <div className={cn(
                     "absolute -top-12 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black whitespace-nowrap animate-bounce shadow-lg border-2 border-white transition-all duration-300",
