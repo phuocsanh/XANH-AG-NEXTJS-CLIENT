@@ -189,12 +189,8 @@ export default function RiceWeighingTool({
   }
 
   const toggleListening = () => {
-    console.log("--- MIC DEBUG START ---")
-    console.log("Click detected, current isListeningRef:", isListeningRef.current)
-
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!SpeechRecognition) {
-      console.error("SpeechRecognition API NOT FOUND in this browser")
       toast({
         title: "Không hỗ trợ",
         description: "Trình duyệt này không hỗ trợ Speech API.",
@@ -204,63 +200,47 @@ export default function RiceWeighingTool({
     }
 
     if (isListeningRef.current) {
-      console.log("Action: STOPPING MIC")
-      // Nếu đang bật mà nhấn lần nữa thì tắt
       try {
         if (recognitionRef.current) {
           recognitionRef.current.stop()
           recognitionRef.current.abort()
         }
-      } catch (e) {
-        console.error("Error during stop:", e)
-      }
+      } catch {}
       isListeningRef.current = false
       setIsListening(false)
       return
     }
 
-    console.log("Action: STARTING MIC")
-    // 1. Phản hồi UI - Chuyển Đỏ ngay
-    setIsListening(true)
-    isListeningRef.current = true
-    lastProcessedIndexRef.current = -1
-    
-    // 2. Khởi tạo Speech
-    console.log("Initializing SpeechRecognition...")
+    // 1. Cấu hình Speech
     const recognition = new SpeechRecognition()
-    recognition.continuous = false
+    recognition.continuous = true // iOS PWA ổn định hơn với continuous
     recognition.interimResults = true
     recognition.lang = "vi-VN"
     
     const stopMic = () => {
-      console.log("stopMic() called internal")
-      try {
-        recognition.abort()
-      } catch {}
+      try { recognition.abort() } catch {}
       isListeningRef.current = false
       setIsListening(false)
     }
 
     recognition.onstart = () => {
-      console.log("EVENT: onstart - Mic is now active")
       setIsListening(true)
       isListeningRef.current = true
     }
 
     recognition.onresult = (event: any) => {
-      console.log("EVENT: onresult", event)
       if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current)
       const lastIndex = event.results.length - 1
       if (lastIndex < 0) return
       const result = event.results[lastIndex]
       const transcript = result[0].transcript
-      console.log("Transcript:", transcript, "isFinal:", result.isFinal)
 
       if (result.isFinal) {
         if (lastIndex > lastProcessedIndexRef.current) {
           handleVoiceInput(transcript)
           lastProcessedIndexRef.current = lastIndex
-          stopMic()
+          // Dừng nhẹ nhàng sau khi có kết quả cuối cùng
+          setTimeout(stopMic, 150)
         }
       } else {
         silenceTimeoutRef.current = setTimeout(() => {
@@ -269,34 +249,26 @@ export default function RiceWeighingTool({
             lastProcessedIndexRef.current = lastIndex
             stopMic()
           }
-        }, 450)
+        }, 1000) // Tăng thời gian chờ im lặng
       }
     }
 
     recognition.onerror = (event: any) => {
-      console.error("EVENT: onerror - Error code:", event.error)
-      
-      // 'aborted' và 'no-speech' là các trạng thái dừng bình thường trên iOS, chỉ cần về xanh
       if (event.error === 'no-speech' || event.error === 'aborted') {
-        console.log("Soft error (no-speech/aborted), resetting UI to green")
         setIsListening(false)
         isListeningRef.current = false
         return 
       }
-      
       setIsListening(false)
       isListeningRef.current = false
-      
-      // Hiện mã lỗi để người dùng báo lại cho kỹ thuật
       toast({
         title: "Lỗi Micro: " + event.error,
-        description: "Vui lòng thử nhấn lại hoặc kiểm tra mạng.",
+        description: "Vui lòng thử lại hoặc kiểm tra quyền truy cập.",
         variant: "destructive"
       })
     }
 
     recognition.onend = () => {
-      console.log("EVENT: onend - Recognition ended")
       setIsListening(false)
       isListeningRef.current = false
     }
@@ -1040,29 +1012,31 @@ export default function RiceWeighingTool({
                }}
                onTouchEnd={() => setIsDragging(false)}
              >
-               <div className="relative">
-                 {isListening && (
-                   <div className="absolute inset-0 bg-red-400 rounded-full animate-ping opacity-25 scale-150 pointer-events-none" />
-                 )}
-                 <Button
-                   type="button"
-                   onClick={() => {
-                     if (isDragging) return
-                     toggleListening()
-                   }}
-                   className={cn(
-                     "w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all active:scale-90 border-4 border-white",
-                     isListening ? "bg-red-500 scale-110 animate-pulse" : "bg-emerald-800"
-                   )}
-                 >
-                   {isListening ? <MicOff className="w-8 h-8 text-white" /> : <Mic className="w-8 h-8 text-white" />}
-                 </Button>
-                 {isListening && (
-                   <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black whitespace-nowrap animate-bounce shadow-lg border-2 border-white">
-                     ĐANG NGHE...
-                   </div>
-                 )}
-               </div>
+                <div className="relative">
+                  <div className={cn(
+                    "absolute inset-0 bg-red-400 rounded-full animate-ping opacity-25 scale-150 pointer-events-none transition-opacity duration-300",
+                    isListening ? "opacity-25" : "opacity-0"
+                  )} />
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      if (isDragging) return
+                      toggleListening()
+                    }}
+                    className={cn(
+                      "w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all active:scale-90 border-4 border-white",
+                      isListening ? "bg-red-500 scale-110 animate-pulse" : "bg-emerald-800"
+                    )}
+                  >
+                    {isListening ? <MicOff className="w-8 h-8 text-white" /> : <Mic className="w-8 h-8 text-white" />}
+                  </Button>
+                  <div className={cn(
+                    "absolute -top-12 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black whitespace-nowrap animate-bounce shadow-lg border-2 border-white transition-all duration-300",
+                    isListening ? "opacity-100 scale-100" : "opacity-0 scale-50 pointer-events-none"
+                  )}>
+                    ĐANG NGHE...
+                  </div>
+                </div>
              </div>
            )}
 
