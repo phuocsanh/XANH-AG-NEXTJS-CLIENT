@@ -61,6 +61,9 @@ export default function RiceWeighingTool({
   const recognitionRef = useRef<any>(null)
   const activeIndexRef = useRef(0)
   const lastProcessedIndexRef = useRef(-1)
+  const micButtonRef = useRef<HTMLButtonElement>(null)
+  const micStatusRef = useRef<HTMLDivElement>(null)
+  const micPulseRef = useRef<HTMLDivElement>(null)
   const isListeningRef = useRef(false)
   const silenceTimeoutRef = useRef<any>(null)
   const weightsRef = useRef<string[]>(new Array(MAX_CELLS).fill(""))
@@ -229,29 +232,49 @@ export default function RiceWeighingTool({
 
     // 1. Khởi tạo Speech trước
     const recognition = new SpeechRecognition()
-    recognition.continuous = false // Quay lại false để tránh xung đột buffer trên một số bản iOS
+    recognition.continuous = true // continuous=true giúp giữ kết nối ổn định trên PWA
     recognition.interimResults = true
     recognition.lang = "vi-VN"
     recognitionRef.current = recognition
 
+    const updateUIStopped = () => {
+      if (micButtonRef.current) {
+        micButtonRef.current.style.backgroundColor = '#10b981'
+        micButtonRef.current.classList.remove('scale-110', 'animate-pulse')
+      }
+      if (micStatusRef.current) {
+        micStatusRef.current.style.opacity = '0'
+        micStatusRef.current.style.transform = 'translateX(-50%) scale(0.5)'
+      }
+      if (micPulseRef.current) {
+        micPulseRef.current.style.opacity = '0'
+      }
+      setIsListening(false)
+      isListeningRef.current = false
+    }
+
     const stopMic = () => {
       console.log(`[${now}] Internal stopMic() called`)
-      try { 
-        recognition.stop()
-        // Không dùng abort() ở đây để tránh gây ra lỗi onerror 'aborted' vòng lặp
-      } catch {}
-      isListeningRef.current = false
-      setIsListening(false)
+      try { recognition.stop() } catch {}
+      updateUIStopped()
     }
 
     recognition.onstart = () => {
       console.log(`[${now}] EVENT: onstart - Mic is active`)
-      // Đợi 100ms cho Audio Session của hệ thống ổn định rồi mới đổi màu UI
-      setTimeout(() => {
-        if (isListeningRef.current) {
-          setIsListening(true)
-        }
-      }, 100);
+      isListeningRef.current = true
+      
+      // CAN THIỆP TRỰC TIẾP VÀO DOM - KHÔNG DÙNG REACT STATE
+      if (micButtonRef.current) {
+        micButtonRef.current.style.backgroundColor = '#ef4444'
+        micButtonRef.current.classList.add('scale-110', 'animate-pulse')
+      }
+      if (micStatusRef.current) {
+        micStatusRef.current.style.opacity = '1'
+        micStatusRef.current.style.transform = 'translateX(-50%) scale(1)'
+      }
+      if (micPulseRef.current) {
+        micPulseRef.current.style.opacity = '0.25'
+      }
     }
 
     recognition.onresult = (event: any) => {
@@ -285,16 +308,12 @@ export default function RiceWeighingTool({
 
     recognition.onerror = (event: any) => {
       console.error(`[${now}] EVENT: onerror - Code:`, event.error)
+      updateUIStopped()
       
       if (event.error === 'no-speech' || event.error === 'aborted') {
-        console.log(`[${now}] Normal exit:`, event.error)
-        setIsListening(false)
-        isListeningRef.current = false
         return 
       }
-
-      setIsListening(false)
-      isListeningRef.current = false
+      
       toast({
         title: "Lỗi Micro: " + event.error,
         description: "Vui lòng thử lại hoặc kiểm tra quyền truy cập.",
@@ -304,8 +323,7 @@ export default function RiceWeighingTool({
 
     recognition.onend = () => {
       console.log(`[${now}] EVENT: onend - Recognition ended`)
-      setIsListening(false)
-      isListeningRef.current = false
+      updateUIStopped()
     }
 
     // 2. KÍCH HOẠT NGAY LẬP TỨC để giữ user gesture
@@ -1050,28 +1068,27 @@ export default function RiceWeighingTool({
                onTouchEnd={() => setIsDragging(false)}
              >
                 <div className="relative">
-                  <div className={cn(
-                    "absolute inset-0 bg-red-400 rounded-full animate-ping opacity-25 scale-150 pointer-events-none transition-opacity duration-300",
-                    isListening ? "opacity-25" : "opacity-0"
-                  )} />
+                  <div 
+                    ref={micPulseRef}
+                    className="absolute inset-0 bg-red-400 rounded-full animate-ping opacity-0 scale-150 pointer-events-none transition-opacity duration-300" 
+                  />
                   <Button
+                    ref={micButtonRef}
                     type="button"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation()
                       if (isDragging) return
                       toggleListening()
                     }}
-                    style={{ backgroundColor: isListening ? '#ef4444' : '#10b981' }}
-                    className={cn(
-                      "w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all active:scale-90 border-4 border-white",
-                      isListening ? "scale-110 animate-pulse" : ""
-                    )}
+                    style={{ backgroundColor: '#10b981' }}
+                    className="w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all active:scale-90 border-4 border-white"
                   >
                     <Mic className="w-8 h-8 text-white" />
                   </Button>
-                  <div className={cn(
-                    "absolute -top-12 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black whitespace-nowrap animate-bounce shadow-lg border-2 border-white transition-all duration-300 pointer-events-none",
-                    isListening ? "opacity-100 scale-100" : "opacity-0 scale-50"
-                  )}>
+                  <div 
+                    ref={micStatusRef}
+                    className="absolute -top-12 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black whitespace-nowrap animate-bounce shadow-lg border-2 border-white transition-all duration-300 pointer-events-none opacity-0 scale-50"
+                  >
                     ĐANG NGHE...
                   </div>
                 </div>
