@@ -122,6 +122,16 @@ export default function RiceWeighingTool({
         setIsListening(true)
       }
 
+      recognition.onsoundstart = () => {
+        isListeningRef.current = true
+        setIsListening(true)
+      }
+
+      recognition.onaudiostart = () => {
+        isListeningRef.current = true
+        setIsListening(true)
+      }
+
       recognition.onresult = (event: any) => {
         if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current)
         
@@ -261,24 +271,33 @@ export default function RiceWeighingTool({
   const toggleListening = () => {
     if (!recognitionRef.current) return
     
-    // Sử dụng ref để kiểm tra trạng thái thực tế nhất
     if (isListeningRef.current) {
       try {
+        recognitionRef.current.stop()
         recognitionRef.current.abort()
       } catch {}
       isListeningRef.current = false
       setIsListening(false)
     } else {
       lastProcessedIndexRef.current = -1
+      setIsListening(true)
+      isListeningRef.current = true
+      
       try {
-        // Trên iOS, đôi khi start() thất bại nếu session trước chưa ngắt hẳn
-        recognitionRef.current.start()
-        // Không set state ở đây, chờ recognition.onstart gọi
+        recognitionRef.current.abort()
+        setTimeout(() => {
+          try {
+            recognitionRef.current.start()
+          } catch {
+            try {
+              recognitionRef.current.stop()
+              setTimeout(() => recognitionRef.current.start(), 50)
+            } catch {}
+          }
+        }, 30)
       } catch {
-        // Nếu lỗi, thử reset lại
         try {
-          recognitionRef.current.abort()
-          setTimeout(() => recognitionRef.current.start(), 100)
+          recognitionRef.current.start()
         } catch {}
       }
     }
@@ -643,7 +662,8 @@ export default function RiceWeighingTool({
                     value={w || ""}
                     onChange={(e) => {
                       const val = e.target.value
-                      if (val.length <= 4) {
+                      // Giới hạn độ dài 4 số và giá trị thực tế không quá 120kg (1200)
+                      if (val.length <= 4 && (parseInt(val) || 0) <= 1200) {
                         updateWeight(globalIdx, val)
                         // Tự động nhảy ô nếu nhập đủ 3 số
                         if (val.length === 3) {
@@ -657,7 +677,10 @@ export default function RiceWeighingTool({
                         }
                       }
                     }}
-                    onFocus={() => setActiveIndex(globalIdx)}
+                    onFocus={(e) => {
+                      setActiveIndex(globalIdx)
+                      e.target.select() // Tự động bôi đen để thay thế khi nhập mới
+                    }}
                     className={cn(
                       "w-full h-full bg-transparent text-center text-xl font-black focus:outline-none p-0 leading-none", // Thêm p-0 và leading-none để caret ở giữa
                       w ? (
