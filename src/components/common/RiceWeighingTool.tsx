@@ -150,23 +150,30 @@ export default function RiceWeighingTool({
     // Chuyển một số chữ thành số cơ bản (tiếng Việt)
     const normalized = text.toLowerCase()
       .replace(/không/g, "0")
-      .replace(/một/g, "1")
+      .replace(/một|mốt/g, "1")
       .replace(/hai/g, "2")
       .replace(/ba/g, "3")
-      .replace(/bốn/g, "4")
-      .replace(/năm/g, "5")
+      .replace(/bốn|tư/g, "4")
+      .replace(/năm|lăm|nhăm/g, "5")
       .replace(/sáu/g, "6")
       .replace(/bảy/g, "7")
       .replace(/tám/g, "8")
       .replace(/chín/g, "9")
       .replace(/lẻ|linh|ninh/g, "0")
-      .replace(/chục|mươi/g, "0")
+      .replace(/^mười/g, "1") // mười ở đầu -> 1 (mười tám -> 18)
+      .replace(/mười|mươi|chục/g, "0") // mười/mươi/chục ở sau -> 0 (tám mười -> 80)
 
     let numbers = normalized.replace(/[^0-9]/g, "")
-    console.log("Processed numbers:", numbers)
+    console.log("Processed numbers raw:", numbers)
+
+    // Sửa lỗi đặc thù: "tám mươi" hay bị nghe thành "8 10" -> "810"
+    // Nếu có 3 chữ số và kết thúc bằng "10" (ví dụ 810, 510) thì khả năng cao là x0
+    if (numbers.length === 3 && numbers.endsWith("10") && numbers[0] !== "1") {
+      numbers = numbers[0] + "0"
+    }
     
     // Nếu chỉ có 2 số (ví dụ 88 hoặc 50), tự hiểu là 88.0 hoặc 50.0kg (điền 880, 500)
-    if (numbers.length === 2 && !normalized.includes("mười")) {
+    if (numbers.length === 2) {
       numbers += "0"
     }
     
