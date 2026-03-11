@@ -57,6 +57,8 @@ export default function RiceWeighingTool({
 
   const recognitionRef = useRef<any>(null)
   const activeIndexRef = useRef(0)
+  const isListeningRef = useRef(false)
+  const silenceTimeoutRef = useRef<any>(null)
   const weightsRef = useRef<string[]>(new Array(MAX_CELLS).fill(""))
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
@@ -97,7 +99,7 @@ export default function RiceWeighingTool({
     // Đợi 50ms để đảm bảo các bảng mới (nếu có) đã render xong
     const timer = setTimeout(scrollToActive, 50)
     return () => clearTimeout(timer)
-  }, [activeIndex, weights[activeIndex]])
+  }, [activeIndex])
 
   useEffect(() => {
     weightsRef.current = weights
@@ -108,23 +110,53 @@ export default function RiceWeighingTool({
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition()
       recognition.continuous = true
-      recognition.interimResults = false
+      recognition.interimResults = true // Bật để nhận dữ liệu trung gian
       recognition.lang = "vi-VN"
 
       recognition.onresult = (event: any) => {
+        if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current)
+        
+        let finalTranscript = ""
+        let interimTranscript = ""
+
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
-            handleVoiceInput(event.results[i][0].transcript)
+            finalTranscript = event.results[i][0].transcript
+            handleVoiceInput(finalTranscript)
+          } else {
+            interimTranscript = event.results[i][0].transcript
+          }
+        }
+
+        // Nếu người dùng ngưng nói 0.5s, xử lý kết quả trung gian như kết quả cuối cùng
+        if (interimTranscript) {
+          silenceTimeoutRef.current = setTimeout(() => {
+            handleVoiceInput(interimTranscript)
+          }, 200)
+        }
+      }
+
+      recognition.onerror = (event: any) => {
+        if (event.error === 'no-speech') return // Bỏ qua lỗi không có tiếng động
+        console.error("Speech Recognition Error:", event.error)
+      }
+
+      recognition.onend = () => {
+        // Nếu vẫn đang trong trạng thái Listening thì khởi động lại ngay (Mic luôn mở)
+        if (isListeningRef.current) {
+          try {
+            recognition.start()
+          } catch (e) {
+            console.error("Restart Recognition Failed:", e)
           }
         }
       }
-      recognition.onerror = () => setIsListening(false)
-      recognition.onend = () => setIsListening(false)
       recognitionRef.current = recognition
     }
 
     return () => {
       if (recognitionRef.current) recognitionRef.current.stop()
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current)
     }
   }, [])
 
@@ -179,8 +211,11 @@ export default function RiceWeighingTool({
   const toggleListening = () => {
     if (!recognitionRef.current) return
     if (isListening) {
+      isListeningRef.current = false
+      setIsListening(false)
       recognitionRef.current.stop()
     } else {
+      isListeningRef.current = true
       setIsListening(true)
       recognitionRef.current.start()
     }
@@ -546,7 +581,7 @@ export default function RiceWeighingTool({
                           setActiveIndex(nextIdx)
                           setTimeout(() => {
                             const nextInput = document.getElementById(`input-cell-${nextIdx}`) as HTMLInputElement
-                            if (nextInput) nextInput.focus()
+                            if (nextInput) nextInput.focus({ preventScroll: true })
                           }, 10)
                         }
                       }
