@@ -210,31 +210,21 @@ export default function RiceWeighingTool({
       lastProcessedIndexRef.current = -1
       
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-      const isStandalone = (window.navigator as any).standalone || window.matchMedia('(display-mode: standalone)').matches
-
-      // Mẹo cho iOS PWA: Cần gọi getUserMedia để kích hoạt mic trước khi dùng Speech API
+      
+      // Mẹo quan trọng cho iOS PWA: 
+      // Không được 'await' getUserMedia vì nó sẽ làm mất 'User Gesture' (mất hiệu lực cú chạm tay)
+      // Thay vào đó, gọi nó chạy song song để hệ thống mở Micro
       if (isIOS) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-          // Sau khi có stream, ta có thể đóng ngay vì Speech API sẽ tự quản lý sau đó
-          stream.getTracks().forEach(track => track.stop())
-        } catch (err) {
-          console.error("Mic permission denied or failed:", err)
-          toast({
-            title: "Quyền Micro",
-            description: "Bạn hãy cho phép ứng dụng dùng Micro trong Cài đặt của iPhone nhé!",
-            variant: "destructive"
+        navigator.mediaDevices.getUserMedia({ audio: true })
+          .then(stream => {
+            stream.getTracks().forEach(track => track.stop())
           })
-          return
-        }
+          .catch(err => console.error("Mic priming failed:", err))
       }
 
-      if (isIOS && isStandalone) {
-        console.log("Running in iOS Standalone (PWA) mode")
-      }
-      // iOS Chrome ổn định nhất khi tạo mới object mỗi lần dùng
+      // Khởi tạo SpeechRecognition ngay lập tức để giữ User Gesture
       const recognition = new SpeechRecognition()
-      recognition.continuous = !isIOS
+      recognition.continuous = false // iOS PWA bắt buộc phải false
       recognition.interimResults = true
       recognition.lang = "vi-VN"
       
