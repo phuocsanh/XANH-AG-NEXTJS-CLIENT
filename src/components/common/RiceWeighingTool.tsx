@@ -110,102 +110,13 @@ export default function RiceWeighingTool({
   }, [weights])
 
   useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition()
-      // Thiết lập các thuộc tính dựa trên thiết bị (iOS cần continuous = false để ổn định nhất)
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-      recognition.continuous = !isIOS // iOS (cả Chrome và Safari) không ổn định với continuous = true
-      recognition.interimResults = true
-      recognition.lang = "vi-VN"
-      
-      recognition.onstart = () => {
-        isListeningRef.current = true
-        setIsListening(true)
-        console.log("Speech recognition started")
-      }
-
-      recognition.onsoundstart = () => {
-        isListeningRef.current = true
-        setIsListening(true)
-      }
-
-      recognition.onaudiostart = () => {
-        isListeningRef.current = true
-        setIsListening(true)
-      }
-
-      recognition.onresult = (event: any) => {
-        if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current)
-        
-        const lastIndex = event.results.length - 1
-        if (lastIndex < 0) return
-
-        const result = event.results[lastIndex]
-        const transcript = result[0].transcript
-
-        // Hàm helper để dừng mic
-        const stopMic = () => {
-          if (recognitionRef.current && isListeningRef.current) {
-            try {
-              recognitionRef.current.abort() // Dùng abort để dừng ngay lập tức và triệt để
-            } catch {}
-            isListeningRef.current = false
-            setIsListening(false)
-          }
-        }
-
-        if (result.isFinal) {
-          if (lastIndex > lastProcessedIndexRef.current) {
-            handleVoiceInput(transcript)
-            lastProcessedIndexRef.current = lastIndex
-            stopMic()
-          }
-        } else {
-          // Kết quả tạm thời -> Chờ 0.4s im lặng cho chắc chắn
-          silenceTimeoutRef.current = setTimeout(() => {
-            if (lastIndex > lastProcessedIndexRef.current && isListeningRef.current) {
-              handleVoiceInput(transcript)
-              lastProcessedIndexRef.current = lastIndex
-              stopMic()
-            }
-          }, 400)
-        }
-      }
-
-      recognition.onerror = (event: any) => {
-        setIsListening(false)
-        isListeningRef.current = false
-        
-        if (event.error === 'no-speech') return 
-        
-        const errorMessages: Record<string, string> = {
-          'not-allowed': 'Bạn hãy nhấn vào biểu tượng Micro ở thanh địa chỉ và chọn "Luôn cho phép" nhé!',
-          'network': 'Lỗi mạng, Siri cần mạng để nhận diện giọng nói.',
-          'aborted': 'Đã dừng thu âm.',
-          'audio-capture': 'Không tìm thấy Micro.',
-        }
-        
-        console.error("Speech Recognition Error:", event.error)
-        if (errorMessages[event.error]) {
-          toast({
-            title: "Lỗi Micro",
-            description: errorMessages[event.error],
-            variant: "destructive"
-          })
-        }
-      }
-
-      recognition.onend = () => {
-        // Không tự động Restart nữa để User có thể tắt hẳn
-        setIsListening(false)
-        isListeningRef.current = false
-      }
-      recognitionRef.current = recognition
-    }
-
     return () => {
-      if (recognitionRef.current) recognitionRef.current.stop()
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop()
+          recognitionRef.current.abort()
+        } catch {}
+      }
       if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current)
     }
   }, [])
@@ -278,7 +189,8 @@ export default function RiceWeighingTool({
   }
 
   const toggleListening = () => {
-    if (!recognitionRef.current) {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    if (!SpeechRecognition) {
       toast({
         title: "Không hỗ trợ",
         description: "Trình duyệt này không hỗ trợ Speech API.",
@@ -290,22 +202,93 @@ export default function RiceWeighingTool({
     if (isListeningRef.current) {
       try {
         recognitionRef.current.stop()
+        recognitionRef.current.abort()
       } catch {}
       isListeningRef.current = false
       setIsListening(false)
     } else {
       lastProcessedIndexRef.current = -1
-      // iOS Cực kỳ nhạy cảm với setTimeout, phải gọi trực tiếp start() ngay lập tức
+      
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+      // iOS Chrome ổn định nhất khi tạo mới object mỗi lần dùng
+      const recognition = new SpeechRecognition()
+      recognition.continuous = !isIOS
+      recognition.interimResults = true
+      recognition.lang = "vi-VN"
+      
+      const stopMic = () => {
+        try {
+          recognition.abort()
+        } catch {}
+        isListeningRef.current = false
+        setIsListening(false)
+      }
+
+      recognition.onstart = () => {
+        isListeningRef.current = true
+        setIsListening(true)
+      }
+
+      recognition.onresult = (event: any) => {
+        if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current)
+        const lastIndex = event.results.length - 1
+        if (lastIndex < 0) return
+        const result = event.results[lastIndex]
+        const transcript = result[0].transcript
+
+        if (result.isFinal) {
+          if (lastIndex > lastProcessedIndexRef.current) {
+            handleVoiceInput(transcript)
+            lastProcessedIndexRef.current = lastIndex
+            stopMic()
+          }
+        } else {
+          silenceTimeoutRef.current = setTimeout(() => {
+            if (lastIndex > lastProcessedIndexRef.current && isListeningRef.current) {
+              handleVoiceInput(transcript)
+              lastProcessedIndexRef.current = lastIndex
+              stopMic()
+            }
+          }, 450)
+        }
+      }
+
+      recognition.onerror = (event: any) => {
+        setIsListening(false)
+        isListeningRef.current = false
+        // 'aborted' trên iOS Chrome thường xảy ra khi mic tự dừng hoặc bị ép dừng, không nên báo lỗi
+        if (event.error === 'no-speech' || event.error === 'aborted') return 
+        
+        const errorMessages: Record<string, string> = {
+          'not-allowed': 'Bạn hãy cấp quyền Micro cho Chrome trong Cài đặt iPhone nhé!',
+          'network': 'Lỗi mạng, hãy kiểm tra kết nối để dùng giọng nói.',
+        }
+        
+        if (errorMessages[event.error]) {
+          toast({
+            title: "Lỗi Micro",
+            description: errorMessages[event.error],
+            variant: "destructive"
+          })
+        }
+      }
+
+      recognition.onend = () => {
+        setIsListening(false)
+        isListeningRef.current = false
+      }
+
+      recognitionRef.current = recognition
+      
       try {
-        recognitionRef.current.start()
-        setIsListening(true) // Set UI lên trước để tạo cảm giác phản hồi nhanh
+        recognition.start()
+        setIsListening(true)
         isListeningRef.current = true
       } catch (e) {
         console.error("Speech start failure:", e)
-        // Fallback khẩn cấp nếu bị kẹt
         try {
-          recognitionRef.current.abort()
-          setTimeout(() => recognitionRef.current.start(), 100)
+          recognition.abort()
+          setTimeout(() => recognition.start(), 200)
         } catch {}
       }
     }
