@@ -710,14 +710,16 @@ export default function RiceWeighingTool({
           </div>
 
           <div className="flex items-center gap-1">
-            <Button 
-              variant="ghost" 
-              onClick={handleComplete}
-              className="text-white hover:bg-white/10 rounded-full h-10 px-3 flex items-center gap-1"
-            >
-              <Save className="h-5 w-5" />
-              <span className="text-sm font-bold">Lưu lại</span>
-            </Button>
+            {step === "weighing" && (
+              <Button 
+                variant="ghost" 
+                onClick={handleComplete}
+                className="text-white hover:bg-white/10 rounded-full h-10 px-3 flex items-center gap-1"
+              >
+                <Save className="h-5 w-5" />
+                <span className="text-sm font-bold">Lưu lại</span>
+              </Button>
+            )}
 
             <Button 
               variant="ghost" 
