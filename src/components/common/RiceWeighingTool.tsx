@@ -226,20 +226,7 @@ export default function RiceWeighingTool({
     isListeningRef.current = true
     lastProcessedIndexRef.current = -1
 
-    // 2. Kiểm tra quyền cơ bản (MediaDevices)
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      console.log(`[${now}] Checking MediaDevices permission...`)
-      navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-          console.log(`[${now}] MediaDevices permission GRANTED`)
-          stream.getTracks().forEach(track => track.stop()) // Giải phóng ngay
-        })
-        .catch(err => {
-          console.error(`[${now}] MediaDevices permission DENIED:`, err)
-        })
-    }
-
-    // 3. Cấu hình Speech
+    // 2. Cấu hình Speech
     const recognition = new SpeechRecognition()
     recognition.continuous = false 
     recognition.interimResults = true
