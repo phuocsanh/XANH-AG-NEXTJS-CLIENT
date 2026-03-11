@@ -132,7 +132,7 @@ export default function RiceWeighingTool({
         if (interimTranscript) {
           silenceTimeoutRef.current = setTimeout(() => {
             handleVoiceInput(interimTranscript)
-          }, 200)
+          }, 100)
         }
       }
 
