@@ -50,6 +50,8 @@ export default function RiceWeighingTool({
   const [paidAmount, setPaidAmount] = useState<number>(0)
   const [isPaidFull, setIsPaidFull] = useState<boolean>(false)
   const [showResultPopup, setShowResultPopup] = useState<boolean>(false)
+  const [micPosition, setMicPosition] = useState({ x: 20, y: -20 }) // Bottom-left default
+  const [isDragging, setIsDragging] = useState(false)
   
   const { isLogin } = useAppStore()
   const { data: onlineCropsData } = useRiceCrops({ limit: 100 }, isOpen && isLogin)
@@ -57,6 +59,7 @@ export default function RiceWeighingTool({
 
   const recognitionRef = useRef<any>(null)
   const activeIndexRef = useRef(0)
+  const lastProcessedIndexRef = useRef(-1)
   const isListeningRef = useRef(false)
   const silenceTimeoutRef = useRef<any>(null)
   const weightsRef = useRef<string[]>(new Array(MAX_CELLS).fill(""))
@@ -116,40 +119,62 @@ export default function RiceWeighingTool({
       recognition.onresult = (event: any) => {
         if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current)
         
-        let finalTranscript = ""
-        let interimTranscript = ""
+        const lastIndex = event.results.length - 1
+        if (lastIndex < 0) return
 
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalTranscript = event.results[i][0].transcript
-            handleVoiceInput(finalTranscript)
-          } else {
-            interimTranscript = event.results[i][0].transcript
+        const result = event.results[lastIndex]
+        const transcript = result[0].transcript
+
+        // Hàm helper để dừng mic
+        const stopMic = () => {
+          if (recognitionRef.current && isListeningRef.current) {
+            try {
+              recognitionRef.current.abort() // Dùng abort để dừng ngay lập tức và triệt để
+            } catch (e) {}
+            isListeningRef.current = false
+            setIsListening(false)
           }
         }
 
-        // Nếu người dùng ngưng nói 0.5s, xử lý kết quả trung gian như kết quả cuối cùng
-        if (interimTranscript) {
+        if (result.isFinal) {
+          if (lastIndex > lastProcessedIndexRef.current) {
+            handleVoiceInput(transcript)
+            lastProcessedIndexRef.current = lastIndex
+            stopMic()
+          }
+        } else {
+          // Kết quả tạm thời -> Chờ 0.4s im lặng cho chắc chắn
           silenceTimeoutRef.current = setTimeout(() => {
-            handleVoiceInput(interimTranscript)
-          }, 100)
+            if (lastIndex > lastProcessedIndexRef.current && isListeningRef.current) {
+              handleVoiceInput(transcript)
+              lastProcessedIndexRef.current = lastIndex
+              stopMic()
+            }
+          }, 400)
         }
       }
 
       recognition.onerror = (event: any) => {
-        if (event.error === 'no-speech') return // Bỏ qua lỗi không có tiếng động
-        console.error("Speech Recognition Error:", event.error)
+        if (event.error === 'no-speech') return 
+        
+        if (event.error === 'not-allowed') {
+          toast({
+            title: "Quyền truy cập Micro",
+            description: "Trình duyệt đang chặn Micro. Bạn hãy nhấn vào biểu tượng Micro có dấu gạch chéo ở thanh địa chỉ (chỗ localhost:3000) và chọn 'Luôn cho phép' nhé!",
+            variant: "destructive"
+          })
+        } else {
+          console.error("Speech Recognition Error:", event.error)
+        }
+        
+        setIsListening(false)
+        isListeningRef.current = false
       }
 
       recognition.onend = () => {
-        // Nếu vẫn đang trong trạng thái Listening thì khởi động lại ngay (Mic luôn mở)
-        if (isListeningRef.current) {
-          try {
-            recognition.start()
-          } catch (e) {
-            console.error("Restart Recognition Failed:", e)
-          }
-        }
+        // Không tự động Restart nữa để User có thể tắt hẳn
+        setIsListening(false)
+        isListeningRef.current = false
       }
       recognitionRef.current = recognition
     }
@@ -184,15 +209,30 @@ export default function RiceWeighingTool({
   }
 
   const handleVoiceInput = (text: string) => {
-    let numbers = text.replace(/[^0-9]/g, "")
-    if (numbers.length === 2) numbers += "0"
+    if (!text) return
     
-    if (numbers.length >= 3 && numbers.length <= 4) {
+    // Chuyển một số chữ thành số cơ bản (tiếng Việt)
+    const normalized = text.toLowerCase()
+      .replace(/không/g, "0")
+      .replace(/một/g, "1")
+      .replace(/hai/g, "2")
+      .replace(/ba/g, "3")
+      .replace(/bốn/g, "4")
+      .replace(/năm/g, "5")
+      .replace(/sáu/g, "6")
+      .replace(/bảy/g, "7")
+      .replace(/tám/g, "8")
+      .replace(/chín/g, "9")
+
+    let numbers = normalized.replace(/[^0-9]/g, "")
+    // Nếu chỉ có 2 số (ví dụ 88), tự hiểu là 880
+    if (numbers.length === 2 && !normalized.includes("mười")) numbers += "0"
+    
+    // Giảm điều kiện xuống >= 1 để nhạy hơn
+    if (numbers.length >= 1 && numbers.length <= 4) {
       const currentIndex = activeIndexRef.current
-      
       updateWeight(currentIndex, numbers)
       
-      // Sau khi nhập đủ số, tự động nhảy xuống ô bên dưới (theo chiều dọc)
       if (currentIndex < MAX_CELLS - 1) {
         setActiveIndex(getNextIndex(currentIndex))
       }
@@ -210,14 +250,20 @@ export default function RiceWeighingTool({
 
   const toggleListening = () => {
     if (!recognitionRef.current) return
-    if (isListening) {
+    
+    if (isListeningRef.current) {
+      try {
+        recognitionRef.current.abort()
+      } catch (e) {}
       isListeningRef.current = false
       setIsListening(false)
-      recognitionRef.current.stop()
     } else {
-      isListeningRef.current = true
-      setIsListening(true)
-      recognitionRef.current.start()
+      lastProcessedIndexRef.current = -1
+      try {
+        recognitionRef.current.start()
+        isListeningRef.current = true
+        setIsListening(true)
+      } catch (e) {}
     }
   }
 
@@ -661,17 +707,6 @@ export default function RiceWeighingTool({
           </div>
 
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost" 
-              onClick={toggleListening}
-              className={cn(
-                "h-10 w-10 rounded-full transition-all active:scale-95",
-                isListening ? "bg-red-500 text-white animate-pulse" : "text-white hover:bg-white/10"
-              )}
-            >
-              {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
-            </Button>
-
             <Button 
               variant="ghost" 
               onClick={handleComplete}
@@ -909,6 +944,53 @@ export default function RiceWeighingTool({
                      </div>
                    )}
              </>
+           )}
+
+           {/* Floating Draggable Mic Button */}
+           {step === "weighing" && (
+             <div 
+               className="fixed z-[150] touch-none"
+               style={{ 
+                 left: micPosition.x, 
+                 bottom: -micPosition.y,
+                 cursor: isDragging ? 'grabbing' : 'grab'
+               }}
+               onTouchMove={(e) => {
+                 const touch = e.touches[0]
+                 if (touch) {
+                   setMicPosition({
+                     x: Math.max(10, Math.min(window.innerWidth - 70, touch.clientX - 30)),
+                     y: Math.max(-window.innerHeight + 100, Math.min(-20, touch.clientY - window.innerHeight + 30))
+                   })
+                   setIsDragging(true)
+                 }
+               }}
+               onTouchEnd={() => setIsDragging(false)}
+             >
+               <div className="relative">
+                 {isListening && (
+                   <div className="absolute inset-0 bg-red-400 rounded-full animate-ping opacity-25 scale-150 pointer-events-none" />
+                 )}
+                 <Button
+                   type="button"
+                   onClick={() => {
+                     if (isDragging) return
+                     toggleListening()
+                   }}
+                   className={cn(
+                     "w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all active:scale-90 border-4 border-white",
+                     isListening ? "bg-red-600 scale-110" : "bg-emerald-600"
+                   )}
+                 >
+                   {isListening ? <MicOff className="w-8 h-8 text-white" /> : <Mic className="w-8 h-8 text-white" />}
+                 </Button>
+                 {isListening && (
+                   <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black whitespace-nowrap animate-bounce shadow-lg border-2 border-white">
+                     ĐANG NGHE...
+                   </div>
+                 )}
+               </div>
+             </div>
            )}
 
            {/* Step 3: LỊCH SỬ CÂN LÚA */}
