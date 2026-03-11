@@ -227,27 +227,31 @@ export default function RiceWeighingTool({
       return
     }
 
-    // 1. UI Feedback
-    console.log(`[${now}] Action: STARTING`)
-    setIsListening(true)
-    isListeningRef.current = true
-    lastProcessedIndexRef.current = -1
-
-    // 2. Cấu hình Speech
+    // 1. Khởi tạo Speech trước
     const recognition = new SpeechRecognition()
-    recognition.continuous = false 
+    recognition.continuous = false // Quay lại false để tránh xung đột buffer trên một số bản iOS
     recognition.interimResults = true
     recognition.lang = "vi-VN"
-    
+    recognitionRef.current = recognition
+
     const stopMic = () => {
       console.log(`[${now}] Internal stopMic() called`)
-      try { recognition.abort() } catch {}
+      try { 
+        recognition.stop()
+        // Không dùng abort() ở đây để tránh gây ra lỗi onerror 'aborted' vòng lặp
+      } catch {}
       isListeningRef.current = false
       setIsListening(false)
     }
 
     recognition.onstart = () => {
       console.log(`[${now}] EVENT: onstart - Mic is active`)
+      // Đợi 100ms cho Audio Session của hệ thống ổn định rồi mới đổi màu UI
+      setTimeout(() => {
+        if (isListeningRef.current) {
+          setIsListening(true)
+        }
+      }, 100);
     }
 
     recognition.onresult = (event: any) => {
@@ -264,7 +268,8 @@ export default function RiceWeighingTool({
           console.log(`[${now}] Processing FINAL transcript:`, transcript)
           handleVoiceInput(transcript)
           lastProcessedIndexRef.current = lastIndex
-          setTimeout(stopMic, 100)
+          // Dừng sau khi có kết quả
+          setTimeout(stopMic, 200)
         }
       } else {
         silenceTimeoutRef.current = setTimeout(() => {
@@ -274,7 +279,7 @@ export default function RiceWeighingTool({
             lastProcessedIndexRef.current = lastIndex
             stopMic()
           }
-        }, 800)
+        }, 1000)
       }
     }
 
@@ -303,11 +308,12 @@ export default function RiceWeighingTool({
       isListeningRef.current = false
     }
 
-    recognitionRef.current = recognition
-    
+    // 2. KÍCH HOẠT NGAY LẬP TỨC để giữ user gesture
     try {
       console.log(`[${now}] Calling recognition.start()...`)
       recognition.start()
+      // Khởi tạo các ref trạng thái
+      lastProcessedIndexRef.current = -1
     } catch (e) {
       console.error(`[${now}] CRITICAL: recognition.start() failed:`, e)
       setIsListening(false)
@@ -1063,8 +1069,8 @@ export default function RiceWeighingTool({
                     <Mic className="w-8 h-8 text-white" />
                   </Button>
                   <div className={cn(
-                    "absolute -top-12 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black whitespace-nowrap animate-bounce shadow-lg border-2 border-white transition-all duration-300",
-                    isListening ? "opacity-100 scale-100" : "opacity-0 scale-50 pointer-events-none"
+                    "absolute -top-12 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black whitespace-nowrap animate-bounce shadow-lg border-2 border-white transition-all duration-300 pointer-events-none",
+                    isListening ? "opacity-100 scale-100" : "opacity-0 scale-50"
                   )}>
                     ĐANG NGHE...
                   </div>
