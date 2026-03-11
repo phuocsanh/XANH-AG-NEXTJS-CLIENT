@@ -34,7 +34,6 @@ export default function RiceWeighingTool({
 }: RiceWeighingToolProps) {
   const [weights, setWeights] = useState<string[]>(new Array(MAX_CELLS).fill(""))
   const [activeIndex, setActiveIndex] = useState(0)
-  const [isListening, setIsListening] = useState(false)
   const [step, setStep] = useState<"select-crop" | "weighing" | "history">("select-crop")
   const [selectedCropId, setSelectedCropId] = useState<number | string | null>(null)
   const [customCropName, setCustomCropName] = useState("")
@@ -226,7 +225,6 @@ export default function RiceWeighingTool({
         console.error(`[${now}] Error during stop:`, e)
       }
       isListeningRef.current = false
-      setIsListening(false)
       return
     }
 
@@ -249,7 +247,6 @@ export default function RiceWeighingTool({
       if (micPulseRef.current) {
         micPulseRef.current.style.opacity = '0'
       }
-      setIsListening(false)
       isListeningRef.current = false
     }
 
@@ -334,7 +331,6 @@ export default function RiceWeighingTool({
       lastProcessedIndexRef.current = -1
     } catch (e) {
       console.error(`[${now}] CRITICAL: recognition.start() failed:`, e)
-      setIsListening(false)
       isListeningRef.current = false
     }
   }
