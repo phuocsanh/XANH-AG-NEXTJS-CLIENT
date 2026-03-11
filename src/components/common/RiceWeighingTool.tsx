@@ -147,21 +147,21 @@ export default function RiceWeighingTool({
   const handleVoiceInput = (text: string) => {
     if (!text) return
     
-    // Chuyển một số chữ thành số cơ bản (tiếng Việt)
+    // Chuyển một số chữ thành số cơ bản (tiếng Việt), hỗ trợ cả giọng ngọng L/N
     const normalized = text.toLowerCase()
       .replace(/không/g, "0")
       .replace(/một|mốt/g, "1")
       .replace(/hai/g, "2")
       .replace(/ba/g, "3")
       .replace(/bốn|tư/g, "4")
-      .replace(/năm|lăm|nhăm/g, "5")
+      .replace(/năm|lăm|nhăm|nẳm|lẳm/g, "5") // Hỗ trợ ngọng L/N cho số 5
       .replace(/sáu/g, "6")
       .replace(/bảy/g, "7")
       .replace(/tám/g, "8")
       .replace(/chín/g, "9")
-      .replace(/lẻ|linh|ninh/g, "0")
-      .replace(/^mười/g, "1") // mười ở đầu -> 1 (mười tám -> 18)
-      .replace(/mười|mươi|chục/g, "0") // mười/mươi/chục ở sau -> 0 (tám mười -> 80)
+      .replace(/lẻ|nẻ|linh|ninh/g, "0") // Hỗ trợ ngọng L/N cho số lẻ
+      .replace(/^mười/g, "1") 
+      .replace(/mười|mươi|chục/g, "0") 
 
     let numbers = normalized.replace(/[^0-9]/g, "")
     console.log("Processed numbers raw:", numbers)
