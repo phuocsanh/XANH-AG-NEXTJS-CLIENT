@@ -130,7 +130,7 @@ export default function RiceWeighingTool({
           if (recognitionRef.current && isListeningRef.current) {
             try {
               recognitionRef.current.abort() // Dùng abort để dừng ngay lập tức và triệt để
-            } catch (e) {}
+            } catch {}
             isListeningRef.current = false
             setIsListening(false)
           }
@@ -254,7 +254,7 @@ export default function RiceWeighingTool({
     if (isListeningRef.current) {
       try {
         recognitionRef.current.abort()
-      } catch (e) {}
+      } catch {}
       isListeningRef.current = false
       setIsListening(false)
     } else {
@@ -263,7 +263,7 @@ export default function RiceWeighingTool({
         recognitionRef.current.start()
         isListeningRef.current = true
         setIsListening(true)
-      } catch (e) {}
+      } catch {}
     }
   }
 
