@@ -1084,10 +1084,21 @@ export default function RiceWeighingTool({
                   <Button
                     ref={micButtonRef}
                     type="button"
-                    onClick={(e) => {
+                    onTouchStart={(e) => {
+                      // iOS PWA: chỉ touchstart mới được coi là user gesture cho SpeechRecognition
+                      e.preventDefault() // Ngăn layout pull-to-refresh và event click tổng hợp
                       e.stopPropagation()
                       if (isDragging) return
                       toggleListening()
+                    }}
+                    onClick={(e) => {
+                      // Fallback cho web/desktop dùng chuột (không có touchstart)
+                      e.stopPropagation()
+                      if (isDragging) return
+                      // Chỉ gọi nếu không phải thiết bị cảm ứng (tránh gọi 2 lần)
+                      if (!('ontouchstart' in window)) {
+                        toggleListening()
+                      }
                     }}
                     style={{ backgroundColor: '#10b981' }}
                     className="w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all active:scale-90 border-4 border-white"
