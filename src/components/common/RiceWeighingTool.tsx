@@ -402,7 +402,7 @@ export default function RiceWeighingTool({
       <div className="bg-white border-2 border-[#d32f2f] rounded-b-2xl shadow-xl overflow-hidden divide-y divide-gray-100">
          {/* Cài đặt chế độ nhảy ô */}
          <div className="p-4 bg-slate-50 flex justify-between items-center border-b border-slate-100">
-            <div className="text-sm font-black text-slate-600 uppercase">Chế độ nhảy ô</div>
+            <div className="text-sm font-black text-slate-600 uppercase">Quy cách nhập</div>
             <div className="flex bg-slate-200 p-1 rounded-xl">
                {[3, 4].map(num => (
                  <button
@@ -759,8 +759,8 @@ export default function RiceWeighingTool({
     <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-md flex flex-col items-center justify-center">
       <div className="w-full max-w-2xl bg-[#e8f5e9] md:rounded-[40px] shadow-2xl flex flex-col h-screen md:h-[90vh] relative overflow-hidden">
         
-        {/* Header */}
-        <div className="bg-[#0b5394] text-white p-3 flex justify-between items-center shadow-xl z-20">
+        {/* Header - Thêm padding-top safe area cho iOS PWA standalone */}
+        <div className="bg-[#0b5394] text-white p-3 flex justify-between items-center shadow-xl z-20" style={{ paddingTop: 'max(12px, env(safe-area-inset-top))' }}>
            <div className="flex items-center gap-1">
             <Button variant="ghost" size="icon" onClick={() => {
               if (step === "weighing") setStep("select-crop")
