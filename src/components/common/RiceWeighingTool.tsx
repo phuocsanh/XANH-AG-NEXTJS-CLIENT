@@ -94,7 +94,7 @@ export default function RiceWeighingTool({
         
         container.scrollTo({
           top: Math.max(0, targetScroll),
-          behavior: "smooth"
+          behavior: "auto" // Dùng auto để nhảy tức thì, tránh bị giật khi user đang gõ nhanh
         })
       }
     }
@@ -610,16 +610,16 @@ export default function RiceWeighingTool({
                   key={globalIdx}
                   id={`cell-${globalIdx}`}
                   className={cn(
-                    "aspect-square flex flex-col items-center justify-center transition-all relative rounded-xl border-2 shadow-sm",
+                    "aspect-square flex flex-col items-center justify-center relative rounded-xl border-2 shadow-sm", // Bỏ transition-all để tránh giật caret
                     // Màu sắc dựa trên trạng thái nhập liệu và logic điểm tựa thị giác
                     !w ? "border-slate-100 bg-slate-50/50" : (
                       // Tạo điểm tựa: Mỗi cột có 1 ô viền xám (vị trí hàng = (cột + số bảng) mod 5)
                       (Math.floor((globalIdx % 25) / 5) === (globalIdx % 5 + tableIdx) % 5)
-                        ? "border-slate-300 bg-white" // Điểm tựa thị giác (Viền xám)
-                        : "border-amber-400 bg-white" // Bình thường (Viền cam)
+                        ? "border-slate-300 bg-white" 
+                        : "border-amber-400 bg-white" 
                     ),
-                    // Highlight ô đang active
-                    activeIndex === globalIdx && "border-blue-600 ring-4 ring-blue-100 z-10 bg-blue-50/50 scale-105"
+                    // Highlight ô đang active - Bỏ scale-105 để caret không bị nhảy
+                    activeIndex === globalIdx && "border-blue-600 ring-4 ring-blue-100 z-10 bg-blue-100/30"
                   )}
                 >
                   <input
@@ -636,17 +636,17 @@ export default function RiceWeighingTool({
                         if (val.length === 3) {
                           const nextIdx = getNextIndex(globalIdx)
                           setActiveIndex(nextIdx)
-                          // Đợi một chút để React render xong ô mới (nếu có) rồi focus
+                          // Tăng timeout một chút để ổn định hơn
                           setTimeout(() => {
                             const nextInput = document.getElementById(`input-cell-${nextIdx}`) as HTMLInputElement
                             if (nextInput) nextInput.focus({ preventScroll: true })
-                          }, 10)
+                          }, 30)
                         }
                       }
                     }}
                     onFocus={() => setActiveIndex(globalIdx)}
                     className={cn(
-                      "w-full h-full bg-transparent text-center text-xl font-black focus:outline-none",
+                      "w-full h-full bg-transparent text-center text-xl font-black focus:outline-none p-0 leading-none", // Thêm p-0 và leading-none để caret ở giữa
                       w ? (
                          (Math.floor((globalIdx % 25) / 5) === (globalIdx % 5 + tableIdx) % 5) ? "text-slate-400" : "text-slate-900"
                       ) : "text-slate-300"
