@@ -115,6 +115,12 @@ export default function RiceWeighingTool({
       recognition.continuous = true
       recognition.interimResults = true // Bật để nhận dữ liệu trung gian
       recognition.lang = "vi-VN"
+      
+      // Đồng bộ trạng thái theo sự kiện thực tế của hệ thống (Rất quan trọng cho iOS)
+      recognition.onstart = () => {
+        isListeningRef.current = true
+        setIsListening(true)
+      }
 
       recognition.onresult = (event: any) => {
         if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current)
@@ -255,6 +261,7 @@ export default function RiceWeighingTool({
   const toggleListening = () => {
     if (!recognitionRef.current) return
     
+    // Sử dụng ref để kiểm tra trạng thái thực tế nhất
     if (isListeningRef.current) {
       try {
         recognitionRef.current.abort()
@@ -264,10 +271,16 @@ export default function RiceWeighingTool({
     } else {
       lastProcessedIndexRef.current = -1
       try {
+        // Trên iOS, đôi khi start() thất bại nếu session trước chưa ngắt hẳn
         recognitionRef.current.start()
-        isListeningRef.current = true
-        setIsListening(true)
-      } catch {}
+        // Không set state ở đây, chờ recognition.onstart gọi
+      } catch {
+        // Nếu lỗi, thử reset lại
+        try {
+          recognitionRef.current.abort()
+          setTimeout(() => recognitionRef.current.start(), 100)
+        } catch {}
+      }
     }
   }
 
