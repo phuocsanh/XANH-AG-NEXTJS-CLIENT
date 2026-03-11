@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { 
-  Mic, MicOff, X, ChevronLeft, Save, Database, History, Info, Scale, ArrowRight, Trash2, RotateCw, Keyboard, ChevronDown, Calculator, Check
+  Mic, MicOff, X, ChevronLeft, Save, Database, History, Info, Scale, ArrowRight, Trash2, RotateCw, Calculator, Check
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAppStore } from "@/stores"
@@ -35,7 +35,6 @@ export default function RiceWeighingTool({
   const [weights, setWeights] = useState<string[]>(new Array(MAX_CELLS).fill(""))
   const [activeIndex, setActiveIndex] = useState(0)
   const [isListening, setIsListening] = useState(false)
-  const [showKeyboard, setShowKeyboard] = useState(false)
   const [step, setStep] = useState<"select-crop" | "weighing" | "history">("select-crop")
   const [selectedCropId, setSelectedCropId] = useState<number | string | null>(null)
   const [customCropName, setCustomCropName] = useState("")
@@ -83,38 +82,22 @@ export default function RiceWeighingTool({
       const container = scrollContainerRef.current
       
       if (activeElement && container) {
-        // Chiều cao bàn phím ảo (Xấp xỉ 320px)
-        const keyboardOverlayHeight = showKeyboard ? 340 : 0 
-        const containerRect = container.getBoundingClientRect()
-        const elementRect = activeElement.getBoundingClientRect()
+        // Luôn cuộn đến ô đang nhập để đảm bảo không bị che khuất bởi bàn phím hệ thống
+        const viewportHeight = container.clientHeight
+        const elementOffsetTop = activeElement.offsetTop
+        const targetScroll = elementOffsetTop - (viewportHeight * 0.25)
         
-        // Kiểm tra xem ô có bị che bởi bàn phím ảo hay không
-        // elementRect.bottom so với containerRect.bottom - keyboardOverlayHeight
-        const bottomThreshold = containerRect.bottom - keyboardOverlayHeight
-        const topThreshold = containerRect.top + 100 // Một chút khoảng trống phía trên
-        
-        const isObscured = elementRect.bottom > bottomThreshold || elementRect.top < topThreshold
-        
-        if (isObscured) {
-          // Vùng hiển thị thực tế
-          const viewportHeight = container.clientHeight - keyboardOverlayHeight
-          
-          // Ưu tiên đưa ô lên khoảng 1/4 - 1/3 phía trên của vùng hiển thị (để bà con nhìn rõ)
-          const elementOffsetTop = activeElement.offsetTop
-          const targetScroll = elementOffsetTop - (viewportHeight * 0.25)
-          
-          container.scrollTo({
-            top: Math.max(0, targetScroll),
-            behavior: "smooth"
-          })
-        }
+        container.scrollTo({
+          top: Math.max(0, targetScroll),
+          behavior: "smooth"
+        })
       }
     }
 
     // Đợi 50ms để đảm bảo các bảng mới (nếu có) đã render xong
     const timer = setTimeout(scrollToActive, 50)
     return () => clearTimeout(timer)
-  }, [activeIndex, showKeyboard, weights[activeIndex]])
+  }, [activeIndex, weights[activeIndex]])
 
   useEffect(() => {
     weightsRef.current = weights
