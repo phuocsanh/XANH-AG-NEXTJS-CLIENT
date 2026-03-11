@@ -765,7 +765,23 @@ export default function RiceWeighingTool({
             }} className="text-white hover:bg-white/10 rounded-full">
               {step !== "select-crop" ? <ChevronLeft className="h-6 w-6" /> : <X className="h-6 w-6" />}
             </Button>
-            <div className="ml-2 font-black italic text-lg tracking-tight uppercase">CÂN LÚA</div>
+            {step === "weighing" ? (
+              <div className="ml-2 flex items-center gap-3">
+                 <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30 shadow-inner">
+                    <Scale className="w-6 h-6 text-white" />
+                 </div>
+                 <div className="flex flex-col justify-center">
+                    <div className="font-black italic text-sm leading-none uppercase tracking-tighter truncate max-w-[150px]">
+                      {selectedCropId 
+                        ? (isLogin ? onlineCrops : localCrops).find(c => c.id === selectedCropId)?.field_name 
+                        : (customCropName.trim() || "Vụ tự do")}
+                    </div>
+                    <div className="text-[9px] text-blue-100 font-black uppercase mt-1 tracking-tight">ĐANG THỰC HIỆN CÂN LÚA</div>
+                 </div>
+              </div>
+            ) : (
+              <div className="ml-2 font-black italic text-lg tracking-tight uppercase">CÂN LÚA</div>
+            )}
           </div>
 
           <div className="flex items-center gap-1">
@@ -901,35 +917,20 @@ export default function RiceWeighingTool({
            {/* Step 2: CÂN LÚA */}
            {step === "weighing" && (
              <>
-                <div className="bg-white/80 backdrop-blur-md p-4 flex justify-between items-center border-b border-blue-100">
-                   <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                         <Scale className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                         <div className="text-blue-900 font-black leading-none uppercase tracking-tighter">
-                            {selectedCropId 
-                              ? (isLogin ? onlineCrops : localCrops).find(c => c.id === selectedCropId)?.field_name 
-                              : (customCropName.trim() || "Vụ tự do")}
-                         </div>
-                         <div className="text-[10px] text-blue-500 font-bold uppercase mt-1">Đang thực hiện cân lúa</div>
-                      </div>
-                   </div>
-                    <div className="flex items-center gap-3">
-                       <Button 
-                         variant="ghost" 
-                         onClick={() => setShowResultPopup(true)}
-                         className="flex flex-col items-center gap-1 h-12 px-2 text-blue-100 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
-                       >
-                          <Calculator className="w-5 h-5 text-yellow-400" />
-                          <span className="text-[10px] font-black uppercase tracking-tighter">Sửa kết quả</span>
-                       </Button>
-                       <div className="bg-blue-900 text-white px-6 py-2 rounded-2xl shadow-inner text-right min-w-[120px]">
-                          <div className="text-2xl font-black tracking-tighter leading-none">
-                             {weights.reduce((s, w) => s + (w ? parseFloat(w) / 10 : 0), 0).toLocaleString("vi-VN", { minimumFractionDigits: 1 })}
-                          </div>
-                          <div className="text-[9px] uppercase font-black text-blue-300">Tổng kg</div>
+                 <div className="bg-white/90 backdrop-blur-md p-3 grid grid-cols-2 gap-3 border-b border-blue-100 sticky top-0 z-30 shadow-sm">
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => setShowResultPopup(true)}
+                      className="flex flex-col items-center justify-center gap-1 h-14 w-full text-blue-800 hover:bg-blue-100/50 active:scale-95 transition-all bg-blue-50 border border-blue-200 rounded-2xl"
+                    >
+                       <Calculator className="w-5 h-5 text-blue-600" />
+                       <span className="text-[10px] font-black uppercase tracking-tighter leading-none text-center">Kết quả/ Cài đặt</span>
+                    </Button>
+                    <div className="bg-blue-900 text-white flex flex-col items-center justify-center rounded-2xl shadow-inner h-14 w-full">
+                       <div className="text-2xl font-black tracking-tighter leading-none">
+                          {weights.reduce((s, w) => s + (w ? parseFloat(w) / 10 : 0), 0).toLocaleString("vi-VN", { minimumFractionDigits: 1 })}
                        </div>
+                       <div className="text-[9px] uppercase font-black text-blue-300 mt-1">Tổng kg</div>
                     </div>
                 </div>
 
@@ -972,7 +973,7 @@ export default function RiceWeighingTool({
                                     <Calculator className="w-6 h-6 text-white" />
                                  </div>
                                  <div>
-                                    <div className="text-xl font-black text-slate-800 flex items-center gap-2">SỬA KẾT QUẢ <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" /></div>
+                                    <div className="text-xl font-black text-slate-800 flex items-center gap-2">KẾT QUẢ/ CÀI ĐẶT <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" /></div>
                                     <div className="text-[10px] text-slate-400 font-bold uppercase">Cập nhật đơn giá & các loại trừ</div>
                                   </div>
                                </div>
