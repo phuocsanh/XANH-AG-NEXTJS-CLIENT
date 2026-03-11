@@ -113,14 +113,16 @@ export default function RiceWeighingTool({
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition()
-      recognition.continuous = true
-      recognition.interimResults = true // Bật để nhận dữ liệu trung gian
+      // Thiết lập các thuộc tính dựa trên thiết bị (iOS cần continuous = false để ổn định nhất)
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+      recognition.continuous = !isIOS // iOS (cả Chrome và Safari) không ổn định với continuous = true
+      recognition.interimResults = true
       recognition.lang = "vi-VN"
       
-      // Đồng bộ trạng thái theo sự kiện thực tế của hệ thống (Rất quan trọng cho iOS)
       recognition.onstart = () => {
         isListeningRef.current = true
         setIsListening(true)
+        console.log("Speech recognition started")
       }
 
       recognition.onsoundstart = () => {
@@ -172,20 +174,26 @@ export default function RiceWeighingTool({
       }
 
       recognition.onerror = (event: any) => {
-        if (event.error === 'no-speech') return 
-        
-        if (event.error === 'not-allowed') {
-          toast({
-            title: "Quyền truy cập Micro",
-            description: "Trình duyệt đang chặn Micro. Bạn hãy nhấn vào biểu tượng Micro có dấu gạch chéo ở thanh địa chỉ (chỗ localhost:3000) và chọn 'Luôn cho phép' nhé!",
-            variant: "destructive"
-          })
-        } else {
-          console.error("Speech Recognition Error:", event.error)
-        }
-        
         setIsListening(false)
         isListeningRef.current = false
+        
+        if (event.error === 'no-speech') return 
+        
+        const errorMessages: Record<string, string> = {
+          'not-allowed': 'Bạn hãy nhấn vào biểu tượng Micro ở thanh địa chỉ và chọn "Luôn cho phép" nhé!',
+          'network': 'Lỗi mạng, Siri cần mạng để nhận diện giọng nói.',
+          'aborted': 'Đã dừng thu âm.',
+          'audio-capture': 'Không tìm thấy Micro.',
+        }
+        
+        console.error("Speech Recognition Error:", event.error)
+        if (errorMessages[event.error]) {
+          toast({
+            title: "Lỗi Micro",
+            description: errorMessages[event.error],
+            variant: "destructive"
+          })
+        }
       }
 
       recognition.onend = () => {
@@ -270,35 +278,34 @@ export default function RiceWeighingTool({
   }
 
   const toggleListening = () => {
-    if (!recognitionRef.current) return
+    if (!recognitionRef.current) {
+      toast({
+        title: "Không hỗ trợ",
+        description: "Trình duyệt này không hỗ trợ Speech API.",
+        variant: "destructive"
+      })
+      return
+    }
     
     if (isListeningRef.current) {
       try {
         recognitionRef.current.stop()
-        recognitionRef.current.abort()
       } catch {}
       isListeningRef.current = false
       setIsListening(false)
     } else {
       lastProcessedIndexRef.current = -1
-      setIsListening(true)
-      isListeningRef.current = true
-      
+      // iOS Cực kỳ nhạy cảm với setTimeout, phải gọi trực tiếp start() ngay lập tức
       try {
-        recognitionRef.current.abort()
-        setTimeout(() => {
-          try {
-            recognitionRef.current.start()
-          } catch {
-            try {
-              recognitionRef.current.stop()
-              setTimeout(() => recognitionRef.current.start(), 50)
-            } catch {}
-          }
-        }, 30)
-      } catch {
+        recognitionRef.current.start()
+        setIsListening(true) // Set UI lên trước để tạo cảm giác phản hồi nhanh
+        isListeningRef.current = true
+      } catch (e) {
+        console.error("Speech start failure:", e)
+        // Fallback khẩn cấp nếu bị kẹt
         try {
-          recognitionRef.current.start()
+          recognitionRef.current.abort()
+          setTimeout(() => recognitionRef.current.start(), 100)
         } catch {}
       }
     }
