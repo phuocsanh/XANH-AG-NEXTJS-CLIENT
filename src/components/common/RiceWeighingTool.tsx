@@ -323,26 +323,28 @@ export default function RiceWeighingTool({
     }
 
     // 2. ĐÁNH THỨC AUDIO SESSION CỦA IOS bằng AudioContext TRƯỚC
-    // Kỹ thuật phổ biến: gọi AudioContext.resume() trong cùng user-gesture để iOS "đăng ký" audio
     try {
       const AudioCtx = (window as any).AudioContext || (window as any).webkitAudioContext
       if (AudioCtx) {
         const ac = new AudioCtx()
         ac.resume().then(() => {
-          console.log(`[${now}] AudioContext primed, now starting SpeechRecognition`)
+          console.log(`[${now}] AudioContext primed`)
           ac.close()
         }).catch(() => {})
       }
     } catch {}
 
-    // 3. KÍCH HOẠT NGAY LẬP TỨC để giữ user gesture
+    // 3. KÍCH HOẠT - đặt cờ TRƯỚC khi start() để tránh double-trigger
+    // (iOS đôi khi gọi onClick 2 lần nhanh, lần 2 phải thấy state=true để bỏ qua)
+    isListeningRef.current = true
+    lastProcessedIndexRef.current = -1
     try {
       console.log(`[${now}] Calling recognition.start()...`)
       recognition.start()
-      lastProcessedIndexRef.current = -1
     } catch (e) {
       console.error(`[${now}] CRITICAL: recognition.start() failed:`, e)
       isListeningRef.current = false
+      updateUIStopped()
     }
   }
 
