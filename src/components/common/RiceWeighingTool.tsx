@@ -188,7 +188,7 @@ export default function RiceWeighingTool({
     })
   }
 
-  const toggleListening = () => {
+  const toggleListening = async () => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!SpeechRecognition) {
       toast({
@@ -210,6 +210,28 @@ export default function RiceWeighingTool({
       lastProcessedIndexRef.current = -1
       
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+      const isStandalone = (window.navigator as any).standalone || window.matchMedia('(display-mode: standalone)').matches
+
+      // Mẹo cho iOS PWA: Cần gọi getUserMedia để kích hoạt mic trước khi dùng Speech API
+      if (isIOS) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+          // Sau khi có stream, ta có thể đóng ngay vì Speech API sẽ tự quản lý sau đó
+          stream.getTracks().forEach(track => track.stop())
+        } catch (err) {
+          console.error("Mic permission denied or failed:", err)
+          toast({
+            title: "Quyền Micro",
+            description: "Bạn hãy cho phép ứng dụng dùng Micro trong Cài đặt của iPhone nhé!",
+            variant: "destructive"
+          })
+          return
+        }
+      }
+
+      if (isIOS && isStandalone) {
+        console.log("Running in iOS Standalone (PWA) mode")
+      }
       // iOS Chrome ổn định nhất khi tạo mới object mỗi lần dùng
       const recognition = new SpeechRecognition()
       recognition.continuous = !isIOS
