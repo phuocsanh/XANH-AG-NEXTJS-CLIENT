@@ -52,6 +52,7 @@ export default function RiceWeighingTool({
   const [showResultPopup, setShowResultPopup] = useState<boolean>(false)
   const [micPosition, setMicPosition] = useState({ x: 20, y: -20 }) // Bottom-left default
   const [isDragging, setIsDragging] = useState(false)
+  const [autoJumpLength, setAutoJumpLength] = useState<number>(3) // Mặc định 3 số nhảy ô
   
   const { isLogin } = useAppStore()
   const { data: onlineCropsData } = useRiceCrops({ limit: 100 }, isOpen && isLogin)
@@ -395,6 +396,27 @@ export default function RiceWeighingTool({
 
     return (
       <div className="bg-white border-2 border-[#d32f2f] rounded-b-2xl shadow-xl overflow-hidden divide-y divide-gray-100">
+         {/* Cài đặt chế độ nhảy ô */}
+         <div className="p-4 bg-slate-50 flex justify-between items-center border-b border-slate-100">
+            <div className="text-sm font-black text-slate-600 uppercase">Chế độ nhảy ô</div>
+            <div className="flex bg-slate-200 p-1 rounded-xl">
+               {[3, 4].map(num => (
+                 <button
+                   key={num}
+                   onClick={() => setAutoJumpLength(num)}
+                   className={cn(
+                     "px-4 py-1.5 rounded-lg text-xs font-black transition-all",
+                     autoJumpLength === num 
+                       ? "bg-white text-blue-600 shadow-sm scale-105" 
+                       : "text-slate-500 hover:text-slate-700"
+                   )}
+                 >
+                   {num} SỐ
+                 </button>
+               ))}
+            </div>
+         </div>
+
          {/* Tên Nông Dân */}
          <div className="p-4 grid grid-cols-5 gap-3 items-center">
             <div className="col-span-2 text-sm font-black text-slate-500 uppercase">Tên nông dân</div>
@@ -662,11 +684,11 @@ export default function RiceWeighingTool({
                     value={w || ""}
                     onChange={(e) => {
                       const val = e.target.value
-                      // Giới hạn độ dài 4 số và giá trị thực tế không quá 120kg (1200)
-                      if (val.length <= 4 && (parseInt(val) || 0) <= 1200) {
+                      // Cho phép nhập tối đa 4 chữ số, không giới hạn giá trị kg
+                      if (val.length <= 4) {
                         updateWeight(globalIdx, val)
-                        // Tự động nhảy ô nếu nhập đủ 3 số
-                        if (val.length === 3) {
+                        // Tự động nhảy ô nếu nhập đủ số (3 hoặc 4 tùy cài đặt)
+                        if (val.length === autoJumpLength) {
                           const nextIdx = getNextIndex(globalIdx)
                           setActiveIndex(nextIdx)
                           // Tăng timeout một chút để ổn định hơn
