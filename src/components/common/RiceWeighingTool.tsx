@@ -230,7 +230,7 @@ export default function RiceWeighingTool({
 
     // 1. Khởi tạo Speech trước
     const recognition = new SpeechRecognition()
-    recognition.continuous = true // continuous=true giúp giữ kết nối ổn định trên PWA
+    recognition.continuous = false
     recognition.interimResults = true
     recognition.lang = "vi-VN"
     recognitionRef.current = recognition
@@ -288,7 +288,6 @@ export default function RiceWeighingTool({
           console.log(`[${now}] Processing FINAL transcript:`, transcript)
           handleVoiceInput(transcript)
           lastProcessedIndexRef.current = lastIndex
-          // Dừng sau khi có kết quả
           setTimeout(stopMic, 200)
         }
       } else {
@@ -323,11 +322,23 @@ export default function RiceWeighingTool({
       updateUIStopped()
     }
 
-    // 2. KÍCH HOẠT NGAY LẬP TỨC để giữ user gesture
+    // 2. ĐÁNH THỨC AUDIO SESSION CỦA IOS bằng AudioContext TRƯỚC
+    // Kỹ thuật phổ biến: gọi AudioContext.resume() trong cùng user-gesture để iOS "đăng ký" audio
+    try {
+      const AudioCtx = (window as any).AudioContext || (window as any).webkitAudioContext
+      if (AudioCtx) {
+        const ac = new AudioCtx()
+        ac.resume().then(() => {
+          console.log(`[${now}] AudioContext primed, now starting SpeechRecognition`)
+          ac.close()
+        }).catch(() => {})
+      }
+    } catch {}
+
+    // 3. KÍCH HOẠT NGAY LẬP TỨC để giữ user gesture
     try {
       console.log(`[${now}] Calling recognition.start()...`)
       recognition.start()
-      // Khởi tạo các ref trạng thái
       lastProcessedIndexRef.current = -1
     } catch (e) {
       console.error(`[${now}] CRITICAL: recognition.start() failed:`, e)
