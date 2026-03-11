@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { 
-  Mic, MicOff, X, ChevronLeft, Save, Database, History, Info, Scale, ArrowRight, Trash2, RotateCw, Keyboard, ChevronDown, Calculator, Check
+  Mic, MicOff, X, ChevronLeft, Save, Database, History, Info, Scale, ArrowRight, Trash2, RotateCw, Calculator, Check
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAppStore } from "@/stores"
@@ -35,7 +35,6 @@ export default function RiceWeighingTool({
   const [weights, setWeights] = useState<string[]>(new Array(MAX_CELLS).fill(""))
   const [activeIndex, setActiveIndex] = useState(0)
   const [isListening, setIsListening] = useState(false)
-  const [showKeyboard, setShowKeyboard] = useState(false)
   const [step, setStep] = useState<"select-crop" | "weighing" | "history">("select-crop")
   const [selectedCropId, setSelectedCropId] = useState<number | string | null>(null)
   const [customCropName, setCustomCropName] = useState("")
@@ -83,38 +82,22 @@ export default function RiceWeighingTool({
       const container = scrollContainerRef.current
       
       if (activeElement && container) {
-        // Chiều cao bàn phím ảo (Xấp xỉ 320px)
-        const keyboardOverlayHeight = showKeyboard ? 340 : 0 
-        const containerRect = container.getBoundingClientRect()
-        const elementRect = activeElement.getBoundingClientRect()
+        // Luôn cuộn đến ô đang nhập để đảm bảo không bị che khuất bởi bàn phím hệ thống
+        const viewportHeight = container.clientHeight
+        const elementOffsetTop = activeElement.offsetTop
+        const targetScroll = elementOffsetTop - (viewportHeight * 0.25)
         
-        // Kiểm tra xem ô có bị che bởi bàn phím ảo hay không
-        // elementRect.bottom so với containerRect.bottom - keyboardOverlayHeight
-        const bottomThreshold = containerRect.bottom - keyboardOverlayHeight
-        const topThreshold = containerRect.top + 100 // Một chút khoảng trống phía trên
-        
-        const isObscured = elementRect.bottom > bottomThreshold || elementRect.top < topThreshold
-        
-        if (isObscured) {
-          // Vùng hiển thị thực tế
-          const viewportHeight = container.clientHeight - keyboardOverlayHeight
-          
-          // Ưu tiên đưa ô lên khoảng 1/4 - 1/3 phía trên của vùng hiển thị (để bà con nhìn rõ)
-          const elementOffsetTop = activeElement.offsetTop
-          const targetScroll = elementOffsetTop - (viewportHeight * 0.25)
-          
-          container.scrollTo({
-            top: Math.max(0, targetScroll),
-            behavior: "smooth"
-          })
-        }
+        container.scrollTo({
+          top: Math.max(0, targetScroll),
+          behavior: "smooth"
+        })
       }
     }
 
     // Đợi 50ms để đảm bảo các bảng mới (nếu có) đã render xong
     const timer = setTimeout(scrollToActive, 50)
     return () => clearTimeout(timer)
-  }, [activeIndex, showKeyboard, weights[activeIndex]])
+  }, [activeIndex, weights[activeIndex]])
 
   useEffect(() => {
     weightsRef.current = weights
@@ -541,16 +524,41 @@ export default function RiceWeighingTool({
                 <div 
                   key={globalIdx}
                   id={`cell-${globalIdx}`}
-                  onClick={() => setActiveIndex(globalIdx)}
                   className={cn(
-                    "bg-white aspect-square flex items-center justify-center text-xl font-black transition-all cursor-pointer relative",
-                    activeIndex === globalIdx ? "ring-2 ring-inset ring-yellow-400 z-10 bg-yellow-50" : "text-slate-800",
+                    "bg-white aspect-square flex items-center justify-center relative",
+                    activeIndex === globalIdx ? "ring-2 ring-inset ring-yellow-400 z-10 bg-yellow-50" : "",
                     w && "bg-slate-50"
                   )}
                 >
-                  {w || ""}
+                  <input
+                    id={`input-cell-${globalIdx}`}
+                    type="number"
+                    pattern="[0-9]*"
+                    inputMode="numeric"
+                    value={w || ""}
+                    onChange={(e) => {
+                      const val = e.target.value
+                      if (val.length <= 4) {
+                        updateWeight(globalIdx, val)
+                        // Tự động nhảy ô nếu nhập đủ 3 số
+                        if (val.length === 3) {
+                          const nextIdx = getNextIndex(globalIdx)
+                          setActiveIndex(nextIdx)
+                          setTimeout(() => {
+                            const nextInput = document.getElementById(`input-cell-${nextIdx}`) as HTMLInputElement
+                            if (nextInput) nextInput.focus()
+                          }, 10)
+                        }
+                      }
+                    }}
+                    onFocus={() => setActiveIndex(globalIdx)}
+                    className={cn(
+                      "w-full h-full bg-transparent text-center text-xl font-black focus:outline-none placeholder:text-slate-200",
+                      w ? "text-slate-900" : "text-slate-300"
+                    )}
+                  />
                   {activeIndex === globalIdx && (
-                    <div className="absolute top-0 right-0 w-2 h-2 bg-yellow-400 rounded-full m-1 animate-pulse" />
+                    <div className="absolute top-1 right-1 w-2 h-2 bg-blue-600 rounded-full animate-pulse pointer-events-none" />
                   )}
                 </div>
               )
@@ -607,7 +615,27 @@ export default function RiceWeighingTool({
             <div className="ml-2 font-black italic text-lg tracking-tight uppercase">CÂN LÚA</div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost" 
+              onClick={toggleListening}
+              className={cn(
+                "h-10 w-10 rounded-full transition-all active:scale-95",
+                isListening ? "bg-red-500 text-white animate-pulse" : "text-white hover:bg-white/10"
+              )}
+            >
+              {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+            </Button>
+
+            <Button 
+              variant="ghost" 
+              onClick={handleComplete}
+              className="text-white hover:bg-white/10 rounded-full h-10 px-3 flex items-center gap-1"
+            >
+              <Save className="h-5 w-5" />
+              <span className="text-sm font-bold">Lưu lại</span>
+            </Button>
+
             <Button 
               variant="ghost" 
               onClick={() => {
@@ -765,8 +793,7 @@ export default function RiceWeighingTool({
                 <div 
                   ref={scrollContainerRef} 
                   className={cn(
-                    "flex-1 overflow-y-auto p-4 no-scrollbar pb-40 transition-all duration-300 relative",
-                    showKeyboard && "pb-[450px]"
+                    "flex-1 overflow-y-auto p-4 no-scrollbar pb-40 transition-all duration-300 relative"
                   )}
                 >
                    {[...Array(MAX_TABLES)].map((_, i) => {
@@ -840,116 +867,7 @@ export default function RiceWeighingTool({
                    )}
                 </div>
 
-                {/* Floating Controls */}
-                {!showKeyboard && (
-                  <div className="absolute bottom-6 left-0 right-0 px-6 flex justify-center pointer-events-none z-50">
-                    <div className="bg-white/95 backdrop-blur-xl p-3 px-6 rounded-full shadow-2xl flex items-center gap-3 border border-blue-100 pointer-events-auto">
-                        <Button 
-                          variant="outline" 
-                          className={cn(
-                            "h-12 w-12 rounded-full border-2 transition-all active:scale-90",
-                            showKeyboard ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-200"
-                          )}
-                          onClick={() => setShowKeyboard(!showKeyboard)}
-                        >
-                          <Keyboard className="h-6 w-6" />
-                        </Button>
-
-                        <div className="w-px h-8 bg-slate-200 mx-1" />
-
-                        <Button 
-                          variant="outline" 
-                          className="h-12 w-12 rounded-full border-2 border-slate-200 text-slate-600 active:scale-90"
-                          onClick={() => {
-                            setWeights(prev => {
-                              const n = [...prev]
-                              n[activeIndex] = (n[activeIndex] || "").slice(0, -1)
-                              weightsRef.current = n
-                              return n
-                            })
-                          }}
-                        >
-                          Xóa
-                        </Button>
-                        
-                        <Button 
-                          onClick={toggleListening}
-                          className={cn(
-                            "h-16 w-16 rounded-full shadow-lg transition-all active:scale-95 border-4 border-white/50",
-                            isListening 
-                              ? "!bg-red-600 animate-pulse ring-4 ring-red-600/30 shadow-red-500/50" 
-                              : "!bg-[#2e7d32] hover:bg-[#1b5e20] shadow-green-900/20"
-                          )}
-                        >
-                          {isListening ? <MicOff className="h-8 w-8 text-white" /> : <Mic className="h-8 w-8 text-white" />}
-                        </Button>
-
-                        <Button 
-                          onClick={handleComplete}
-                          className="h-14 px-8 rounded-full bg-blue-900 text-white font-black hover:bg-blue-950 shadow-lg active:scale-95 flex items-center gap-2"
-                        >
-                          <Save className="w-5 h-5" />
-                          HOÀN TẤT
-                        </Button>
-                    </div>
-                </div>
-              )}
-
-                {showKeyboard && (
-                  <div className="absolute bottom-0 left-0 right-0 bg-white border-t p-4 z-40 animate-in slide-in-from-bottom-full duration-300 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] h-[320px]">
-                    <div className="grid grid-cols-3 gap-2">
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
-                          <Button 
-                            key={n} 
-                            variant="secondary"
-                            className="h-16 text-2xl font-black bg-slate-50 border-b-4 border-slate-200 active:border-b-0 active:translate-y-1 rounded-2xl text-slate-800"
-                            onClick={() => {
-                              const currentVal = weightsRef.current[activeIndex] || ""
-                              if (currentVal.length < 4) {
-                                const newVal = currentVal + n
-                                updateWeight(activeIndex, newVal)
-                                if (newVal.length >= 3) {
-                                  // Sau khi nhập đủ 3-4 số, tự động nhảy xuống ô bên dưới (theo chiều dọc)
-                                  if (activeIndexRef.current < MAX_CELLS - 1) {
-                                    setActiveIndex(getNextIndex(activeIndexRef.current))
-                                  }
-                                }
-                              }
-                            }}
-                          >
-                            {n}
-                          </Button>
-                        ))}
-                        <Button variant="outline" className="h-16 text-sm font-black rounded-2xl border-2 border-slate-100 flex flex-col items-center justify-center gap-1 active:bg-slate-50" onClick={() => setShowKeyboard(false)}>
-                          <ChevronDown className="h-5 w-5 text-slate-400" />
-                          ẨN PHÍM
-                        </Button>
-                        <Button variant="secondary" className="h-16 text-2xl font-black bg-slate-50 border-b-4 border-slate-200 active:border-b-0 active:translate-y-1 rounded-2xl text-slate-800" onClick={() => {
-                           const currentIdx = activeIndexRef.current
-                           const currentVal = weightsRef.current[currentIdx] || ""
-                           if (currentVal.length < 4) {
-                              const newVal = currentVal + "0"
-                              updateWeight(currentIdx, newVal)
-                              if (newVal.length >= 3) {
-                                if (currentIdx < MAX_CELLS - 1) {
-                                  setActiveIndex(getNextIndex(currentIdx))
-                                }
-                              }
-                           }
-                        }}>0</Button>
-                        <Button variant="outline" className="h-16 text-2xl font-black rounded-2xl bg-slate-100" onClick={() => {
-                           setWeights(prev => {
-                              const n = [...prev]
-                              n[activeIndex] = (n[activeIndex] || "").slice(0, -1)
-                              weightsRef.current = n
-                              return n
-                            })
-                        }}>
-                           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-delete"><path d="M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z"/><line x1="18" x2="12" y1="9" y2="15"/><line x1="12" x2="18" y1="9" y2="15"/></svg>
-                        </Button>
-                    </div>
-                  </div>
-                )}
+                 {/* Bàn phím ảo và Floating Controls đã được ẩn theo yêu cầu */}
              </>
            )}
 
