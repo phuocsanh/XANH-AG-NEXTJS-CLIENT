@@ -224,10 +224,11 @@ export default function RiceWeighingTool({
       .replace(/tám/g, "8")
       .replace(/chín/g, "9")
       .replace(/lẻ|linh|ninh/g, "0")
+      .replace(/chục|mươi/g, "0")
 
     let numbers = normalized.replace(/[^0-9]/g, "")
-    // Nếu chỉ có 2 số (ví dụ 88), tự hiểu là 880 (trừ trường hợp đọc ba lẻ một)
-    if (numbers.length === 2 && !normalized.includes("mười") && !normalized.includes("0")) {
+    // Nếu chỉ có 2 số (ví dụ 88 hoặc 50), tự hiểu là 88.0 hoặc 50.0kg (điền 880, 500)
+    if (numbers.length === 2 && !normalized.includes("mười")) {
       numbers += "0"
     }
     
