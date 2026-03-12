@@ -130,21 +130,21 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             <TableBody>
               {cost_breakdown.length > 0 ? (
                 cost_breakdown.map((item, index) => (
-                  <TableRow key={index} className="hover:bg-muted/10 transition-colors">
-                    <TableCell className="pl-2 md:pl-6 py-3">
+                  <TableRow key={index} className="hover:bg-muted/10 transition-colors border-b last:border-0">
+                    <TableCell className="pl-2 md:pl-6 py-4">
                       <StatusBadge 
                         status={item.category} 
                         unstyled
-                        className="text-[10px] md:text-xs tracking-normal font-bold"
+                        className="text-xs md:text-sm tracking-tight font-bold opacity-80"
                       />
                     </TableCell>
-                    <TableCell className="text-right px-1 md:px-2 whitespace-nowrap font-mono text-[10px] md:text-sm">
+                    <TableCell className="text-right px-1 md:px-2 whitespace-nowrap font-bold text-[13px] md:text-base text-agri-700">
                       {convertCurrency(item.amount)}
                     </TableCell>
-                    <TableCell className="pr-2 md:pr-6">
-                      <div className="flex flex-col md:flex-row items-center gap-1 md:gap-2">
-                        <Progress value={item.percentage} className="h-1 md:h-2 w-full md:flex-1" />
-                        <span className="text-[9px] md:text-xs font-mono w-8 md:w-10 text-center md:text-right">
+                    <TableCell className="pr-2 md:pr-6 w-[35%] md:w-[40%]">
+                      <div className="flex flex-col md:flex-row items-center gap-1 md:gap-3">
+                        <Progress value={item.percentage} className="h-2 md:h-2.5 w-full md:flex-1" />
+                        <span className="text-xs md:text-sm font-bold w-12 text-center md:text-right text-gray-600">
                           {item.percentage.toFixed(1)}%
                         </span>
                       </div>
