@@ -154,13 +154,14 @@ export default function GrowthTrackingTab({ riceCropId }: GrowthTrackingTabProps
               <TableHead className="min-w-[130px] font-bold text-agri-900">Chiều cao (cm)</TableHead>
               <TableHead className="min-w-[100px] font-bold text-agri-900">Màu lá</TableHead>
               <TableHead className="min-w-[150px] font-bold text-agri-900">Sâu bệnh</TableHead>
+              <TableHead className="min-w-[200px] font-bold text-agri-900">Ghi chú</TableHead>
               <TableHead className="text-right min-w-[120px] font-bold text-agri-900 pr-6">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
                   <div className="flex items-center justify-center gap-2">
                     <Loader2 className="h-5 w-5 animate-spin text-agri-500" />
                     Đang tải nhật ký...
@@ -179,6 +180,11 @@ export default function GrowthTrackingTab({ riceCropId }: GrowthTrackingTabProps
                   <TableCell>
                     <span className={item.pest_disease_detected && item.pest_disease_detected !== "Không có" ? "text-destructive font-bold" : "text-emerald-600 font-medium"}>
                       {item.pest_disease_detected || "Sạch bệnh"}
+                    </span>
+                  </TableCell>
+                  <TableCell className="max-w-[200px] truncate group-hover:whitespace-normal transition-all duration-300">
+                    <span className="text-gray-600 text-xs italic">
+                      {item.notes || "-"}
                     </span>
                   </TableCell>
                   <TableCell className="text-right pr-4">
@@ -207,7 +213,7 @@ export default function GrowthTrackingTab({ riceCropId }: GrowthTrackingTabProps
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-32 text-center text-muted-foreground italic">
+                <TableCell colSpan={7} className="h-32 text-center text-muted-foreground italic">
                   Chưa có bản ghi theo dõi nào
                 </TableCell>
               </TableRow>
@@ -263,11 +269,12 @@ export default function GrowthTrackingTab({ riceCropId }: GrowthTrackingTabProps
                 />
               </div>
 
-              <FormFieldWrapper
+              <FormTextarea
                 control={form.control}
                 name="pest_disease_detected"
                 label="Tình trạng sâu bệnh"
                 placeholder="Mô tả sâu bệnh nếu có"
+                rows={2}
               />
 
               <FormTextarea
