@@ -1,12 +1,17 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef, startTransition } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { 
   Mic, X, ChevronLeft, Save, Database, History, Info, Scale, ArrowRight, Trash2, RotateCw, Calculator, Check
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle
+} from "@/components/ui/alert-dialog"
 import { useAppStore } from "@/stores"
 import { useRiceCrops } from "@/hooks/use-rice-crops"
 import { localFarmingService } from "@/lib/local-farming-service"
@@ -52,6 +57,8 @@ export default function RiceWeighingTool({
   const [micPosition, setMicPosition] = useState({ x: 20, y: -20 }) // Bottom-left default
   const [isDragging, setIsDragging] = useState(false)
   const [autoJumpLength, setAutoJumpLength] = useState<number>(3) // Mặc định 3 số nhảy ô
+  const [showSaveConfirm, setShowSaveConfirm] = useState(false) // Dialog xác nhận lưu khi thoát
+  const initialWeightsRef = useRef<string[]>(new Array(MAX_CELLS).fill("")) // Lưu trạng thái gốc để so sánh
   
   const { isLogin } = useAppStore()
   const { data: onlineCropsData } = useRiceCrops({ limit: 100 }, isOpen && isLogin)
@@ -107,10 +114,54 @@ export default function RiceWeighingTool({
     return () => clearTimeout(timer)
   }, [activeIndex])
 
+  // Cập nhật initialWeights khi weights thay đổi lần đầu (lúc mới mở) hoặc khi chuyển step
   useEffect(() => {
-    weightsRef.current = weights
-  }, [weights])
+    if (step === "weighing") {
+      initialWeightsRef.current = [...weights]
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step])
 
+  // Kiểm tra dữ liệu có thực sự bị thay đổi so với ban đầu không
+  const hasUnsavedData = JSON.stringify(weights) !== JSON.stringify(initialWeightsRef.current) 
+    && weights.some(w => w !== "")
+
+  // Xử lý khi người dùng cố thoát (nhấn nút quảy lại hoặc vuốt back)
+  const handleBackAttempt = () => {
+    if (step === "weighing" && hasUnsavedData) {
+      // Có dữ liệu chưa lưu -> hiện dialog xác nhận
+      setShowSaveConfirm(true)
+    } else if (step === "weighing") {
+      setStep("select-crop")
+    } else if (step === "history") {
+      setStep("select-crop")
+    } else {
+      onClose()
+    }
+  }
+
+  // Bắt sự kiện vuốt/nhấn back trên iOS PWA và trình duyệt
+  useEffect(() => {
+    if (!isOpen) return
+
+    // Đẩy một state giả vào history để chặn sự kiện popstate
+    window.history.pushState({ fromWeighingTool: true }, "")
+
+    const handlePopState = (e: PopStateEvent) => {
+      e.preventDefault()
+      // Đẩy lại state giả để không dời khỏi trang
+      window.history.pushState({ fromWeighingTool: true }, "")
+      handleBackAttempt()
+    }
+
+    window.addEventListener("popstate", handlePopState)
+    return () => {
+      window.removeEventListener("popstate", handlePopState)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, step, hasUnsavedData])
+
+  // Dọn dẹp recognition khi component unmount
   useEffect(() => {
     return () => {
       if (recognitionRef.current) {
@@ -169,7 +220,6 @@ export default function RiceWeighingTool({
     console.log("Processed numbers raw:", numbers)
 
     // Sửa lỗi đặc thù: "tám mươi" hay bị nghe thành "8 10" -> "810"
-    // Nếu có 3 chữ số và kết thúc bằng "10" (ví dụ 810, 510) thì khả năng cao là x0
     if (numbers.length === 3 && numbers.endsWith("10") && numbers[0] !== "1") {
       numbers = numbers[0] + "0"
     }
@@ -179,17 +229,28 @@ export default function RiceWeighingTool({
       numbers += "0"
     }
     
-    // Giảm điều kiện xuống >= 1 để nhạy hơn
     if (numbers.length >= 1 && numbers.length <= 4) {
       const currentIndex = activeIndexRef.current
-      updateWeight(currentIndex, numbers)
+      const nextIndex = currentIndex < MAX_CELLS - 1 ? getNextIndex(currentIndex) : currentIndex
       
-      if (currentIndex < MAX_CELLS - 1) {
-        setActiveIndex(getNextIndex(currentIndex))
-      }
+      // Gộp 2 setState vào 1 lần render: cập nhật weights và activeIndex cùng lúc
+      // tránh hiện tượng "chớp" do 2 lần render riêng biệt
+      setWeights(prev => {
+        const newWeights = [...prev]
+        newWeights[currentIndex] = numbers
+        weightsRef.current = newWeights
+        return newWeights
+      })
+      
+      // startTransition: đánh dấu việc chuyển ô là update ưu tiên thấp (non-urgent)
+      // giúp giao diện không bị giật khi chuyển ô
+      startTransition(() => {
+        setActiveIndex(nextIndex)
+      })
     }
   }
 
+  // updateWeight vẫn giữ nguyên để dùng cho input bàn phím thông thường
   const updateWeight = (index: number, val: string) => {
     setWeights(prev => {
       const newWeights = [...prev]
@@ -390,8 +451,10 @@ export default function RiceWeighingTool({
       
       onSave(netWeight)
       
-      // Reset after success
-      setWeights(new Array(MAX_CELLS).fill(""))
+      // Reset sau khi lưu thành công
+      const emptyWeights = new Array(MAX_CELLS).fill("")
+      setWeights(emptyWeights)
+      initialWeightsRef.current = emptyWeights
       setEditingRecordId(null)
       setUnitPrice(0)
       setDepositAmount(0)
@@ -413,6 +476,7 @@ export default function RiceWeighingTool({
       if (i < MAX_CELLS) newWeights[i] = w
     })
     setWeights(newWeights)
+    initialWeightsRef.current = [...newWeights]
     setCustomCropName(record.crop_name || "")
     setSelectedCropId(record.rice_crop_id || null)
     setEditingRecordId(record.id || null)
@@ -801,12 +865,8 @@ export default function RiceWeighingTool({
         
         {/* Header - Thêm padding-top safe area cho iOS PWA standalone */}
         <div className="bg-[#0b5394] text-white p-3 flex justify-between items-center shadow-xl z-20" style={{ paddingTop: 'max(12px, env(safe-area-inset-top))' }}>
-           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={() => {
-              if (step === "weighing") setStep("select-crop")
-              else if (step === "history") setStep("select-crop")
-              else onClose()
-            }} className="text-white hover:bg-white/10 rounded-full">
+         <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" onClick={handleBackAttempt} className="text-white hover:bg-white/10 rounded-full">
               {step !== "select-crop" ? <ChevronLeft className="h-6 w-6" /> : <X className="h-6 w-6" />}
             </Button>
             {step === "weighing" ? (
@@ -1176,6 +1236,54 @@ export default function RiceWeighingTool({
            )}
         </div>
       </div>
+
+      {/* Dialog xác nhận lưu khi người dùng thoát có dữ liệu chưa lưu */}
+      <AlertDialog open={showSaveConfirm} onOpenChange={setShowSaveConfirm}>
+        <AlertDialogContent className="max-w-[340px] rounded-[32px] border-none p-0 overflow-hidden shadow-2xl">
+          <div className="bg-[#0b5394] p-6 text-center">
+            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/20">
+               <Save className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-xl font-black text-white tracking-tight">Lưu dữ liệu cân?</h3>
+          </div>
+          
+          <div className="p-6 bg-white">
+            <p className="text-center text-slate-500 text-sm leading-relaxed mb-6">
+              Bạn đang có dữ liệu cân lúa chưa lưu. <br/>Bạn có muốn lưu lại trước khi thoát không?
+            </p>
+            
+            <div className="space-y-3">
+              <AlertDialogAction
+                className="w-full bg-[#0b5394] hover:bg-[#0b5394]/90 text-white font-black rounded-2xl h-14 shadow-lg shadow-blue-100 flex items-center justify-center gap-2"
+                onClick={() => {
+                  setShowSaveConfirm(false)
+                  handleComplete()
+                }}
+              >
+                LƯU LẠI NGAY
+              </AlertDialogAction>
+              
+              <AlertDialogCancel
+                className="w-full bg-slate-50 text-slate-400 border-slate-100 font-bold rounded-2xl h-14 mt-0 hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all"
+                onClick={() => {
+                  setShowSaveConfirm(false)
+                  if (step === "weighing") setStep("select-crop")
+                  else onClose()
+                }}
+              >
+                Bỏ qua, không lưu
+              </AlertDialogCancel>
+              
+              <button
+                className="w-full text-xs font-black text-slate-300 py-2 hover:text-blue-500 transition-colors uppercase tracking-widest"
+                onClick={() => setShowSaveConfirm(false)}
+              >
+                Tiếp tục cân
+              </button>
+            </div>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
