@@ -121,24 +121,32 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="pl-6">Hạng mục</TableHead>
-                <TableHead className="text-right">Số tiền</TableHead>
-                <TableHead className="w-[40%] text-center">Tỷ trọng</TableHead>
+              <TableRow className="bg-muted/30">
+                <TableHead className="pl-2 md:pl-6 h-10 text-[10px] md:text-xs">Hạng mục</TableHead>
+                <TableHead className="text-right px-1 md:px-2 whitespace-nowrap h-10 text-[10px] md:text-xs">Số tiền</TableHead>
+                <TableHead className="w-[30%] md:w-[40%] text-center h-10 text-[10px] md:text-xs">Tỷ trọng</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {cost_breakdown.length > 0 ? (
                 cost_breakdown.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="pl-6 font-medium">
-                      <StatusBadge status={item.category} />
+                  <TableRow key={index} className="hover:bg-muted/10 transition-colors">
+                    <TableCell className="pl-2 md:pl-6 py-3">
+                      <StatusBadge 
+                        status={item.category} 
+                        unstyled
+                        className="text-[10px] md:text-xs tracking-normal font-bold"
+                      />
                     </TableCell>
-                    <TableCell className="text-right">{convertCurrency(item.amount)}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2 px-4">
-                        <Progress value={item.percentage} className="h-2 flex-1" />
-                        <span className="text-xs font-mono w-10 text-right">{item.percentage.toFixed(1)}%</span>
+                    <TableCell className="text-right px-1 md:px-2 whitespace-nowrap font-mono text-[10px] md:text-sm">
+                      {convertCurrency(item.amount)}
+                    </TableCell>
+                    <TableCell className="pr-2 md:pr-6">
+                      <div className="flex flex-col md:flex-row items-center gap-1 md:gap-2">
+                        <Progress value={item.percentage} className="h-1 md:h-2 w-full md:flex-1" />
+                        <span className="text-[9px] md:text-xs font-mono w-8 md:w-10 text-center md:text-right">
+                          {item.percentage.toFixed(1)}%
+                        </span>
                       </div>
                     </TableCell>
                   </TableRow>

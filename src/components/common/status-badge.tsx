@@ -15,6 +15,7 @@ interface StatusBadgeProps {
   variant?: StatusType
   className?: string
   customConfig?: Record<string, StatusConfig>
+  unstyled?: boolean
 }
 
 /**
@@ -26,7 +27,8 @@ export function StatusBadge({
   label, 
   variant = "default", 
   className,
-  customConfig = {}
+  customConfig = {},
+  unstyled = false
 }: StatusBadgeProps) {
   
   // Cấu hình mặc định cho các trạng thái phổ biến
@@ -87,8 +89,11 @@ export function StatusBadge({
   
   const displayText = label || config.label
   const finalClassName = cn(
-    "font-medium px-2 py-0.5 rounded-full text-[11px] uppercase tracking-wider transition-colors",
-    config.className,
+    "font-bold uppercase tracking-wide transition-colors inline-flex items-center",
+    unstyled ? "" : "px-2 py-0.5 rounded-md text-[11px]",
+    unstyled ? "" : config.className,
+    // Nếu unstyled thì vẫn giữ màu chữ từ config nhưng bỏ các fallback class khác
+    unstyled && config.className?.match(/text-[a-z0-9-]+/)?.[0],
     className
   )
 
