@@ -9,8 +9,7 @@ import {
 import { cn } from "@/lib/utils"
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
-  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
-  AlertDialogHeader, AlertDialogTitle
+  AlertDialogContent
 } from "@/components/ui/alert-dialog"
 import { useAppStore } from "@/stores"
 import { useRiceCrops } from "@/hooks/use-rice-crops"
