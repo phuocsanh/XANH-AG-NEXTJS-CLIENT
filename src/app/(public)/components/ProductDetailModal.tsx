@@ -72,13 +72,13 @@ export default function ProductDetailModal({
         className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button - Fixed at top right of the modal container */}
+        {/* Close button - Positioned inside the modal at top right */}
         <button
           onClick={onClose}
-          className="absolute -top-12 right-0 md:-top-4 md:-right-12 p-2 rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors z-[60]"
+          className="absolute top-4 right-4 p-2 rounded-full bg-white/60 backdrop-blur-md hover:bg-white text-gray-800 transition-all z-[70] shadow-sm border border-black/5"
           title="Đóng (Esc)"
         >
-          <X className="w-8 h-8" />
+          <X className="w-5 h-5" />
         </button>
 
         <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-agri-200 scrollbar-track-transparent">
@@ -134,10 +134,21 @@ export default function ProductDetailModal({
           {/* Right column: Product Details */}
           <div>
             {/* Product Name & Trade Name */}
-            <div className="mb-6">
+            <div className="mb-4">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                 {product.trade_name || product.name}
               </h2>
+              
+              {/* Ingredients - Moved up */}
+              {product.ingredient && product.ingredient.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {product.ingredient.map((item, index) => (
+                    <span key={index} className="bg-orange-50 text-orange-700 px-3 py-1 rounded-lg text-[10px] md:text-xs border border-orange-100 font-medium">
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="space-y-6">
@@ -199,35 +210,6 @@ export default function ProductDetailModal({
               )}
 
 
-              {/* Ingredients */}
-              {product.ingredient && product.ingredient.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                    <div className="w-1 h-4 bg-yellow-500 rounded-full" />
-                    Thành phần
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {product.ingredient.map((item, index) => (
-                      <span key={index} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-xs border border-gray-200">
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-
-
-              {/* Notes */}
-              {product.notes && (
-                <div className="bg-yellow-50 border border-yellow-100 p-4 rounded-xl text-sm italic text-yellow-800">
-                  <strong className="block mb-1 not-italic">Ghi chú:</strong>
-                  <div 
-                    className="prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: product.notes }}
-                  />
-                </div>
-              )}
 
               {/* Contact Button */}
               <div className="pt-4 space-y-3">
