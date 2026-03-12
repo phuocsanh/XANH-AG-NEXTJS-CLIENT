@@ -69,18 +69,20 @@ export default function ProductDetailModal({
       onClick={onClose}
     >
       <div
-        className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+        className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button */}
+        {/* Close button - Fixed at top right of the modal container */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors z-20"
+          className="absolute -top-12 right-0 md:-top-4 md:-right-12 p-2 rounded-full bg-white/20 hover:bg-white/40 text-white transition-colors z-[60]"
+          title="Đóng (Esc)"
         >
-          <X className="w-6 h-6" />
+          <X className="w-8 h-8" />
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-8 p-6 md:p-8">
+        <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-agri-200 scrollbar-track-transparent">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-8 p-6 md:p-8">
           {/* Left column: Images */}
           <div className="space-y-4 mb-6 md:mb-0">
             {product.pictures && product.pictures.length > 0 ? (
@@ -182,6 +184,20 @@ export default function ProductDetailModal({
                 </div>
               )}
 
+              {/* Mechanism - Cơ chế tác động */}
+              {product.mechanism && (
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                    <div className="w-1 h-4 bg-blue-500 rounded-full" />
+                    Cơ chế tác động
+                  </h3>
+                  <div 
+                    className="text-gray-600 text-sm leading-relaxed prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: product.mechanism }}
+                  />
+                </div>
+              )}
+
 
               {/* Ingredients */}
               {product.ingredient && product.ingredient.length > 0 && (
@@ -214,17 +230,25 @@ export default function ProductDetailModal({
               )}
 
               {/* Contact Button */}
-              <div className="pt-4">
+              <div className="pt-4 space-y-3">
                 <a
                   href="tel:0987383606"
                   className="group relative block w-full bg-agri-600 hover:bg-agri-700 text-white text-center px-6 py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-agri-200"
                 >
                   LIÊN HỆ ĐẶT HÀNG: 0987.383.606
                 </a>
+                
+                <button
+                  onClick={onClose}
+                  className="block w-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-center px-6 py-4 rounded-xl font-bold transition-all"
+                >
+                  ĐÓNG
+                </button>
               </div>
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )

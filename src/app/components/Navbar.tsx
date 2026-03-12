@@ -22,6 +22,7 @@ import { useAppStore } from "@/stores"
 import Img from "./Img"
 import { useState, useEffect } from "react"
 import { useCurrentUser } from "@/hooks/use-user-profile"
+import { cn } from "@/lib/utils"
 
 interface ProductType {
   id: number
@@ -205,9 +206,17 @@ export default function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div className="flex items-center gap-2 cursor-pointer hover:opacity-80">
-                  <Avatar className='h-8 w-8 sm:h-10 sm:w-10 border-2 border-white'>
-                    <AvatarFallback className="bg-gradient-to-br from-green-500 to-green-600 text-white font-bold">
-                      {userInitial}
+                  <Avatar className={cn(
+                    'h-8 w-8 sm:h-10 sm:w-10 border-2 border-white transition-all',
+                    !user && 'grayscale opacity-70'
+                  )}>
+                    <AvatarFallback className={cn(
+                      "text-white font-bold transition-colors",
+                      user 
+                        ? "bg-gradient-to-br from-green-500 to-green-600" 
+                        : "bg-slate-400"
+                    )}>
+                      {user ? userInitial : <User className="w-5 h-5 sm:w-6 sm:h-6" />}
                     </AvatarFallback>
                   </Avatar>
                 </div>
