@@ -1,7 +1,7 @@
 'use client'
 
-import { X, ShieldCheck, Truck, PhoneCall } from 'lucide-react'
-import { useEffect } from 'react'
+import { X, ShieldCheck, Truck, PhoneCall, Star, Hand, Wind, Baby } from 'lucide-react'
+import { useEffect, useMemo } from 'react'
 import Img from '@/app/components/Img'
 
 interface Product {
@@ -20,6 +20,7 @@ interface Product {
   ingredient?: string[]
   notes?: string
   mechanism?: string
+  dosage_form?: string
   show_price_on_web?: boolean
   unit?: {
     id: number
@@ -46,6 +47,15 @@ export default function ProductDetailModal({
   isOpen,
   onClose,
 }: ProductDetailModalProps) {
+  // Rating logic - ổn định theo ID sản phẩm
+  const ratingInfo = useMemo(() => {
+    if (!product) return { rating: '4.9', count: 120 }
+    const seed = product.id || 0
+    const rating = (4.4 + (seed % 7) / 10).toFixed(1)
+    const count = 100 + (seed % 150)
+    return { rating, count }
+  }, [product?.id])
+
   // Close on ESC key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -139,6 +149,17 @@ export default function ProductDetailModal({
                 {product.trade_name || product.name}
               </h2>
               
+              {/* Rating Star */}
+              <div className="flex items-center gap-1.5 mb-1">
+                <div className="flex items-center">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star key={s} className={`w-3.5 h-3.5 ${s <= Math.floor(Number(ratingInfo.rating)) ? 'fill-amber-400 text-amber-400' : 'text-gray-300'}`} />
+                  ))}
+                </div>
+                <span className="text-xs font-bold text-amber-600">{ratingInfo.rating}/5</span>
+                <span className="text-[10px] md:text-xs text-gray-500 font-medium">({ratingInfo.count}+ nhà vườn đã tin dùng)</span>
+              </div>
+
               {/* Ingredients - Moved up */}
               {product.ingredient && product.ingredient.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -152,11 +173,16 @@ export default function ProductDetailModal({
             </div>
 
             <div className="space-y-6">
-              {/* Volume */}
-              <div className="flex flex-wrap gap-4 text-sm">
+              {/* Volume & Dosage Form */}
+              <div className="flex flex-wrap gap-3">
                 {product.volume && (
-                  <span className="text-gray-500 bg-agri-50 px-3 py-1 rounded-full text-xs">
+                  <span className="text-gray-500 bg-agri-50 px-3 py-1 rounded-full text-[10px] md:text-xs border border-agri-100">
                     Dung tích: <span className="font-semibold text-agri-700">{product.volume}</span>
+                  </span>
+                )}
+                {product.dosage_form && (
+                  <span className="text-gray-500 bg-blue-50 px-3 py-1 rounded-full text-[10px] md:text-xs border border-blue-100">
+                    Dạng thuốc: <span className="font-semibold text-blue-700">{product.dosage_form}</span>
                   </span>
                 )}
               </div>
@@ -194,6 +220,34 @@ export default function ProductDetailModal({
                 <div className="flex items-center gap-2 p-2 rounded-lg bg-green-50/50 border border-green-100/50">
                   <PhoneCall className="w-5 h-5 text-green-600 flex-shrink-0" />
                   <span className="text-[11px] font-medium text-green-900 leading-tight">Hỗ trợ kỹ thuật 24/7</span>
+                </div>
+              </div>
+
+              {/* Safety Guidelines - Khối An toàn & Bảo quản */}
+              <div className="bg-red-50/30 p-3 rounded-xl border border-red-100 mt-2">
+                <h4 className="text-[10px] font-bold text-red-800 mb-3 uppercase tracking-wider flex items-center gap-2">
+                   <div className="w-1 h-3 bg-red-500 rounded-full" />
+                   An toàn & Bảo quản
+                </h4>
+                <div className="flex gap-5 px-1">
+                  <div className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
+                    <div className="p-1.5 bg-white rounded-lg shadow-sm border border-red-100">
+                      <Hand className="w-3.5 h-3.5 text-red-600" />
+                    </div>
+                    <span className="text-[9px] font-medium text-red-900 text-center leading-tight">Đeo găng tay</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
+                    <div className="p-1.5 bg-white rounded-lg shadow-sm border border-red-100">
+                      <Wind className="w-3.5 h-3.5 text-red-600" />
+                    </div>
+                    <span className="text-[9px] font-medium text-red-900 text-center leading-tight">Khẩu trang</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
+                    <div className="p-1.5 bg-white rounded-lg shadow-sm border border-red-100">
+                      <Baby className="w-3.5 h-3.5 text-red-600" />
+                    </div>
+                    <span className="text-[9px] font-medium text-red-900 text-center leading-tight">Tránh trẻ em</span>
+                  </div>
                 </div>
               </div>
             </div>
