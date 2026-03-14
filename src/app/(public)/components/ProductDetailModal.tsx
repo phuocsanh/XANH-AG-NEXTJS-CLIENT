@@ -147,7 +147,7 @@ export default function ProductDetailModal({
           <div>
             {/* Product Name & Trade Name */}
             <div className="mb-4">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+              <h2 className="text-xl md:text-3xl font-bold text-gray-900 mb-2 leading-tight">
                 {displayName}
               </h2>
               

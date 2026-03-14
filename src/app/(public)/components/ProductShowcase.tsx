@@ -190,8 +190,8 @@ export default function ProductShowcase() {
                       </div>
 
                       {/* Info */}
-                      <div className="p-4 bg-white text-left">
-                        <h4 className="text-sm md:text-base font-bold text-gray-900 line-clamp-2 min-h-[3rem] group-hover:text-agri-600 transition-colors">
+                      <div className="p-3 md:p-4 bg-white text-left">
+                        <h4 className="text-[13px] md:text-[15px] leading-tight font-bold text-gray-900 line-clamp-4 min-h-[3.8rem] md:min-h-[4.5rem] group-hover:text-agri-600 transition-colors">
                           {product.web_name || product.trade_name || product.name}
                         </h4>
                         <div className="mt-2 flex items-center justify-between">

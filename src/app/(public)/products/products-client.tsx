@@ -375,7 +375,7 @@ export default function ProductsClient() {
 
                           {/* Product info */}
                           <div className="relative z-10 p-3 bg-white">
-                            <h3 className="text-xs md:text-sm font-semibold text-gray-800 mb-1 line-clamp-2 min-h-[2rem]">
+                            <h3 className="text-[11px] md:text-[13px] leading-tight font-semibold text-gray-800 mb-1 line-clamp-4 min-h-[3.2rem] md:min-h-[3.8rem]">
                               {product.web_name || product.trade_name || product.name}
                             </h3>
                             <p className="text-sm md:text-base font-bold text-agri-600">
