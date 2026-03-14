@@ -82,7 +82,7 @@ export default function ProductDetailModal({
         </button>
 
         <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-agri-200 scrollbar-track-transparent">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-8 p-6 md:p-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-8 p-6 md:p-8 pb-3 md:pb-3">
           {/* Left column: Images */}
           <div className="space-y-4 mb-6 md:mb-0">
             {product.pictures && product.pictures.length > 0 ? (
@@ -181,36 +181,6 @@ export default function ProductDetailModal({
                 )}
               </div>
 
-              {/* Description */}
-              {product.description && (
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                    <div className="w-1 h-4 bg-agri-500 rounded-full" />
-                    Mô tả sản phẩm
-                  </h3>
-                  <div 
-                    className="rich-text-content text-sm"
-                    dangerouslySetInnerHTML={{ __html: product.description }}
-                  />
-                </div>
-              )}
-
-              {/* Mechanism - Cơ chế tác động */}
-              {product.mechanism && (
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                    <div className="w-1 h-4 bg-blue-500 rounded-full" />
-                    Cơ chế tác động
-                  </h3>
-                  <div 
-                    className="rich-text-content text-sm"
-                    dangerouslySetInnerHTML={{ __html: product.mechanism }}
-                  />
-                </div>
-              )}
-
-
-
               {/* Contact Button */}
               <div className="pt-4 space-y-3">
                 <a
@@ -229,6 +199,37 @@ export default function ProductDetailModal({
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Full width Description & Mechanism moved down here */}
+        <div className="px-6 md:px-8 pb-8 space-y-8 border-t border-gray-50 pt-8">
+          {/* Description */}
+          {product.description && (
+            <div>
+              <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-lg">
+                <div className="w-1.5 h-6 bg-agri-500 rounded-full" />
+                Mô tả sản phẩm
+              </h3>
+              <div 
+                className="rich-text-content"
+                dangerouslySetInnerHTML={{ __html: product.description }}
+              />
+            </div>
+          )}
+
+          {/* Mechanism - Cơ chế tác động */}
+          {product.mechanism && (
+            <div>
+              <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-lg">
+                <div className="w-1.5 h-6 bg-blue-500 rounded-full" />
+                Cơ chế tác động
+              </h3>
+              <div 
+                className="rich-text-content"
+                dangerouslySetInnerHTML={{ __html: product.mechanism }}
+              />
+            </div>
+          )}
         </div>
       </div>
       </div>
