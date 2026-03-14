@@ -1,6 +1,5 @@
 'use client'
 
-import { X } from 'lucide-react'
 import { useEffect } from 'react'
 import Img from '@/app/components/Img'
 
