@@ -20,7 +20,7 @@ interface Product {
   ingredient?: string[]
   notes?: string
   mechanism?: string
-  dosage_form?: string
+  web_name?: string
   show_price_on_web?: boolean
   unit?: {
     id: number
@@ -146,7 +146,7 @@ export default function ProductDetailModal({
             {/* Product Name & Trade Name */}
             <div className="mb-4">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                {product.trade_name || product.name}
+                {product.web_name || product.trade_name || product.name}
               </h2>
               
               {/* Rating Star */}
@@ -180,9 +180,9 @@ export default function ProductDetailModal({
                     Dung tích: <span className="font-semibold text-agri-700">{product.volume}</span>
                   </span>
                 )}
-                {product.dosage_form && (
+                {product.symbol?.name && (
                   <span className="text-gray-500 bg-blue-50 px-3 py-1 rounded-full text-[10px] md:text-xs border border-blue-100">
-                    Dạng thuốc: <span className="font-semibold text-blue-700">{product.dosage_form}</span>
+                    Dạng thuốc: <span className="font-semibold text-blue-700">{product.symbol.name}</span>
                   </span>
                 )}
               </div>
