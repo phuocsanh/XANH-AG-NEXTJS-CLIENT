@@ -1,5 +1,6 @@
 'use client'
 
+import { X } from 'lucide-react'
 import { useEffect } from 'react'
 import Img from '@/app/components/Img'
 
@@ -67,10 +68,18 @@ export default function ProductDetailModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       onClick={onClose}
     >
-      <div
-        className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col"
-        onClick={(e) => e.stopPropagation()}
-      >
+        <div
+          className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Close button - Positioned at top right, floating above content */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 rounded-full bg-black/10 backdrop-blur-md hover:bg-black/20 text-gray-800 transition-all z-[100] shadow-sm border border-white/20"
+            title="Đóng (Esc)"
+          >
+            <X className="w-5 h-5" />
+          </button>
 
         <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-agri-200 scrollbar-track-transparent">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-8 p-6 md:p-8 pb-3 md:pb-3">
