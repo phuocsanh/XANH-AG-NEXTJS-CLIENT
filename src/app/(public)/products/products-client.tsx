@@ -18,6 +18,7 @@ interface Product {
   name: string
   code: string
   trade_name: string
+  web_name?: string
   volume?: string
   price?: string
   credit_price?: string
@@ -154,6 +155,7 @@ export default function ProductsClient() {
     products: group.products.filter(product =>
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (product.web_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (product.trade_name || '').toLowerCase().includes(searchQuery.toLowerCase())
     )
   })).filter(group => group.products.length > 0)
@@ -352,13 +354,13 @@ export default function ProductsClient() {
                              {product.pictures && product.pictures.length > 0 ? (
                                <Img
                                  src={product.pictures[0] || ''}
-                                 alt={product.name}
+                                 alt={product.web_name || product.name}
                                  className="object-contain"
                                />
                              ) : product.thumb ? (
                                <Img
                                  src={product.thumb || ''}
-                                 alt={product.name}
+                                 alt={product.web_name || product.name}
                                  className="object-contain"
                                />
                              ) : (
@@ -374,7 +376,7 @@ export default function ProductsClient() {
                           {/* Product info */}
                           <div className="relative z-10 p-3 bg-white">
                             <h3 className="text-xs md:text-sm font-semibold text-gray-800 mb-1 line-clamp-2 min-h-[2rem]">
-                              {product.trade_name || product.name}
+                              {product.web_name || product.trade_name || product.name}
                             </h3>
                             <p className="text-sm md:text-base font-bold text-agri-600">
                               {product.show_price_on_web !== false && product.price && Number(product.price) > 0

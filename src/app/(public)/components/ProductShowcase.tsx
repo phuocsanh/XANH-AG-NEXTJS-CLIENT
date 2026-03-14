@@ -18,6 +18,7 @@ interface Product {
   name: string
   code: string
   trade_name: string
+  web_name?: string
   volume?: string
   price?: string
   credit_price?: string
@@ -165,13 +166,13 @@ export default function ProductShowcase() {
                         {product.pictures && product.pictures.length > 0 ? (
                           <Img
                             src={product.pictures[0] || ''}
-                            alt={product.name}
+                            alt={product.web_name || product.name}
                             className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-700"
                           />
                         ) : product.thumb ? (
                           <Img
                             src={product.thumb || ''}
-                            alt={product.name}
+                            alt={product.web_name || product.name}
                             className="object-contain w-full h-full group-hover:scale-110 transition-transform duration-700"
                           />
                         ) : (
@@ -191,7 +192,7 @@ export default function ProductShowcase() {
                       {/* Info */}
                       <div className="p-4 bg-white text-left">
                         <h4 className="text-sm md:text-base font-bold text-gray-900 line-clamp-2 min-h-[3rem] group-hover:text-agri-600 transition-colors">
-                          {product.trade_name || product.name}
+                          {product.web_name || product.trade_name || product.name}
                         </h4>
                         <div className="mt-2 flex items-center justify-between">
                           <p className="text-base md:text-lg font-black text-agri-600">

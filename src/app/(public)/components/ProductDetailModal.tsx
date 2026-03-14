@@ -72,6 +72,8 @@ export default function ProductDetailModal({
   }, [isOpen, onClose])
 
   if (!isOpen || !product) return null
+  
+  const displayName = product.web_name || product.trade_name || product.name || ''
 
   return (
     <div
@@ -107,7 +109,7 @@ export default function ProductDetailModal({
                         <div className="relative z-10 w-full h-full">
                           <Img
                             src={pic || ''}
-                            alt={`${product.name} - Ảnh ${index + 1}`}
+                            alt={`${displayName} - Ảnh ${index + 1}`}
                             className="object-contain"
                           />
                         </div>
@@ -126,7 +128,7 @@ export default function ProductDetailModal({
                 <div className="relative z-10 w-full h-full">
                   <Img
                     src={product.thumb || ''}
-                    alt={product.name}
+                    alt={displayName}
                     className="object-contain"
                   />
                 </div>
@@ -146,7 +148,7 @@ export default function ProductDetailModal({
             {/* Product Name & Trade Name */}
             <div className="mb-4">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                {product.web_name || product.trade_name || product.name}
+                {displayName}
               </h2>
               
               {/* Rating Star */}
