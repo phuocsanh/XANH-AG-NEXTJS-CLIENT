@@ -72,19 +72,11 @@ export default function ProductDetailModal({
         className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button - Positioned inside the modal at top right */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full bg-white/60 backdrop-blur-md hover:bg-white text-gray-800 transition-all z-[70] shadow-sm border border-black/5"
-          title="Đóng (Esc)"
-        >
-          <X className="w-5 h-5" />
-        </button>
 
         <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-agri-200 scrollbar-track-transparent">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-8 p-6 md:p-8 pb-3 md:pb-3">
           {/* Left column: Images */}
-          <div className="space-y-4 mb-6 md:mb-0">
+          <div className="space-y-4 mb-6 md:mb-0 pt-4 md:pt-0">
             {product.pictures && product.pictures.length > 0 ? (
               <div className="relative">
                 <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-agri-400 scrollbar-track-agri-100">
@@ -180,23 +172,6 @@ export default function ProductDetailModal({
                   </div>
                 )}
               </div>
-
-              {/* Contact Button */}
-              <div className="pt-4 space-y-3">
-                <a
-                  href="tel:0987383606"
-                  className="group relative block w-full bg-agri-600 hover:bg-agri-700 text-white text-center px-6 py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-agri-200"
-                >
-                  LIÊN HỆ ĐẶT HÀNG: 0987.383.606
-                </a>
-                
-                <button
-                  onClick={onClose}
-                  className="block w-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-center px-6 py-4 rounded-xl font-bold transition-all"
-                >
-                  ĐÓNG
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -230,6 +205,23 @@ export default function ProductDetailModal({
               />
             </div>
           )}
+
+          {/* Final Action Buttons at the bottom */}
+          <div className="pt-8 space-y-3 border-t border-gray-100 mt-8">
+            <a
+              href="tel:0987383606"
+              className="group relative block w-full bg-agri-600 hover:bg-agri-700 text-white text-center px-6 py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-agri-200"
+            >
+              LIÊN HỆ ĐẶT HÀNG: 0987.383.606
+            </a>
+            
+            <button
+              onClick={onClose}
+              className="block w-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-center px-6 py-4 rounded-xl font-bold transition-all"
+            >
+              ĐÓNG
+            </button>
+          </div>
         </div>
       </div>
       </div>
