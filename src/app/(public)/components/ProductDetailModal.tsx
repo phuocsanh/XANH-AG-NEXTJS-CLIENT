@@ -189,7 +189,7 @@ export default function ProductDetailModal({
                     Mô tả sản phẩm
                   </h3>
                   <div 
-                    className="text-gray-600 text-sm leading-relaxed prose prose-sm max-w-none prose-agri"
+                    className="rich-text-content text-sm"
                     dangerouslySetInnerHTML={{ __html: product.description }}
                   />
                 </div>
@@ -203,7 +203,7 @@ export default function ProductDetailModal({
                     Cơ chế tác động
                   </h3>
                   <div 
-                    className="text-gray-600 text-sm leading-relaxed prose prose-sm max-w-none"
+                    className="rich-text-content text-sm"
                     dangerouslySetInnerHTML={{ __html: product.mechanism }}
                   />
                 </div>
