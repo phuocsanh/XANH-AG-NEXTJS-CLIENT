@@ -1,6 +1,6 @@
 'use client'
 
-import { X } from 'lucide-react'
+import { X, ShieldCheck, Truck, PhoneCall } from 'lucide-react'
 import { useEffect } from 'react'
 import Img from '@/app/components/Img'
 
@@ -179,6 +179,22 @@ export default function ProductDetailModal({
                     <span className="font-bold text-xl text-agri-700">Liên hệ</span>
                   </div>
                 )}
+              </div>
+
+              {/* Trust Badges - Hàng Cam Kết */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-blue-50/50 border border-blue-100/50">
+                  <ShieldCheck className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                  <span className="text-[11px] font-medium text-blue-900 leading-tight">Chính hãng 100%</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-orange-50/50 border border-orange-100/50">
+                  <Truck className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                  <span className="text-[11px] font-medium text-orange-900 leading-tight">Giao hàng toàn quốc</span>
+                </div>
+                <div className="flex items-center gap-2 p-2 rounded-lg bg-green-50/50 border border-green-100/50">
+                  <PhoneCall className="w-5 h-5 text-green-600 flex-shrink-0" />
+                  <span className="text-[11px] font-medium text-green-900 leading-tight">Hỗ trợ kỹ thuật 24/7</span>
+                </div>
               </div>
             </div>
           </div>
