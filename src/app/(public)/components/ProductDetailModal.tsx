@@ -72,19 +72,19 @@ export default function ProductDetailModal({
           className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Close button - Positioned at top right, floating above content */}
+          {/* Close button - Higher up and subtle style */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-full bg-black/10 backdrop-blur-md hover:bg-black/20 text-gray-800 transition-all z-[100] shadow-sm border border-white/20"
+            className="absolute top-3 right-3 p-2 rounded-full bg-black/5 backdrop-blur-md hover:bg-black/10 text-gray-800 transition-all z-[110] border border-black/5"
             title="Đóng (Esc)"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
 
         <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-agri-200 scrollbar-track-transparent">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-8 p-6 md:p-8 pb-3 md:pb-3">
           {/* Left column: Images */}
-          <div className="space-y-4 mb-6 md:mb-0 pt-4 md:pt-0">
+          <div className="space-y-4 mb-6 md:mb-0 pt-12 md:pt-0">
             {product.pictures && product.pictures.length > 0 ? (
               <div className="relative">
                 <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-agri-400 scrollbar-track-agri-100">
