@@ -162,7 +162,7 @@ export default function ProductShowcase() {
                   >
                     <div className="bg-white rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-50 relative">
                       {/* Product Image */}
-                      <div className="relative w-full aspect-square bg-gray-100 flex items-center justify-center p-4 overflow-hidden">
+                      <div className="relative w-full aspect-square bg-white flex items-center justify-center overflow-hidden">
                         {product.pictures && product.pictures.length > 0 ? (
                           <Img
                             src={product.pictures[0] || ''}

@@ -350,8 +350,8 @@ export default function ProductsClient() {
                           </div>
 
                           {/* Product image */}
-                          <div className="relative w-full aspect-square bg-gray-100 overflow-hidden">
-                             {product.pictures && product.pictures.length > 0 ? (
+                          <div className="relative w-full aspect-square bg-white overflow-hidden">
+                            {product.pictures && product.pictures.length > 0 ? (
                                <Img
                                  src={product.pictures[0] || ''}
                                  alt={product.web_name || product.name}
