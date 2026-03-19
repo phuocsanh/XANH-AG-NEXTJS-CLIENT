@@ -384,7 +384,7 @@ export default function ProductsClient() {
                                     style: 'currency',
                                     currency: 'VND',
                                   }).format(Number(product.price))
-                                : 'Liên hệ'}
+                                : '0987.383.606'}
                             </p>
                           </div>
 

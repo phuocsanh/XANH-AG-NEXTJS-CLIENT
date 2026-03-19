@@ -181,12 +181,6 @@ export default function ProductShowcase() {
                           </div>
                         )}
                         
-                        {/* Status Badge if needed */}
-                        <div className="absolute top-3 left-3">
-                           <div className="bg-white/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-agri-700 border border-agri-100 uppercase tracking-tighter">
-                             Xanh AG
-                           </div>
-                        </div>
                       </div>
 
                       {/* Info */}
@@ -201,7 +195,7 @@ export default function ProductShowcase() {
                                   style: 'currency',
                                   currency: 'VND',
                                 }).format(Number(product.price))
-                              : 'Liên hệ'}
+                              : '0987.383.606'}
                           </p>
                         </div>
                       </div>
