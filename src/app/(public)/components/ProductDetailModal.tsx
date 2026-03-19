@@ -155,6 +155,34 @@ export default function ProductDetailModal({
                 </div>
               </div>
             )}
+            
+            {/* Safety Guidelines - Khối An toàn & Bảo quản (Moved here to use whitespace) */}
+            <div className="bg-red-50/30 p-4 rounded-xl border border-red-100 mt-6 md:mt-8">
+              <h4 className="text-[10px] font-bold text-red-800 mb-3 uppercase tracking-wider flex items-center gap-2">
+                 <div className="w-1 h-3 bg-red-500 rounded-full" />
+                 An toàn & Bảo quản
+              </h4>
+              <div className="flex justify-between md:justify-start md:gap-8 px-2">
+                <div className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
+                  <div className="p-2 bg-white rounded-lg shadow-sm border border-red-100">
+                    <Hand className="w-4 h-4 text-red-600" />
+                  </div>
+                  <span className="text-[10px] font-medium text-red-900 text-center leading-tight">Đeo găng tay</span>
+                </div>
+                <div className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
+                  <div className="p-2 bg-white rounded-lg shadow-sm border border-red-100">
+                    <Wind className="w-4 h-4 text-red-600" />
+                  </div>
+                  <span className="text-[10px] font-medium text-red-900 text-center leading-tight">Khẩu trang</span>
+                </div>
+                <div className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
+                  <div className="p-2 bg-white rounded-lg shadow-sm border border-red-100">
+                    <Baby className="w-4 h-4 text-red-600" />
+                  </div>
+                  <span className="text-[10px] font-medium text-red-900 text-center leading-tight">Tránh trẻ em</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Right column: Product Details */}
@@ -253,40 +281,11 @@ export default function ProductDetailModal({
                 </div>
               </div>
 
-              {/* Safety Guidelines - Khối An toàn & Bảo quản */}
-              <div className="bg-red-50/30 p-3 rounded-xl border border-red-100 mt-2">
-                <h4 className="text-[10px] font-bold text-red-800 mb-3 uppercase tracking-wider flex items-center gap-2">
-                   <div className="w-1 h-3 bg-red-500 rounded-full" />
-                   An toàn & Bảo quản
-                </h4>
-                <div className="flex gap-5 px-1">
-                  <div className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
-                    <div className="p-1.5 bg-white rounded-lg shadow-sm border border-red-100">
-                      <Hand className="w-3.5 h-3.5 text-red-600" />
-                    </div>
-                    <span className="text-[9px] font-medium text-red-900 text-center leading-tight">Đeo găng tay</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
-                    <div className="p-1.5 bg-white rounded-lg shadow-sm border border-red-100">
-                      <Wind className="w-3.5 h-3.5 text-red-600" />
-                    </div>
-                    <span className="text-[9px] font-medium text-red-900 text-center leading-tight">Khẩu trang</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
-                    <div className="p-1.5 bg-white rounded-lg shadow-sm border border-red-100">
-                      <Baby className="w-3.5 h-3.5 text-red-600" />
-                    </div>
-                    <span className="text-[9px] font-medium text-red-900 text-center leading-tight">Tránh trẻ em</span>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Full width Description & Mechanism moved down here */}
         <div className="px-6 md:px-8 pb-8 space-y-8 border-t border-gray-50 pt-8">
-          {/* Description */}
           {product.description && (
             <div>
               <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-lg">
@@ -300,7 +299,6 @@ export default function ProductDetailModal({
             </div>
           )}
 
-          {/* Mechanism - Cơ chế tác động */}
           {product.mechanism && (
             <div>
               <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-lg">
@@ -314,7 +312,6 @@ export default function ProductDetailModal({
             </div>
           )}
 
-          {/* Final Action Buttons at the bottom */}
           <div className="pt-8 space-y-3 border-t border-gray-100 mt-8">
             <a
               href="tel:0987383606"
@@ -322,7 +319,6 @@ export default function ProductDetailModal({
             >
               LIÊN HỆ ĐẶT HÀNG: 0987.383.606
             </a>
-            
             <button
               onClick={onClose}
               className="block w-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-center px-6 py-4 rounded-xl font-bold transition-all"
@@ -332,7 +328,7 @@ export default function ProductDetailModal({
           </div>
         </div>
       </div>
-      </div>
     </div>
+  </div>
   )
 }
