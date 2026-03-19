@@ -195,7 +195,7 @@ export default function ProductShowcase() {
                                   style: 'currency',
                                   currency: 'VND',
                                 }).format(Number(product.price))
-                              : '0987.383.606'}
+                              : 'Giá liên hệ: 0987.383.606'}
                           </p>
                         </div>
                       </div>

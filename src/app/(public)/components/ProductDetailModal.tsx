@@ -197,72 +197,23 @@ export default function ProductDetailModal({
                   </span>
                 )}
                 {product.symbol?.name && (
-                  <div className="w-full">
-                    <span className="text-gray-500 bg-blue-50 px-3 py-1 rounded-full text-[10px] md:text-xs border border-blue-100 inline-block mb-3">
+                  <div className="flex flex-wrap gap-2">
+                    <span className="text-gray-500 bg-blue-50 px-3 py-1 rounded-full text-[10px] md:text-xs border border-blue-100">
                       Dạng thuốc: <span className="font-semibold text-blue-700">{product.symbol.name}</span>
                     </span>
                     
-                    {/* Pesticide Type Legend with Highlight */}
-                    <div className="p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
-                      <h4 className="text-[10px] font-bold text-gray-700 mb-4 uppercase tracking-wider flex items-center gap-2">
-                        <div className="w-1 h-3 bg-agri-500 rounded-full" />
-                        Đặc tính dạng thuốc (Từ Mát → Nóng)
-                      </h4>
-                      <div className="grid grid-cols-1 gap-2">
-                        {PESTICIDE_TYPES.map((type) => {
-                          const isCurrentGroup = pesticideProperty?.group === type.group;
-                          return (
-                            <div 
-                              key={type.group}
-                              className={`flex items-center justify-between p-2 rounded-xl border transition-all ${
-                                isCurrentGroup ? 'ring-2 ring-agri-500/20 shadow-sm' : 'opacity-40 grayscale-[0.5]'
-                              }`}
-                              style={{ 
-                                backgroundColor: type.bgColor, 
-                                borderColor: isCurrentGroup ? type.color : type.borderColor,
-                              }}
-                            >
-                              <div className="flex items-center gap-2">
-                                <span className="text-base">{type.icon}</span>
-                                <span className={`text-[10px] md:text-xs font-extrabold ${isCurrentGroup ? 'text-gray-900' : 'text-gray-600'}`}>
-                                  {type.group}
-                                </span>
-                              </div>
-                              <div className="flex flex-wrap gap-1 justify-end max-w-[150px] md:max-w-none">
-                                {type.codes.map(code => {
-                                  const isExactCode = product.symbol?.name?.toUpperCase() === code.toUpperCase();
-                                  return (
-                                    <span 
-                                      key={code} 
-                                      className={`px-1.5 py-0.5 rounded text-[9px] font-black border ${
-                                        isExactCode ? 'scale-110 shadow-sm border-current ring-1 ring-white' : 'border-transparent opacity-80'
-                                      }`}
-                                      style={{ 
-                                        color: type.color,
-                                        backgroundColor: isExactCode ? 'white' : 'transparent'
-                                      }}
-                                    >
-                                      {code}
-                                    </span>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                      
-                      {pesticideProperty && (
-                         <div className="mt-3 text-[10px] italic text-gray-500 flex items-start gap-1">
-                            <span className="text-xs">💡</span>
-                            <span>
-                              {pesticideProperty.group === 'Gây nóng' || pesticideProperty.group === 'Trung bình' 
-                                ? `Sản phẩm dạng ${product.symbol.name} có tính nóng, nên ưu tiên phun vào chiều mát hoặc sáng sớm.`
-                                : `Sản phẩm dạng ${product.symbol.name} khá mát, an toàn hơn khi sử dụng trong điều kiện nhiệt độ cao.`}
-                            </span>
-                         </div>
-                      )}
-                    </div>
+                    {pesticideProperty && (
+                      <span 
+                        className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] md:text-xs border font-black"
+                        style={{ 
+                          backgroundColor: pesticideProperty.bgColor, 
+                          borderColor: pesticideProperty.borderColor, 
+                          color: pesticideProperty.color 
+                        }}
+                      >
+                        {pesticideProperty.icon} {pesticideProperty.group === 'Gây nóng' ? 'Tính nóng - Phun chiều mát' : pesticideProperty.group}
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
@@ -280,7 +231,7 @@ export default function ProductDetailModal({
                   </div>
                 ) : (
                   <div className="flex justify-between items-center text-gray-500">
-                    <span className="text-gray-600 font-medium">Giá:</span>
+                    <span className="text-gray-600 font-medium whitespace-nowrap">Giá liên hệ:</span>
                     <span className="font-bold text-xl text-agri-700">0987.383.606</span>
                   </div>
                 )}
