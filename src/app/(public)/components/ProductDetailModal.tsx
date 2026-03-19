@@ -119,12 +119,36 @@ export default function ProductDetailModal({
                       key={index}
                       className="flex-shrink-0 w-full snap-center"
                     >
-                      <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden border border-agri-100 shadow-inner">
+                      <div className="relative aspect-square bg-white rounded-lg overflow-hidden border border-agri-100 shadow-inner group cursor-zoom-in">
                         <div className="relative z-10 w-full h-full">
                           <Img
                             src={pic || ''}
                             alt={`${displayName} - Ảnh ${index + 1}`}
                             className="object-contain"
+                          />
+                        </div>
+                        
+                        {/* Zoom Overlay (Lazada Style) - Only on Desktop */}
+                        <div 
+                          className="absolute inset-0 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:block pointer-events-none"
+                          onMouseMove={(e) => {
+                            const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+                            const x = ((e.clientX - left) / width) * 100;
+                            const y = ((e.clientY - top) / height) * 100;
+                            const target = e.currentTarget.querySelector('.zoom-engine') as HTMLDivElement;
+                            if (target) {
+                              target.style.backgroundPosition = `${x}% ${y}%`;
+                            }
+                          }}
+                        >
+                          <div 
+                            className="zoom-engine w-full h-full bg-white transition-none"
+                            style={{
+                              backgroundImage: `url(${pic})`,
+                              backgroundSize: '250%',
+                              backgroundRepeat: 'no-repeat',
+                              backgroundPosition: '50% 50%'
+                            }}
                           />
                         </div>
                       </div>
@@ -138,12 +162,35 @@ export default function ProductDetailModal({
                 )}
               </div>
             ) : product.thumb ? (
-              <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden border border-agri-100 shadow-inner max-w-md mx-auto w-full">
+              <div className="relative aspect-square bg-white rounded-lg overflow-hidden border border-agri-100 shadow-inner max-w-md mx-auto w-full group cursor-zoom-in">
                 <div className="relative z-10 w-full h-full">
                   <Img
                     src={product.thumb || ''}
                     alt={displayName}
                     className="object-contain"
+                  />
+                </div>
+                {/* Zoom Overlay for thumb */}
+                <div 
+                  className="absolute inset-0 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:block pointer-events-none"
+                  onMouseMove={(e) => {
+                    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+                    const x = ((e.clientX - left) / width) * 100;
+                    const y = ((e.clientY - top) / height) * 100;
+                    const target = e.currentTarget.querySelector('.zoom-engine-thumb') as HTMLDivElement;
+                    if (target) {
+                      target.style.backgroundPosition = `${x}% ${y}%`;
+                    }
+                  }}
+                >
+                  <div 
+                    className="zoom-engine-thumb w-full h-full bg-white transition-none"
+                    style={{
+                      backgroundImage: `url(${product.thumb})`,
+                      backgroundSize: '250%',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: '50% 50%'
+                    }}
                   />
                 </div>
               </div>
