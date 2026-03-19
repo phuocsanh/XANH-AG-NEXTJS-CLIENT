@@ -350,7 +350,7 @@ export default function ProductsClient() {
                           </div>
 
                           {/* Product image */}
-                          <div className="relative w-full h-40 md:h-48 bg-gray-50 overflow-hidden">
+                          <div className="relative w-full aspect-square bg-gray-100 overflow-hidden">
                              {product.pictures && product.pictures.length > 0 ? (
                                <Img
                                  src={product.pictures[0] || ''}
@@ -374,11 +374,15 @@ export default function ProductsClient() {
                           </div>
 
                           {/* Product info */}
-                          <div className="relative z-10 p-3 bg-white">
+                          <div className="relative z-10 p-3 bg-white min-h-[6.5rem] flex flex-col justify-between">
                             <h3 className="text-[11px] md:text-[13px] leading-tight font-semibold text-gray-800 mb-1 line-clamp-4 min-h-[3.2rem] md:min-h-[3.8rem]">
                               {product.web_name || product.trade_name || product.name}
                             </h3>
-                            <p className="text-sm md:text-base font-bold text-agri-600">
+                            <p className={`font-bold text-agri-600 leading-tight ${
+                              product.show_price_on_web !== false && product.price && Number(product.price) > 0
+                                ? 'text-sm md:text-base'
+                                : 'text-[10px] md:text-[11px]'
+                            }`}>
                               {product.show_price_on_web !== false && product.price && Number(product.price) > 0
                                 ? new Intl.NumberFormat('vi-VN', {
                                     style: 'currency',

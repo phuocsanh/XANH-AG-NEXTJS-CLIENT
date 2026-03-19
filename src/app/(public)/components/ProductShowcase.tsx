@@ -162,7 +162,7 @@ export default function ProductShowcase() {
                   >
                     <div className="bg-white rounded-[1.5rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border border-gray-50 relative">
                       {/* Product Image */}
-                      <div className="relative w-full aspect-square bg-gray-50 flex items-center justify-center p-4 overflow-hidden">
+                      <div className="relative w-full aspect-square bg-gray-100 flex items-center justify-center p-4 overflow-hidden">
                         {product.pictures && product.pictures.length > 0 ? (
                           <Img
                             src={product.pictures[0] || ''}
@@ -188,8 +188,12 @@ export default function ProductShowcase() {
                         <h4 className="text-[13px] md:text-[15px] leading-tight font-bold text-gray-900 line-clamp-4 min-h-[3.8rem] md:min-h-[4.5rem] group-hover:text-agri-600 transition-colors">
                           {product.web_name || product.trade_name || product.name}
                         </h4>
-                        <div className="mt-2 flex items-center justify-between">
-                          <p className="text-base md:text-lg font-black text-agri-600">
+                        <div className="mt-2 flex flex-col justify-end min-h-[2.5rem] md:min-h-[2.8rem]">
+                          <p className={`font-black text-agri-600 leading-tight ${
+                            product.show_price_on_web !== false && product.price && Number(product.price) > 0
+                              ? 'text-base md:text-lg'
+                              : 'text-[10px] md:text-[12px]'
+                          }`}>
                             {product.show_price_on_web !== false && product.price && Number(product.price) > 0
                               ? new Intl.NumberFormat('vi-VN', {
                                   style: 'currency',
