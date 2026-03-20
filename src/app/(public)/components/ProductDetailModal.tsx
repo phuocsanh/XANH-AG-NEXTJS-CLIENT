@@ -95,7 +95,7 @@ export default function ProductDetailModal({
       onClick={onClose}
     >
         <div
-          className="relative bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col"
+          className="relative bg-white rounded-2xl w-[95vw] md:w-[90vw] max-w-[1400px] h-[95vh] md:h-[90vh] flex flex-col overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close button - Higher up and subtle style */}
@@ -107,10 +107,10 @@ export default function ProductDetailModal({
             <X className="w-4 h-4" />
           </button>
 
-        <div className="overflow-y-auto scrollbar-thin scrollbar-thumb-agri-200 scrollbar-track-transparent">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-8 p-6 md:p-8 pb-3 md:pb-3">
-          {/* Left column: Images */}
-          <div className="space-y-4 mb-6 md:mb-0 pt-12 md:pt-0">
+        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-agri-200 scrollbar-track-transparent">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-12 p-6 md:p-8 pb-3 md:pb-3">
+          {/* Left column: Images (Takes 2/3 width on desktop) */}
+          <div className="md:col-span-2 space-y-4 mb-6 md:mb-0 pt-12 md:pt-0">
             {product.pictures && product.pictures.length > 0 ? (
               <div className="relative">
                 <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-agri-400 scrollbar-track-agri-100">
@@ -232,8 +232,8 @@ export default function ProductDetailModal({
             </div>
           </div>
 
-          {/* Right column: Product Details */}
-          <div>
+          {/* Right column: Product Details (Takes 1/3 width on desktop) */}
+          <div className="md:col-span-1">
             {/* Product Name & Trade Name */}
             <div className="mb-4">
               <h2 className="text-xl md:text-3xl font-bold text-gray-900 mb-2 leading-tight">
