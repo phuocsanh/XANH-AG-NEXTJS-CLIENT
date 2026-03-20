@@ -1,7 +1,7 @@
 'use client'
 
 import { X, ShieldCheck, Truck, PhoneCall, Star, Hand, Wind, Baby } from 'lucide-react'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Img from '@/app/components/Img'
  
 const PESTICIDE_TYPES = [
@@ -70,6 +70,14 @@ export default function ProductDetailModal({
     return PESTICIDE_TYPES.find(t => t.codes.includes(upperCode))
   }, [product?.symbol?.name])
 
+  // Zoom state for desktop "Amazon/Shopee style"
+  const [zoomData, setZoomData] = useState<{ show: boolean; x: number; y: number; img: string }>({
+    show: false,
+    x: 0,
+    y: 0,
+    img: ''
+  })
+
   // Close on ESC key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -82,12 +90,28 @@ export default function ProductDetailModal({
     return () => {
       document.removeEventListener('keydown', handleEsc)
       document.body.style.overflow = 'unset'
+      setZoomData({ show: false, x: 0, y: 0, img: '' }) // Reset zoom when close
     }
   }, [isOpen, onClose])
 
   if (!isOpen || !product) return null
   
   const displayName = product.web_name || product.trade_name || product.name || ''
+
+  // Common handlers for zoom
+  const handleZoomMove = (e: React.MouseEvent, img: string) => {
+    if (window.innerWidth < 768) return // Only for desktop
+    
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+    
+    setZoomData({ show: true, x, y, img });
+  };
+
+  const handleZoomLeave = () => {
+    setZoomData(prev => ({ ...prev, show: false }));
+  };
 
   return (
     <div
@@ -108,7 +132,20 @@ export default function ProductDetailModal({
           </button>
 
         <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-agri-200 scrollbar-track-transparent">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-12 p-6 md:p-8 pb-3 md:pb-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-12 p-6 md:p-8 pb-3 md:pb-3 relative">
+          {/* Zoom Portal Window (Amazon style) - Desktop Only */}
+          {zoomData.show && (
+            <div 
+              className="absolute left-[calc(66.6%+2rem)] top-8 w-[calc(33.3%-3rem)] h-[calc(100%-4rem)] z-[100] hidden md:block bg-white rounded-xl shadow-2xl border-4 border-white overflow-hidden pointer-events-none"
+              style={{
+                backgroundImage: `url(${zoomData.img})`,
+                backgroundSize: '300%', // Zoom factor
+                backgroundPosition: `${zoomData.x}% ${zoomData.y}%`,
+                backgroundRepeat: 'no-repeat'
+              }}
+            />
+          )}
+
           {/* Left column: Images (Takes 2/3 width on desktop) */}
           <div className="md:col-span-2 space-y-4 mb-6 md:mb-0 pt-12 md:pt-0">
             {product.pictures && product.pictures.length > 0 ? (
@@ -119,7 +156,11 @@ export default function ProductDetailModal({
                       key={index}
                       className="flex-shrink-0 w-full snap-center"
                     >
-                      <div className="relative aspect-square bg-white rounded-lg overflow-hidden border border-agri-100 shadow-inner group cursor-zoom-in">
+                      <div 
+                        className="relative aspect-square bg-white rounded-lg overflow-hidden border border-agri-100 shadow-inner group cursor-crosshair"
+                        onMouseMove={(e) => handleZoomMove(e, pic || '')}
+                        onMouseLeave={handleZoomLeave}
+                      >
                         <div className="relative z-10 w-full h-full">
                           <Img
                             src={pic || ''}
@@ -128,29 +169,20 @@ export default function ProductDetailModal({
                           />
                         </div>
                         
-                        {/* Zoom Overlay (Lazada Style) - Only on Desktop */}
-                        <div 
-                          className="absolute inset-0 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:block pointer-events-none"
-                          onMouseMove={(e) => {
-                            const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-                            const x = ((e.clientX - left) / width) * 100;
-                            const y = ((e.clientY - top) / height) * 100;
-                            const target = e.currentTarget.querySelector('.zoom-engine') as HTMLDivElement;
-                            if (target) {
-                              target.style.backgroundPosition = `${x}% ${y}%`;
-                            }
-                          }}
-                        >
+                        {/* Zoom Lens overlay */}
+                        {zoomData.show && zoomData.img === pic && (
                           <div 
-                            className="zoom-engine w-full h-full bg-white transition-none"
+                            className="absolute z-50 border border-agri-400 bg-agri-500/10 pointer-events-none hidden md:block"
                             style={{
-                              backgroundImage: `url(${pic})`,
-                              backgroundSize: '250%',
-                              backgroundRepeat: 'no-repeat',
-                              backgroundPosition: '50% 50%'
+                                width: '33.3%', // Proportion of viewport
+                                height: '33.3%',
+                                left: `${zoomData.x}%`,
+                                top: `${zoomData.y}%`,
+                                transform: 'translate(-50%, -50%)',
+                                boxShadow: '0 0 0 2000px rgba(0,0,0,0.1)' // Dim background around lens
                             }}
                           />
-                        </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -162,7 +194,11 @@ export default function ProductDetailModal({
                 )}
               </div>
             ) : product.thumb ? (
-              <div className="relative aspect-square bg-white rounded-lg overflow-hidden border border-agri-100 shadow-inner max-w-md mx-auto w-full group cursor-zoom-in">
+              <div 
+                className="relative aspect-square bg-white rounded-lg overflow-hidden border border-agri-100 shadow-inner max-w-md mx-auto w-full group cursor-crosshair"
+                onMouseMove={(e) => handleZoomMove(e, product.thumb || '')}
+                onMouseLeave={handleZoomLeave}
+              >
                 <div className="relative z-10 w-full h-full">
                   <Img
                     src={product.thumb || ''}
@@ -170,29 +206,20 @@ export default function ProductDetailModal({
                     className="object-contain"
                   />
                 </div>
-                {/* Zoom Overlay for thumb */}
-                <div 
-                  className="absolute inset-0 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:block pointer-events-none"
-                  onMouseMove={(e) => {
-                    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-                    const x = ((e.clientX - left) / width) * 100;
-                    const y = ((e.clientY - top) / height) * 100;
-                    const target = e.currentTarget.querySelector('.zoom-engine-thumb') as HTMLDivElement;
-                    if (target) {
-                      target.style.backgroundPosition = `${x}% ${y}%`;
-                    }
-                  }}
-                >
+                {/* Zoom Lens overlay for thumb */}
+                {zoomData.show && zoomData.img === product.thumb && (
                   <div 
-                    className="zoom-engine-thumb w-full h-full bg-white transition-none"
+                    className="absolute z-50 border border-agri-400 bg-agri-500/10 pointer-events-none hidden md:block"
                     style={{
-                      backgroundImage: `url(${product.thumb})`,
-                      backgroundSize: '250%',
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: '50% 50%'
+                        width: '33.3%',
+                        height: '33.3%',
+                        left: `${zoomData.x}%`,
+                        top: `${zoomData.y}%`,
+                        transform: 'translate(-50%, -50%)',
+                        boxShadow: '0 0 0 2000px rgba(0,0,0,0.1)'
                     }}
                   />
-                </div>
+                )}
               </div>
             ) : (
               <div className="relative aspect-square bg-gradient-to-br from-agri-50 to-agri-100 rounded-lg overflow-hidden border-2 border-agri-200 max-w-md mx-auto w-full">
