@@ -203,34 +203,7 @@ export default function ProductDetailModal({
               </div>
             )}
             
-            {/* Safety Guidelines - Khối An toàn & Bảo quản (Moved here to use whitespace) */}
-            <div className="bg-red-50/30 p-4 rounded-xl border border-red-100 mt-6 md:mt-8">
-              <h4 className="text-[10px] font-bold text-red-800 mb-3 uppercase tracking-wider flex items-center gap-2">
-                 <div className="w-1 h-3 bg-red-500 rounded-full" />
-                 An toàn & Bảo quản
-              </h4>
-              <div className="flex justify-between md:justify-start md:gap-8 px-2">
-                <div className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
-                  <div className="p-2 bg-white rounded-lg shadow-sm border border-red-100">
-                    <Hand className="w-4 h-4 text-red-600" />
-                  </div>
-                  <span className="text-[10px] font-medium text-red-900 text-center leading-tight">Đeo găng tay</span>
-                </div>
-                <div className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
-                  <div className="p-2 bg-white rounded-lg shadow-sm border border-red-100">
-                    <Wind className="w-4 h-4 text-red-600" />
-                  </div>
-                  <span className="text-[10px] font-medium text-red-900 text-center leading-tight">Khẩu trang</span>
-                </div>
-                <div className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
-                  <div className="p-2 bg-white rounded-lg shadow-sm border border-red-100">
-                    <Baby className="w-4 h-4 text-red-600" />
-                  </div>
-                  <span className="text-[10px] font-medium text-red-900 text-center leading-tight">Tránh trẻ em</span>
-                </div>
-              </div>
             </div>
-          </div>
 
           {/* Right column: Product Details (Takes 1/3 width on desktop) */}
           <div className="md:col-span-1">
@@ -328,6 +301,33 @@ export default function ProductDetailModal({
                 </div>
               </div>
 
+              {/* Safety Guidelines - Khối An toàn & Bảo quản (Moved here to the right of the image) */}
+              <div className="bg-red-50/30 p-4 rounded-xl border border-red-100">
+                <h4 className="text-[10px] font-bold text-red-800 mb-3 uppercase tracking-wider flex items-center gap-2">
+                   <div className="w-1 h-3 bg-red-500 rounded-full" />
+                   An toàn & Bảo quản
+                </h4>
+                <div className="flex justify-between px-2">
+                  <div className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
+                    <div className="p-2 bg-white rounded-lg shadow-sm border border-red-100">
+                      <Hand className="w-4 h-4 text-red-600" />
+                    </div>
+                    <span className="text-[10px] font-medium text-red-900 text-center leading-tight">Đeo găng tay</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
+                    <div className="p-2 bg-white rounded-lg shadow-sm border border-red-100">
+                      <Wind className="w-4 h-4 text-red-600" />
+                    </div>
+                    <span className="text-[10px] font-medium text-red-900 text-center leading-tight">Khẩu trang</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity">
+                    <div className="p-2 bg-white rounded-lg shadow-sm border border-red-100">
+                      <Baby className="w-4 h-4 text-red-600" />
+                    </div>
+                    <span className="text-[10px] font-medium text-red-900 text-center leading-tight">Tránh trẻ em</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
