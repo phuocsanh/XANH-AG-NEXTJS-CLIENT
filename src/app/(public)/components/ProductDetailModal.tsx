@@ -136,14 +136,17 @@ export default function ProductDetailModal({
           {/* Zoom Portal Window (Amazon style) - Desktop Only */}
           {zoomData.show && (
             <div 
-              className="absolute left-[calc(66.6%+2rem)] top-8 w-[calc(33.3%-3rem)] h-[calc(100%-4rem)] z-[100] hidden md:block bg-white rounded-xl shadow-2xl border-4 border-white overflow-hidden pointer-events-none"
+              className="absolute right-0 top-0 w-[33.3%] h-full z-[100] hidden md:block bg-white shadow-2xl border-l border-gray-100 overflow-hidden pointer-events-none animate-in fade-in duration-200"
               style={{
                 backgroundImage: `url(${zoomData.img})`,
-                backgroundSize: '300%', // Zoom factor
+                backgroundSize: '500%', // 5x Zoom factor
                 backgroundPosition: `${zoomData.x}% ${zoomData.y}%`,
                 backgroundRepeat: 'no-repeat'
               }}
-            />
+            >
+              {/* Overlay tint effect for better visibility inside zoom window */}
+              <div className="absolute inset-0 bg-white/5 pointer-events-none" />
+            </div>
           )}
 
           {/* Left column: Images (Takes 2/3 width on desktop) */}
