@@ -192,7 +192,7 @@ export default function ProductShowcase() {
                           <p className={`font-black text-agri-600 leading-tight ${
                             product.show_price_on_web !== false && product.price && Number(product.price) > 0
                               ? 'text-base md:text-lg'
-                              : 'text-[10px] md:text-[12px]'
+                              : 'text-[10px] md:text-sm'
                           }`}>
                             {product.show_price_on_web !== false && product.price && Number(product.price) > 0
                               ? new Intl.NumberFormat('vi-VN', {

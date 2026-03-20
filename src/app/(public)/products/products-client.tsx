@@ -381,7 +381,7 @@ export default function ProductsClient() {
                             <p className={`font-bold text-agri-600 leading-tight ${
                               product.show_price_on_web !== false && product.price && Number(product.price) > 0
                                 ? 'text-sm md:text-base'
-                                : 'text-[10px] md:text-[11px]'
+                                : 'text-[10px] md:text-sm'
                             }`}>
                               {product.show_price_on_web !== false && product.price && Number(product.price) > 0
                                 ? new Intl.NumberFormat('vi-VN', {
