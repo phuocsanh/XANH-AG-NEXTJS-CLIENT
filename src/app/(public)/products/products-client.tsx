@@ -62,6 +62,7 @@ export default function ProductsClient() {
   // State để track số sản phẩm hiển thị cho mỗi type
   const [paginationInfo, setPaginationInfo] = useState<Record<number, { total: number, page: number }>>({})
   const [loadingMore, setLoadingMore] = useState<Record<number, boolean>>({})
+  const [hasScrolledInitial, setHasScrolledInitial] = useState(false)
 
   // Fetch all product types and their products (Page 1)
   useEffect(() => {
@@ -116,38 +117,35 @@ export default function ProductsClient() {
 
   // Xử lý cuộn đến section khi có hash trên URL (ví dụ: #type-5)
   useEffect(() => {
-    if (!loading && productsByType.length > 0) {
-      const handleHashScroll = () => {
-        const hash = window.location.hash
-        if (hash) {
-          // Xóa tìm kiếm để đảm bảo các section hiển thị đầy đủ trước khi cuộn
-          setSearchQuery('')
-          
-          // Đợi một chút để React re-render sau khi xóa search query
-          setTimeout(() => {
-            const id = hash.replace('#', '')
-            const element = document.getElementById(id)
-            if (element) {
-              const yOffset = -100
-              const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
-              window.scrollTo({ top: y, behavior: 'smooth' })
-            }
-          }, 100)
-        }
-      }
-
-      // Chạy ngay khi load xong
-      // Dùng timeout ngắn để đảm bảo DOM đã render hoàn toàn
-      const timeoutId = setTimeout(handleHashScroll, 100)
-
-      // Lắng nghe sự kiện đổi hash (khi người dùng nhấn menu khi đang ở chính trang này)
-      window.addEventListener('hashchange', handleHashScroll)
-      return () => {
-        clearTimeout(timeoutId)
-        window.removeEventListener('hashchange', handleHashScroll)
+    // Hàm thực hiện cuộn trang
+    const handleHashScroll = () => {
+      const hash = window.location.hash
+      if (hash) {
+        // Đợi một chút để DOM đã render hoàn toàn
+        setTimeout(() => {
+          const id = hash.replace('#', '')
+          const element = document.getElementById(id)
+          if (element) {
+            const yOffset = -100
+            const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+            window.scrollTo({ top: y, behavior: 'smooth' })
+          }
+        }, 150)
       }
     }
-  }, [loading, productsByType])
+
+    // Cuộn lần đầu khi vừa tải xong dữ liệu
+    if (!loading && productsByType.length > 0 && !hasScrolledInitial) {
+      handleHashScroll()
+      setHasScrolledInitial(true)
+    }
+
+    // Luôn lắng nghe sự kiện đổi hash (khi người dùng nhấn menu khi đang ở chính trang này)
+    window.addEventListener('hashchange', handleHashScroll)
+    return () => {
+      window.removeEventListener('hashchange', handleHashScroll)
+    }
+  }, [loading, productsByType.length > 0, hasScrolledInitial])
 
   // Filter products by search query
   const filteredProductsByType = productsByType.map(group => ({
