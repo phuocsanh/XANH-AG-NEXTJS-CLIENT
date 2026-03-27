@@ -158,11 +158,11 @@ export default function NewsDetailClient() {
 
               {/* Tags & Action */}
               <footer className="mt-8 sm:mt-12 pt-8 border-t border-gray-100 flex flex-wrap items-center justify-between gap-6">
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-bold text-gray-400">Từ khóa:</span>
+                <div className="flex items-center flex-wrap gap-2">
+                  <span className="text-sm font-bold text-gray-400 whitespace-nowrap mr-1">Từ khóa:</span>
                   {(news.tags || []).length > 0 ? (
                     news.tags.map(tag => (
-                      <span key={tag} className="px-3 py-1 bg-gray-100 rounded-full text-[10px] sm:text-xs text-gray-500 hover:bg-agri-50 hover:text-agri-600 cursor-pointer transition-colors">
+                      <span key={tag} className="px-3 py-1 bg-gray-100 rounded-full text-[10px] sm:text-xs text-gray-500 hover:bg-agri-50 hover:text-agri-600 cursor-pointer transition-colors whitespace-nowrap">
                         #{tag}
                       </span>
                     ))
@@ -223,9 +223,9 @@ export default function NewsDetailClient() {
                               {product.web_name || product.trade_name || product.name || product.productName}
                             </h4>
                             <p className="text-agri-600 font-bold mt-1 text-xs sm:text-sm font-primary">
-                              { (product.price || product.productPrice) && parseFloat(product.price || product.productPrice) > 0 
+                              {product.show_price_on_web !== false && (product.price || product.productPrice) && parseFloat(product.price || product.productPrice) > 0 
                                 ? convertCurrency(parseFloat(product.price || product.productPrice)) 
-                                : 'Liên hệ'}
+                                : 'Liên hệ: 0987.383.606'}
                             </p>
                           </div>
                         </Link>
