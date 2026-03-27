@@ -208,15 +208,19 @@ export default function NewsDetailClient() {
                         >
                           <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-xl overflow-hidden shadow-sm flex-shrink-0 relative">
                             <Img 
-                              src={product.thumb || product.productThumb || `https://images.unsplash.com/photo-1628352081506-83c43123ed6d?w=200&h=200&fit=crop`} 
-                              alt={product.trade_name || product.name || product.productName}
+                              src={
+                                (product.pictures && product.pictures.length > 0) 
+                                ? product.pictures[0] 
+                                : (product.thumb || `https://images.unsplash.com/photo-1628352081506-83c43123ed6d?w=200&h=200&fit=crop`)
+                              } 
+                              alt={product.web_name || product.trade_name || product.name || product.productName}
                               className="bg-transparent"
                               classNameImg="object-cover group-hover:scale-110 transition-transform"
                             />
                           </div>
                           <div className="flex flex-col justify-center">
                             <h4 className="text-xs sm:text-sm font-bold text-gray-800 group-hover:text-agri-600 transition-colors line-clamp-2">
-                              {product.trade_name || product.name || product.productName}
+                              {product.web_name || product.trade_name || product.name || product.productName}
                             </h4>
                             <p className="text-agri-600 font-bold mt-1 text-xs sm:text-sm font-primary">
                               { (product.price || product.productPrice) && parseFloat(product.price || product.productPrice) > 0 
