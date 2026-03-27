@@ -44,11 +44,12 @@ export default function NewsDetailClient() {
     body: {
       ids: relatedProductIds,
       limit: 10,
+      is_sold_on_web: true,
     },
     enabled: relatedProductIds.length > 0,
   })
 
-  const relatedProducts = relatedProductsResponse?.data || []
+  const relatedProducts = (relatedProductsResponse?.data || []).filter((product: any) => product.is_sold_on_web === true)
 
   if (isNewsLoading) {
     return (
