@@ -113,8 +113,8 @@ export default function NewsDetailClient() {
                   </time>
                 </div>
               </div>
-              <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold text-white mb-6 max-w-5xl tracking-tight leading-[1.2] sm:leading-[1.3]">
-                <span className="bg-black/30 backdrop-blur-md px-3 py-1 sm:px-4 sm:py-2 rounded-lg sm:rounded-2xl [box-decoration-break:clone] [-webkit-box-decoration-break:clone] inline shadow-2xl border border-white/10">
+              <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold text-white mb-6 max-w-5xl tracking-tight leading-relaxed sm:leading-relaxed">
+                <span className="bg-black/30 px-3 py-1 sm:px-4 sm:py-2 rounded-lg sm:rounded-2xl [box-decoration-break:clone] [-webkit-box-decoration-break:clone] inline">
                   {news.title}
                 </span>
               </h1>
