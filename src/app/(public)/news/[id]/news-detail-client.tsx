@@ -113,7 +113,7 @@ export default function NewsDetailClient() {
                   </time>
                 </div>
               </div>
-              <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-4 sm:mb-6 leading-tight max-w-4xl tracking-tight line-clamp-3 md:line-clamp-none">
+              <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-4 sm:mb-6 leading-snug max-w-4xl tracking-tight line-clamp-3 md:line-clamp-none">
                 {news.title}
               </h1>
               <div className="flex items-center gap-3 text-white/90">
