@@ -59,7 +59,6 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
     total_revenue,
     total_cost,
     net_profit,
-    roi,
     total_cultivation_cost,
     cultivation_cost_per_cong,
     total_input_cost,
