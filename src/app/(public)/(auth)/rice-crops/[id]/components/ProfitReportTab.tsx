@@ -83,7 +83,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             </CardTitle>
           </CardHeader>
           <CardContent className="px-6 pb-6">
-            <div className="text-3xl font-black text-emerald-900 leading-none">{convertCurrency(total_revenue)}</div>
+            <div className="text-2xl font-black text-emerald-900 leading-none">{convertCurrency(total_revenue)}</div>
           </CardContent>
         </Card>
 
@@ -94,7 +94,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             </CardTitle>
           </CardHeader>
           <CardContent className="px-6 pb-6">
-            <div className="text-3xl font-black text-slate-900 leading-none">{amountOfLand} <span className="text-sm font-bold opacity-50 uppercase">Công</span></div>
+            <div className="text-2xl font-black text-slate-900 leading-none">{amountOfLand} <span className="text-sm font-bold opacity-50 uppercase">Công</span></div>
           </CardContent>
         </Card>
 
@@ -106,7 +106,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             </CardTitle>
           </CardHeader>
           <CardContent className="px-6 pb-6">
-            <div className={`text-3xl font-black leading-none ${total_revenue > 0 ? (isProfitable ? "text-blue-700" : "text-destructive") : "text-gray-400"}`}>
+            <div className={`text-2xl font-black leading-none ${total_revenue > 0 ? (isProfitable ? "text-blue-700" : "text-destructive") : "text-gray-400"}`}>
               {convertCurrency(total_revenue > 0 ? net_profit : 0)}
             </div>
             {total_revenue > 0 && (
@@ -127,7 +127,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
              <p className={`text-[9px] font-bold mt-1 uppercase ${total_revenue > 0 ? (isProfitable ? "text-indigo-600/60" : "text-orange-600/60") : "text-gray-400/60"}`}> (Bao gồm chi phí canh tác + vật tư)</p>
           </CardHeader>
           <CardContent className="px-6 pb-6">
-             <div className={`text-3xl font-black leading-none ${total_revenue > 0 ? (isProfitable ? "text-indigo-900" : "text-orange-900") : "text-gray-400"}`}>
+             <div className={`text-2xl font-black leading-none ${total_revenue > 0 ? (isProfitable ? "text-indigo-900" : "text-orange-900") : "text-gray-400"}`}>
                 {convertCurrency(total_revenue > 0 ? (net_profit / amountOfLand) : 0)}
              </div>
           </CardContent>
@@ -142,7 +142,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             <p className="text-[10px] text-rose-600/70 font-bold ml-6 mt-0.5 uppercase">(gồm cày, cắt, làm cỏ, phân, thuốc, giống)</p>
           </CardHeader>
           <CardContent className="px-6 pb-6">
-            <div className="text-3xl font-black text-rose-900 leading-none">{convertCurrency(total_cost)}</div>
+            <div className="text-2xl font-black text-rose-900 leading-none">{convertCurrency(total_cost)}</div>
           </CardContent>
         </Card>
 
@@ -154,7 +154,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             <p className="text-[10px] text-amber-600/70 font-bold ml-6 mt-0.5 uppercase">(gồm cày, cắt, làm cỏ, phân, thuốc, giống)</p>
           </CardHeader>
           <CardContent className="px-6 pb-6">
-            <div className="text-3xl font-black text-amber-900 leading-none">{convertCurrency(effectiveCostPerCong)}</div>
+            <div className="text-2xl font-black text-amber-900 leading-none">{convertCurrency(effectiveCostPerCong)}</div>
           </CardContent>
         </Card>
 
@@ -167,7 +167,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             <p className="text-[10px] text-sky-600/70 font-bold ml-6 mt-0.5 uppercase">(cày, cắt, xịt, làm cỏ...)</p>
           </CardHeader>
           <CardContent className="px-6 pb-6">
-            <div className="text-3xl font-black text-sky-900 leading-none">{convertCurrency(total_cultivation_cost || 0)}</div>
+            <div className="text-2xl font-black text-sky-900 leading-none">{convertCurrency(total_cultivation_cost || 0)}</div>
           </CardContent>
         </Card>
 
@@ -179,7 +179,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             <p className="text-[10px] text-indigo-600/70 font-bold ml-6 mt-0.5 uppercase">(cày, cắt, xịt, làm cỏ...)</p>
           </CardHeader>
           <CardContent className="px-6 pb-6">
-            <div className="text-3xl font-black text-indigo-900 leading-none">{convertCurrency(cultivation_cost_per_cong || 0)}</div>
+            <div className="text-2xl font-black text-indigo-900 leading-none">{convertCurrency(cultivation_cost_per_cong || 0)}</div>
           </CardContent>
         </Card>
 
@@ -187,12 +187,12 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
         <Card className="border-purple-100 bg-purple-50/30 shadow-sm flex flex-col justify-center min-h-[120px]">
           <CardHeader className="py-4 px-6 pb-1">
             <CardTitle className="text-xs font-bold text-purple-700 uppercase flex items-center gap-2 tracking-tight">
-              <FlaskConical className="h-4 w-4" /> Tổng Chi Phí Canh Tác
+              <FlaskConical className="h-4 w-4" /> Tổng Chi Phí Vật Tư
             </CardTitle>
             <p className="text-[10px] text-purple-600/70 font-bold ml-6 mt-0.5 uppercase">(Phân, Thuốc, Giống)</p>
           </CardHeader>
           <CardContent className="px-6 pb-6">
-            <div className="text-3xl font-black text-purple-900 leading-none">{convertCurrency(total_input_cost || 0)}</div>
+            <div className="text-2xl font-black text-purple-900 leading-none">{convertCurrency(total_input_cost || 0)}</div>
           </CardContent>
         </Card>
 
@@ -204,7 +204,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             <p className="text-[10px] text-fuchsia-600/70 font-bold ml-6 mt-0.5 uppercase">(Phân, Thuốc, Giống)</p>
           </CardHeader>
           <CardContent className="px-6 pb-6">
-            <div className="text-3xl font-black text-fuchsia-900 leading-none">{convertCurrency(input_cost_per_cong || 0)}</div>
+            <div className="text-2xl font-black text-fuchsia-900 leading-none">{convertCurrency(input_cost_per_cong || 0)}</div>
           </CardContent>
         </Card>
       </div>

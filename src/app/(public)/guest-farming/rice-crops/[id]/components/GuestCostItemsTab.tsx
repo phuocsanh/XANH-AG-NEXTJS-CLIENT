@@ -138,7 +138,7 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
                 <TrendingUp className="w-5 h-5" />
                 <p className="font-bold uppercase tracking-[0.2em] text-[12px]">Tổng doanh thu</p>
              </div>
-             <h2 className="text-5xl font-bold tracking-tighter">
+             <h2 className="text-3xl font-bold tracking-tighter">
                 {convertCurrency(totalRevenue)}
              </h2>
           </CardContent>
@@ -150,7 +150,7 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
                 <HandCoins className="w-5 h-5" />
                 <p className="font-bold uppercase tracking-[0.2em] text-[12px]">Lợi nhuận</p>
              </div>
-             <h2 className="text-5xl font-bold tracking-tighter">
+             <h2 className="text-3xl font-bold tracking-tighter">
                 {convertCurrency(totalRevenue > 0 ? profit : 0)}
              </h2>
           </CardContent>
@@ -165,8 +165,8 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
                 </div>
                 <p className="font-bold uppercase tracking-[0.2em] text-[12px] text-gray-400">Diện tích đất</p>
              </div>
-             <h3 className="text-5xl font-bold text-slate-600 tracking-tighter">
-               {amountOfLand} <span className="text-2xl opacity-50 uppercase">Công</span>
+             <h3 className="text-3xl font-bold text-slate-600 tracking-tighter">
+               {amountOfLand} <span className="text-xl opacity-50 uppercase">Công</span>
              </h3>
           </CardContent>
         </Card>
@@ -182,7 +182,7 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
              <p className={`text-[12px] font-bold mb-6 ml-14 leading-tight uppercase font-black ${totalRevenue > 0 ? (profit >= 0 ? "text-indigo-600/40" : "text-orange-600/40") : "text-gray-400/40"}`}>
                 (Bao gồm canh tác + vật tư)
              </p>
-             <h3 className={`text-5xl font-bold tracking-tighter ${totalRevenue > 0 ? (profit >= 0 ? "text-indigo-900" : "text-orange-900") : "text-gray-400"}`}>
+             <h3 className={`text-3xl font-bold tracking-tighter ${totalRevenue > 0 ? (profit >= 0 ? "text-indigo-900" : "text-orange-900") : "text-gray-400"}`}>
                 {convertCurrency(totalRevenue > 0 ? profitPerCong : 0)}
              </h3>
           </CardContent>
@@ -196,7 +196,7 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
                 <p className="font-bold uppercase tracking-[0.2em] text-[12px]">Tổng chi phí</p>
              </div>
              <p className="text-[12px] font-medium text-rose-100 mb-6 ml-8 leading-tight opacity-90 uppercase font-black">(gồm cày, cắt, làm cỏ, phân, thuốc, giống)</p>
-             <h2 className="text-5xl font-bold tracking-tighter">
+             <h2 className="text-3xl font-bold tracking-tighter">
                 {convertCurrency(totalCost)}
              </h2>
           </CardContent>
@@ -211,7 +211,7 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
                 <p className="font-bold uppercase tracking-[0.2em] text-[12px] text-gray-400">Chi phí mỗi công</p>
              </div>
              <p className="text-[12px] font-bold text-amber-600/40 mb-6 ml-14 leading-tight uppercase font-black">(gồm cày, cắt, làm cỏ, phân, thuốc, giống)</p>
-             <h3 className="text-5xl font-bold text-amber-600 tracking-tighter">
+             <h3 className="text-3xl font-bold text-amber-600 tracking-tighter">
                 {convertCurrency(Math.round(costPerCong))}
              </h3>
              <p className="text-[12px] font-bold text-gray-400 mt-2 uppercase tracking-widest">/ CÔNG ĐẤT</p>
@@ -226,7 +226,7 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
                 <p className="font-bold uppercase tracking-[0.2em] text-[12px]">Tổng chi canh tác</p>
              </div>
              <p className="text-[12px] font-medium text-sky-100 mb-6 ml-8 leading-tight opacity-90 uppercase font-black">(cày, cắt, xịt, làm cỏ...)</p>
-             <h3 className="text-5xl font-bold tracking-tighter">
+             <h3 className="text-3xl font-bold tracking-tighter">
                 {convertCurrency(totalCultivationCost)}
              </h3>
           </CardContent>
@@ -241,7 +241,7 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
                 <p className="font-bold uppercase tracking-[0.2em] text-[12px] text-gray-400">Canh tác mỗi công</p>
              </div>
              <p className="text-[12px] font-bold text-sky-600/40 mb-6 ml-14 leading-tight uppercase font-black">(cày, cắt, xịt, làm cỏ...)</p>
-             <h3 className="text-5xl font-bold text-sky-600 tracking-tighter">
+             <h3 className="text-3xl font-bold text-sky-600 tracking-tighter">
                 {convertCurrency(Math.round(cultivationCostPerCong))}
              </h3>
              <p className="text-[12px] font-bold text-gray-400 mt-2 uppercase tracking-widest">/ CÔNG ĐẤT</p>
@@ -256,7 +256,7 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
                 <p className="font-bold uppercase tracking-[0.2em] text-[12px]">Tổng chi vật tư</p>
              </div>
              <p className="text-[12px] font-medium text-purple-100 mb-6 ml-8 leading-tight opacity-90 uppercase font-bold">(Phân, Thuốc, Giống)</p>
-             <h3 className="text-5xl font-bold tracking-tighter">
+             <h3 className="text-3xl font-bold tracking-tighter">
                 {convertCurrency(totalInputCost)}
              </h3>
           </CardContent>
@@ -271,7 +271,7 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
                 <p className="font-bold uppercase tracking-[0.2em] text-[12px] text-gray-400">Vật tư mỗi công</p>
              </div>
              <p className="text-[12px] font-bold text-purple-600/40 mb-6 ml-14 leading-tight uppercase font-black">(Phân, Thuốc, Giống)</p>
-             <h3 className="text-5xl font-bold text-purple-600 tracking-tighter">
+             <h3 className="text-3xl font-bold text-purple-600 tracking-tighter">
                 {convertCurrency(Math.round(inputCostPerCong))}
              </h3>
              <p className="text-[12px] font-bold text-gray-400 mt-2 uppercase tracking-widest">/ CÔNG ĐẤT</p>

@@ -219,7 +219,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                     <TrendingUp className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng thu hoạch</span>
                   </div>
-                  <p className="text-emerald-950 font-black text-xl truncate">
+                  <p className="text-emerald-950 font-black text-lg truncate">
                     {profitReport?.total_revenue !== undefined ? convertCurrency(profitReport.total_revenue) : '---'}
                   </p>
                 </div>
@@ -229,7 +229,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                     <HandCoins className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-bold uppercase tracking-tighter">Lợi nhuận</span>
                   </div>
-                  <p className={`${hasHarvest ? ((profitReport?.net_profit ?? 0) >= 0 ? 'text-blue-950' : 'text-red-950') : 'text-gray-400'} font-black text-xl truncate`}>
+                  <p className={`${hasHarvest ? ((profitReport?.net_profit ?? 0) >= 0 ? 'text-blue-950' : 'text-red-950') : 'text-gray-400'} font-black text-lg truncate`}>
                     {hasHarvest ? (profitReport?.net_profit !== undefined ? convertCurrency(profitReport.net_profit) : '---') : convertCurrency(0)}
                   </p>
                 </div>
@@ -240,7 +240,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                     <Sprout className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-bold uppercase tracking-tighter">Diện tích</span>
                   </div>
-                  <p className="text-slate-950 font-black text-xl truncate">
+                  <p className="text-slate-950 font-black text-lg truncate">
                     {amountOfLand} <span className="text-xs opacity-50 uppercase">Công</span>
                   </p>
                 </div>
@@ -255,7 +255,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                        (Bao gồm canh tác + vật tư)
                     </p>
                   </div>
-                  <p className={`${hasHarvest ? ((profitReport?.net_profit ?? 0) >= 0 ? 'text-indigo-950' : 'text-orange-950') : 'text-gray-400'} font-black text-xl truncate`}>
+                  <p className={`${hasHarvest ? ((profitReport?.net_profit ?? 0) >= 0 ? 'text-indigo-950' : 'text-orange-950') : 'text-gray-400'} font-black text-lg truncate`}>
                     {hasHarvest && amountOfLand > 0 ? (profitReport?.net_profit !== undefined ? convertCurrency(profitReport.net_profit / amountOfLand) : '---') : convertCurrency(0)}
                   </p>
                 </div>
@@ -269,7 +269,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                   <p className="text-[8px] font-bold text-rose-600/40 mb-1 uppercase leading-tight italic">
                     (gồm cày, cắt, làm cỏ, phân, thuốc, giống)
                   </p>
-                  <p className="text-rose-950 font-black text-xl truncate">
+                  <p className="text-rose-950 font-black text-lg truncate">
                     {profitReport?.total_cost !== undefined ? convertCurrency(profitReport.total_cost) : '---'}
                   </p>
                 </div>
@@ -282,7 +282,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                   <p className="text-[8px] font-bold text-amber-600/40 mb-1 uppercase leading-tight italic">
                     (gồm cày, cắt, làm cỏ, phân, thuốc, giống)
                   </p>
-                  <p className="text-amber-950 font-black text-xl truncate">
+                  <p className="text-amber-950 font-black text-lg truncate">
                     {profitReport?.cost_per_cong !== undefined ? convertCurrency(profitReport.cost_per_cong) : '---'}
                   </p>
                 </div>
@@ -296,7 +296,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                     </div>
                     <p className="text-[8px] text-emerald-600 font-bold mb-1 leading-tight uppercase">(cày, cắt, xịt...)</p>
                   </div>
-                  <p className="text-emerald-950 font-black text-xl truncate">
+                  <p className="text-emerald-950 font-black text-lg truncate">
                     {profitReport?.total_cultivation_cost !== undefined ? convertCurrency(profitReport.total_cultivation_cost) : '---'}
                   </p>
                 </div>
@@ -309,7 +309,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                     </div>
                     <p className="text-[8px] text-sky-600 font-bold mb-1 leading-tight uppercase">(cày, cắt, xịt...)</p>
                   </div>
-                  <p className="text-sky-950 font-black text-xl truncate">
+                  <p className="text-sky-950 font-black text-lg truncate">
                     {profitReport?.cultivation_cost_per_cong !== undefined ? convertCurrency(profitReport.cultivation_cost_per_cong) : '---'}
                   </p>
                 </div>
@@ -323,7 +323,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                     </div>
                     <p className="text-[8px] text-purple-600 font-bold mb-1 leading-tight uppercase">(Phân, Thuốc, Giống)</p>
                   </div>
-                  <p className="text-purple-950 font-black text-xl truncate">
+                  <p className="text-purple-950 font-black text-lg truncate">
                     {profitReport?.total_input_cost !== undefined ? convertCurrency(profitReport.total_input_cost) : '---'}
                   </p>
                 </div>
@@ -336,7 +336,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                     </div>
                     <p className="text-[8px] text-fuchsia-600 font-bold mb-1 leading-tight uppercase">(Phân, Thuốc, Giống)</p>
                   </div>
-                  <p className="text-fuchsia-950 font-black text-xl truncate">
+                  <p className="text-fuchsia-950 font-black text-lg truncate">
                     {profitReport?.input_cost_per_cong !== undefined ? convertCurrency(profitReport.input_cost_per_cong) : '---'}
                   </p>
                 </div>
