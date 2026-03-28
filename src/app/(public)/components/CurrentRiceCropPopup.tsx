@@ -186,6 +186,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
               {/* Lấy diện tích đất (amountOfLand) - mặc định 1 nếu không có */}
               {(() => {
                 const amountOfLand = currentCrop.amount_of_land || (currentCrop.field_area / 1000) || 1;
+                const hasHarvest = (profitReport?.total_revenue ?? 0) > 0;
                 return (
                   <>
                     {/* Thông tin chính */}
@@ -223,13 +224,13 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                   </p>
                 </div>
 
-                <div className={`${(profitReport?.net_profit ?? 0) >= 0 ? 'bg-blue-50 border-blue-100' : 'bg-red-50 border-red-100'} rounded-[1.5rem] p-4 border flex flex-col justify-between min-h-[100px]`}>
-                  <div className={`flex items-center gap-2 mb-1 ${(profitReport?.net_profit ?? 0) >= 0 ? 'text-blue-700' : 'text-red-700'}`}>
+                <div className={`${hasHarvest ? ((profitReport?.net_profit ?? 0) >= 0 ? 'bg-blue-50 border-blue-100' : 'bg-red-50 border-red-100') : 'bg-gray-50 border-gray-100'} rounded-[1.5rem] p-4 border flex flex-col justify-between min-h-[100px]`}>
+                  <div className={`flex items-center gap-2 mb-1 ${hasHarvest ? ((profitReport?.net_profit ?? 0) >= 0 ? 'text-blue-700' : 'text-red-700') : 'text-gray-400'}`}>
                     <HandCoins className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-bold uppercase tracking-tighter">Lợi nhuận ròng</span>
+                    <span className="text-[10px] font-bold uppercase tracking-tighter">Lợi nhuận</span>
                   </div>
-                  <p className={`${(profitReport?.net_profit ?? 0) >= 0 ? 'text-blue-950' : 'text-red-950'} font-black text-xl truncate`}>
-                    {profitReport?.net_profit !== undefined ? convertCurrency(profitReport.net_profit) : '---'}
+                  <p className={`${hasHarvest ? ((profitReport?.net_profit ?? 0) >= 0 ? 'text-blue-950' : 'text-red-950') : 'text-gray-400'} font-black text-xl truncate`}>
+                    {hasHarvest ? (profitReport?.net_profit !== undefined ? convertCurrency(profitReport.net_profit) : '---') : convertCurrency(0)}
                   </p>
                 </div>
 
@@ -244,18 +245,18 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                   </p>
                 </div>
 
-                <div className={`${(profitReport?.net_profit ?? 0) >= 0 ? 'bg-indigo-50 border-indigo-100' : 'bg-orange-50 border-orange-100'} rounded-[1.5rem] p-4 border flex flex-col justify-between min-h-[100px]`}>
+                <div className={`${hasHarvest ? ((profitReport?.net_profit ?? 0) >= 0 ? 'bg-indigo-50 border-indigo-100' : 'bg-orange-50 border-orange-100') : 'bg-gray-50 border-gray-100'} rounded-[1.5rem] p-4 border flex flex-col justify-between min-h-[100px]`}>
                   <div>
-                    <div className={`flex items-center gap-2 mb-0.5 ${(profitReport?.net_profit ?? 0) >= 0 ? 'text-indigo-700' : 'text-orange-700'}`}>
+                    <div className={`flex items-center gap-2 mb-0.5 ${hasHarvest ? ((profitReport?.net_profit ?? 0) >= 0 ? 'text-indigo-700' : 'text-orange-700') : 'text-gray-400'}`}>
                       <TrendingUp className="w-3.5 h-3.5" />
                       <span className="text-[10px] font-bold uppercase tracking-tighter">Lợi nhuận / Công</span>
                     </div>
-                    <p className={`text-[8px] font-bold mb-1 uppercase leading-tight opacity-60 ${(profitReport?.net_profit ?? 0) >= 0 ? 'text-indigo-600' : 'text-orange-600'}`}>
+                    <p className={`text-[8px] font-bold mb-1 uppercase leading-tight opacity-60 ${hasHarvest ? ((profitReport?.net_profit ?? 0) >= 0 ? 'text-indigo-600' : 'text-orange-600') : 'text-gray-400'}`}>
                        (Bao gồm canh tác + vật tư)
                     </p>
                   </div>
-                  <p className={`${(profitReport?.net_profit ?? 0) >= 0 ? 'text-indigo-950' : 'text-orange-950'} font-black text-xl truncate`}>
-                    {profitReport?.net_profit !== undefined && amountOfLand > 0 ? convertCurrency(profitReport.net_profit / amountOfLand) : '---'}
+                  <p className={`${hasHarvest ? ((profitReport?.net_profit ?? 0) >= 0 ? 'text-indigo-950' : 'text-orange-950') : 'text-gray-400'} font-black text-xl truncate`}>
+                    {hasHarvest && amountOfLand > 0 ? (profitReport?.net_profit !== undefined ? convertCurrency(profitReport.net_profit / amountOfLand) : '---') : convertCurrency(0)}
                   </p>
                 </div>
 

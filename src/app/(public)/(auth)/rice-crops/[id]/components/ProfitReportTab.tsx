@@ -100,34 +100,36 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
         </Card>
 
         {/* CẶP 2: LỢI NHUẬN RÒNG & LỢI NHUẬN / CÔNG */}
-        <Card className={`${isProfitable ? "bg-blue-50/50 border-blue-100" : "bg-red-50/50 border-red-100"} flex flex-col justify-center min-h-[140px]`}>
+        <Card className={`${isProfitable ? "bg-blue-50/50 border-blue-100" : (total_revenue > 0 ? "bg-red-50/50 border-red-100" : "bg-gray-50/50 border-gray-100")} flex flex-col justify-center min-h-[140px]`}>
           <CardHeader className="py-4 px-6 pb-2">
             <CardTitle className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
-              <HandCoins className="h-4 w-4" /> Lợi nhuận ròng (ROI: {roi.toFixed(1)}%)
+              <HandCoins className="h-4 w-4" /> Lợi nhuận
             </CardTitle>
           </CardHeader>
           <CardContent className="px-6 pb-6">
-            <div className={`text-3xl font-black leading-none ${isProfitable ? "text-blue-700" : "text-destructive"}`}>
-              {convertCurrency(net_profit)}
+            <div className={`text-3xl font-black leading-none ${total_revenue > 0 ? (isProfitable ? "text-blue-700" : "text-destructive") : "text-gray-400"}`}>
+              {convertCurrency(total_revenue > 0 ? net_profit : 0)}
             </div>
-            <div className="mt-2">
-               <Badge variant={isProfitable ? "success" : "destructive"} className="text-[10px] px-2 py-0.5 rounded-full font-bold">
-                  {isProfitable ? "CÓ LỢI NHUẬN" : "ĐANG LỖ"}
-               </Badge>
-            </div>
+            {total_revenue > 0 && (
+              <div className="mt-2">
+                 <Badge variant={isProfitable ? "success" : "destructive"} className="text-[10px] px-2 py-0.5 rounded-full font-bold">
+                    {isProfitable ? "CÓ LỢI NHUẬN" : "ĐANG LỖ"}
+                 </Badge>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        <Card className={`${isProfitable ? "bg-indigo-50 border-indigo-100" : "bg-orange-50 border-orange-100"} flex flex-col justify-center min-h-[140px]`}>
+        <Card className={`${total_revenue > 0 ? (isProfitable ? "bg-indigo-50 border-indigo-100" : "bg-orange-50 border-orange-100") : "bg-gray-50/50 border-gray-100"} flex flex-col justify-center min-h-[140px]`}>
           <CardHeader className="py-4 px-6 pb-2">
-             <CardTitle className={`text-xs font-bold uppercase flex items-center gap-2 ${isProfitable ? "text-indigo-700" : "text-orange-700"}`}>
+             <CardTitle className={`text-xs font-bold uppercase flex items-center gap-2 ${total_revenue > 0 ? (isProfitable ? "text-indigo-700" : "text-orange-700") : "text-gray-400"}`}>
                 <TrendingUp className="h-4 w-4" /> Lợi nhuận / Công
              </CardTitle>
-             <p className={`text-[9px] font-bold mt-1 uppercase ${isProfitable ? "text-indigo-600/60" : "text-orange-600/60"}`}> (Bao gồm chi phí canh tác + vật tư)</p>
+             <p className={`text-[9px] font-bold mt-1 uppercase ${total_revenue > 0 ? (isProfitable ? "text-indigo-600/60" : "text-orange-600/60") : "text-gray-400/60"}`}> (Bao gồm chi phí canh tác + vật tư)</p>
           </CardHeader>
           <CardContent className="px-6 pb-6">
-             <div className={`text-3xl font-black leading-none ${isProfitable ? "text-indigo-900" : "text-orange-900"}`}>
-                {convertCurrency(net_profit / amountOfLand)}
+             <div className={`text-3xl font-black leading-none ${total_revenue > 0 ? (isProfitable ? "text-indigo-900" : "text-orange-900") : "text-gray-400"}`}>
+                {convertCurrency(total_revenue > 0 ? (net_profit / amountOfLand) : 0)}
              </div>
           </CardContent>
         </Card>

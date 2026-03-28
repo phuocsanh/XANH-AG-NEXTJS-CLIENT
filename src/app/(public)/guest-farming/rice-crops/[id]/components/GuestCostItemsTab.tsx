@@ -144,14 +144,14 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
           </CardContent>
         </Card>
 
-        <Card className={`rounded-[2.5rem] border-none shadow-xl text-white overflow-hidden relative group ${profit >= 0 ? "bg-gradient-to-br from-blue-500 to-blue-700" : "bg-gradient-to-br from-red-500 to-red-700"}`}>
+        <Card className={`rounded-[2.5rem] border-none shadow-xl text-white overflow-hidden relative group ${totalRevenue > 0 ? (profit >= 0 ? "bg-gradient-to-br from-blue-500 to-blue-700" : "bg-gradient-to-br from-red-500 to-red-700") : "bg-gray-100 border-gray-200 text-gray-400"}`}>
           <CardContent className="p-10 relative z-10 h-full flex flex-col justify-center">
              <div className="flex items-center gap-3 mb-4 opacity-80">
                 <HandCoins className="w-5 h-5" />
-                <p className="font-bold uppercase tracking-[0.2em] text-[12px]">Lợi nhuận ròng</p>
+                <p className="font-bold uppercase tracking-[0.2em] text-[12px]">Lợi nhuận</p>
              </div>
              <h2 className="text-5xl font-bold tracking-tighter">
-                {convertCurrency(profit)}
+                {convertCurrency(totalRevenue > 0 ? profit : 0)}
              </h2>
           </CardContent>
         </Card>
@@ -171,19 +171,19 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
           </CardContent>
         </Card>
 
-        <Card className={`rounded-[2.5rem] border-none shadow-xl overflow-hidden relative group ${profit >= 0 ? "bg-indigo-50 border-indigo-100" : "bg-orange-50 border-orange-100"}`}>
+        <Card className={`rounded-[2.5rem] border-none shadow-xl overflow-hidden relative group ${totalRevenue > 0 ? (profit >= 0 ? "bg-indigo-50 border-indigo-100" : "bg-orange-50 border-orange-100") : "bg-gray-50 border-gray-100"}`}>
           <CardContent className="p-10 relative z-10 h-full flex flex-col justify-center">
              <div className="flex items-center gap-3 mb-2">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${profit >= 0 ? "bg-indigo-100" : "bg-orange-100"}`}>
-                   <TrendingUp className={`w-6 h-6 ${profit >= 0 ? "text-indigo-600" : "text-orange-600"}`} />
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${totalRevenue > 0 ? (profit >= 0 ? "bg-indigo-100" : "bg-orange-100") : "bg-gray-100"}`}>
+                   <TrendingUp className={`w-6 h-6 ${totalRevenue > 0 ? (profit >= 0 ? "text-indigo-600" : "text-orange-600") : "text-gray-400"}`} />
                 </div>
-                <p className={`font-bold uppercase tracking-[0.2em] text-[12px] ${profit >= 0 ? "text-indigo-700" : "text-orange-700"}`}>Lợi nhuận / Công</p>
+                <p className={`font-bold uppercase tracking-[0.2em] text-[12px] ${totalRevenue > 0 ? (profit >= 0 ? "text-indigo-700" : "text-orange-700") : "text-gray-400"}`}>Lợi nhuận / Công</p>
              </div>
-             <p className={`text-[12px] font-bold mb-6 ml-14 leading-tight uppercase font-black ${profit >= 0 ? "text-indigo-600/40" : "text-orange-600/40"}`}>
+             <p className={`text-[12px] font-bold mb-6 ml-14 leading-tight uppercase font-black ${totalRevenue > 0 ? (profit >= 0 ? "text-indigo-600/40" : "text-orange-600/40") : "text-gray-400/40"}`}>
                 (Bao gồm canh tác + vật tư)
              </p>
-             <h3 className={`text-5xl font-bold tracking-tighter ${profit >= 0 ? "text-indigo-900" : "text-orange-900"}`}>
-                {convertCurrency(profitPerCong)}
+             <h3 className={`text-5xl font-bold tracking-tighter ${totalRevenue > 0 ? (profit >= 0 ? "text-indigo-900" : "text-orange-900") : "text-gray-400"}`}>
+                {convertCurrency(totalRevenue > 0 ? profitPerCong : 0)}
              </h3>
           </CardContent>
         </Card>
