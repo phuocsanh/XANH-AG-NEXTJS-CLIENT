@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -19,13 +19,19 @@ import {
   AreaChart, 
   Calendar, 
   ArrowRight,
-  Info
+  Info,
+  Activity,
+  Zap,
+  FlaskConical,
+  Layers
 } from 'lucide-react'
 import Link from 'next/link'
 import { convertCurrency, calculateDaysDiff } from '@/lib/utils'
-import { getGrowthStageText } from '@/models/rice-farming'
+import { getGrowthStageText, type ProfitReport } from '@/models/rice-farming'
 import dayjs from 'dayjs'
 import { convertSolar2Lunar } from '@/lib/lunar-calendar'
+import { useAppStore } from '@/stores'
+import { localFarmingService } from '@/lib/local-farming-service'
 
 interface CurrentRiceCropPopupProps {
   isOpen: boolean
@@ -34,38 +40,97 @@ interface CurrentRiceCropPopupProps {
 
 /**
  * Popup hiển thị thông tin nhanh về ruộng lúa hiện tại của người dùng
- * Dành cho người dùng đã đăng nhập và có ruộng lúa ở mùa vụ gần nhất
+ * Hỗ trợ cả người dùng đã đăng nhập (DB) và khách (Offline)
  */
 export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRiceCropPopupProps) {
-  // Memoize filters để tránh loop khi truyền object literal vào hook
+  const { isLogin } = useAppStore()
+  
+  // State cho dữ liệu local (nếu không login)
+  const [localCrop, setLocalCrop] = useState<any>(null)
+  const [localReport, setLocalReport] = useState<Partial<ProfitReport> | null>(null)
+  const [isLocalLoading, setIsLocalLoading] = useState(false)
+
+  // Memoize filters cho API (nếu có login)
   const riceCropFilters = React.useMemo(() => ({ limit: 1 }), [])
 
-  // Lấy ruộng lúa mới nhất (active ưu tiên)
-  const { data: cropsData, isLoading: isLoadingCrops } = useRiceCrops(riceCropFilters, isOpen)
+  // Hook lấy dữ liệu từ Server (chỉ chạy khi isLogin)
+  const { data: cropsData, isLoading: isLoadingCrops } = useRiceCrops(riceCropFilters, isOpen && isLogin)
+  const serverCrop = cropsData?.data?.[0]
+  const { data: serverReport, isLoading: isLoadingReport } = useProfitReport(serverCrop?.id || 0)
 
-  const currentCrop = cropsData?.data?.[0]
-  
-  // Lấy báo cáo lợi nhuận (chi phí) cho ruộng lúa này
-  const { data: profitReport, isLoading: isLoadingReport } = useProfitReport(currentCrop?.id || 0)
+  // Xử lý lấy dữ liệu Local cho khách
+  useEffect(() => {
+    if (isOpen && !isLogin) {
+      const fetchLocalData = async () => {
+        setIsLocalLoading(true)
+        try {
+          const crops = await localFarmingService.getAllRiceCrops()
+          if (crops && crops.length > 0) {
+            // Lấy ruộng mới nhất
+            const latest = crops[crops.length - 1]
+            if (!latest) return
 
-  const isLoading = isLoadingCrops || (!!currentCrop && isLoadingReport)
+            setLocalCrop(latest)
+            
+            // Tính toán chi phí local
+            const costs = await localFarmingService.getCostsByCropId(latest.id)
+            
+            let total_cultivation_cost = 0
+            let total_input_cost = 0
+            
+            costs.forEach((item: any) => {
+              const amount = Number(item.total_cost) || 0
+              // Phân loại: 0: Seed, 1: Fertilizer, 2: Pesticide (Vật tư)
+              // 3: Labor, 4: Machinery, 5: Irrigation, 6: Other (Canh tác)
+              if (item.category_id <= 2) {
+                total_input_cost += amount
+              } else {
+                total_cultivation_cost += amount
+              }
+            })
+            
+            const total_cost = total_cultivation_cost + total_input_cost
+            const amount_of_land = latest.amount_of_land || (latest.field_area / 1000) || 1
+            
+            setLocalReport({
+              total_cost,
+              cost_per_cong: total_cost / amount_of_land,
+              total_cultivation_cost,
+              cultivation_cost_per_cong: total_cultivation_cost / amount_of_land,
+              total_input_cost,
+              input_cost_per_cong: total_input_cost / amount_of_land,
+              amount_of_land
+            })
+          } else {
+            setLocalCrop(null)
+            setLocalReport(null)
+          }
+        } catch (error) {
+          console.error("Lỗi lấy dữ liệu local:", error)
+        } finally {
+          setIsLocalLoading(false)
+        }
+      }
+      fetchLocalData()
+    }
+  }, [isOpen, isLogin])
 
-  // Tính số công đất hiệu dụng (ưu tiên amount_of_land, fallback tính từ m2)
+  // Dữ liệu cuối cùng để hiển thị
+  const currentCrop = isLogin ? serverCrop : localCrop
+  const profitReport = isLogin ? serverReport : localReport
+  const isLoading = isLogin 
+    ? (isLoadingCrops || (!!currentCrop && isLoadingReport))
+    : isLocalLoading
+
+  // Tính diện tích & ngày
   const effectiveAmountOfLand = currentCrop?.amount_of_land || (currentCrop?.field_area ? currentCrop.field_area / 1000 : 1)
-
-  // Tính chi phí mỗi công
-  const costPerArea = currentCrop && profitReport 
-    ? profitReport.total_cost / effectiveAmountOfLand
-    : 0
-
-  // Tính ngày sau xạ
   const daysSinceSowing = calculateDaysDiff(currentCrop?.sowing_date)
 
   if (!isOpen) return null
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[450px] rounded-[2rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
+      <DialogContent className="sm:max-w-[500px] rounded-[2rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
         <div className="bg-gradient-to-br from-emerald-600 to-teal-700 p-6 text-white relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-12 translate-x-12" />
           
@@ -75,6 +140,9 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                 <Sprout className="w-5 h-5 text-white" />
               </div>
               <DialogTitle className="text-xl font-bold text-white">Ruộng lúa hiện tại</DialogTitle>
+              {!isLogin && (
+                <span className="bg-amber-400 text-amber-900 text-[9px] font-black px-2 py-0.5 rounded-full uppercase ml-auto">Offline</span>
+              )}
             </div>
             {currentCrop && (
               <p className="text-emerald-100 text-sm font-medium flex items-center gap-2">
@@ -85,11 +153,13 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
           </DialogHeader>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto scrollbar-none">
           {isLoading ? (
             <div className="space-y-4">
               <Skeleton className="h-20 w-full rounded-2xl" />
               <div className="grid grid-cols-2 gap-4">
+                <Skeleton className="h-24 w-full rounded-2xl" />
+                <Skeleton className="h-24 w-full rounded-2xl" />
                 <Skeleton className="h-24 w-full rounded-2xl" />
                 <Skeleton className="h-24 w-full rounded-2xl" />
               </div>
@@ -100,7 +170,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto">
                 <Info className="w-10 h-10 text-gray-400" />
               </div>
-              <p className="text-gray-500 font-medium">Bạn chưa có dữ liệu ruộng lúa nào.</p>
+              <p className="text-gray-500 font-medium">Bạn chưa có dữ liệu ruộng lúa nào {!isLogin ? 'trên thiết bị này.' : ''}</p>
               <Button 
                 variant="outline" 
                 className="rounded-full px-8 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
@@ -133,25 +203,71 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                 </div>
               </div>
 
-              {/* Thống kê chi phí */}
+              {/* Thống kê chi phí - 6 CỘT */}
               <div className="grid grid-cols-2 gap-4">
+                {/* 1. Tổng chi phí */}
                 <div className="bg-blue-50 rounded-[1.5rem] p-4 border border-blue-100">
                   <div className="flex items-center gap-2 mb-2 text-blue-700">
-                    <DollarSign className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase">Tổng chi phí</span>
+                    <DollarSign className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng chi phí</span>
                   </div>
-                  <p className="text-blue-900 font-black text-lg">
-                    {profitReport ? convertCurrency(profitReport.total_cost) : '---'}
+                  <p className="text-blue-950 font-black text-base truncate">
+                    {profitReport?.total_cost !== undefined ? convertCurrency(profitReport.total_cost) : '---'}
                   </p>
                 </div>
 
+                {/* 2. Chi phí mỗi công */}
                 <div className="bg-amber-50 rounded-[1.5rem] p-4 border border-amber-100">
                   <div className="flex items-center gap-2 mb-2 text-amber-700">
-                    <TrendingUp className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase">Mỗi công</span>
+                    <TrendingUp className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-tighter">Mỗi công</span>
                   </div>
-                  <p className="text-amber-900 font-black text-lg">
-                    {costPerArea > 0 ? convertCurrency(costPerArea) : '---'}
+                  <p className="text-amber-950 font-black text-base truncate">
+                    {profitReport?.cost_per_cong !== undefined ? convertCurrency(profitReport.cost_per_cong) : '---'}
+                  </p>
+                </div>
+
+                {/* 3. Tổng chi phí canh tác */}
+                <div className="bg-emerald-50 rounded-[1.5rem] p-4 border border-emerald-100">
+                  <div className="flex items-center gap-2 mb-2 text-emerald-700">
+                    <Activity className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng Chi Canh tác</span>
+                  </div>
+                  <p className="text-emerald-950 font-black text-base truncate">
+                    {profitReport?.total_cultivation_cost !== undefined ? convertCurrency(profitReport.total_cultivation_cost) : '---'}
+                  </p>
+                </div>
+
+                {/* 4. Chi phí canh tác mỗi công */}
+                <div className="bg-sky-50 rounded-[1.5rem] p-4 border border-sky-100">
+                  <div className="flex items-center gap-2 mb-2 text-sky-700">
+                    <Zap className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-tighter">Canh tác / công</span>
+                  </div>
+                  <p className="text-sky-950 font-black text-base truncate">
+                    {profitReport?.cultivation_cost_per_cong !== undefined ? convertCurrency(profitReport.cultivation_cost_per_cong) : '---'}
+                  </p>
+                </div>
+
+                {/* 5. Tổng chi phí phân, thuốc, giống */}
+                <div className="bg-purple-50 rounded-[1.5rem] p-4 border border-purple-100">
+                  <div className="flex items-center gap-2 mb-2 text-purple-700">
+                    <FlaskConical className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng VT (Phân/Thuốc)</span>
+                  </div>
+                  <p className="text-purple-950 font-black text-base truncate">
+                    {profitReport?.total_input_cost !== undefined ? convertCurrency(profitReport.total_input_cost) : '---'}
+                  </p>
+                </div>
+
+                {/* 6. Chi phí phân thuốc giống cho mỗi công */}
+                <div className="bg-rose-50 rounded-[1.5rem] p-4 border border-rose-100">
+                  <div className="flex items-center gap-2 mb-2 text-rose-700">
+                    <Layers className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-tighter">Phân/Thuốc / công</span>
+                  </div>
+                  <p className="text-rose-950 font-black text-base truncate">
+                    {profitReport?.input_cost_per_cong !== undefined ? convertCurrency(profitReport.input_cost_per_cong) : '---'}
                   </p>
                 </div>
               </div>
@@ -211,7 +327,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
               >
                 Đóng
               </Button>
-              <Link href={`/rice-crops/${currentCrop.id}`} className="flex-1">
+              <Link href={isLogin ? `/rice-crops/${currentCrop.id}` : `/guest-farming/rice-crops/${currentCrop.id}`} className="flex-1">
                 <Button className="w-full rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-2">
                   Xem chi tiết <ArrowRight className="w-4 h-4" />
                 </Button>
