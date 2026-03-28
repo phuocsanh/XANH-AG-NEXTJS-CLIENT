@@ -23,7 +23,7 @@ import { localFarmingService } from "@/lib/local-farming-service"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { type CostItem } from "@/models/rice-farming"
-import { cn, convertCurrency } from "@/lib/utils"
+import { convertCurrency } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { useConfirm } from "@/hooks/use-confirm"
 import GuestCostItemModal from "./GuestCostItemModal"
@@ -51,14 +51,12 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
   const { confirm, ConfirmDialog: ConfirmDialogComponent } = useConfirm()
   const [costs, setCosts] = useState<CostItem[]>([])
   const [harvestRecords, setHarvestRecords] = useState<any[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isHarvestModalOpen, setIsHarvestModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<CostItem | null>(null)
   const [editingHarvest, setEditingHarvest] = useState<any | null>(null)
 
   const fetchData = async () => {
-    setIsLoading(true)
     try {
       const [costData, harvestData] = await Promise.all([
         localFarmingService.getCostsByCropId(riceCropId),
@@ -68,42 +66,12 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
       setHarvestRecords(harvestData as any)
     } catch (_error) {
       console.error("Error fetching local data:", _error)
-    } finally {
-      setIsLoading(false)
     }
   }
 
   useEffect(() => {
     fetchData()
   }, [riceCropId])
-
-  const handleDelete = async (id: number) => {
-    const isConfirmed = await confirm({
-      title: "Xác nhận xóa",
-      description: "Bạn có chắc chắn muốn xóa mục chi phí này không? Dữ liệu này chỉ được lưu local.",
-      variant: "destructive"
-    })
-
-    if (isConfirmed) {
-      try {
-        await localFarmingService.deleteCostItem(id)
-        toast({ title: "Thành công", description: "Đã xóa mục chi phí." })
-        fetchData()
-      } catch {
-        toast({ title: "Lỗi", description: "Không thể xóa chi phí.", variant: "destructive" })
-      }
-    }
-  }
-
-  const handleAdd = () => {
-    setEditingItem(null)
-    setIsModalOpen(true)
-  }
-
-  const handleEdit = (item: CostItem) => {
-    setEditingItem(item)
-    setIsModalOpen(true)
-  }
 
   const handleSubmitModal = async (data: CreateCostItemBodyType) => {
     try {
@@ -118,34 +86,6 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
       fetchData()
     } catch {
       toast({ title: "Lỗi", description: "Không thể lưu thông tin.", variant: "destructive" })
-    }
-  }
-
-  const handleAddHarvest = () => {
-    setEditingHarvest(null)
-    setIsHarvestModalOpen(true)
-  }
-
-  const handleEditHarvest = (item: any) => {
-    setEditingHarvest(item)
-    setIsHarvestModalOpen(true)
-  }
-
-  const handleDeleteHarvest = async (id: number) => {
-    const isConfirmed = await confirm({
-      title: "Xác nhận xóa",
-      description: "Bạn có chắc chắn muốn xóa bản ghi thu hoạch này không?",
-      variant: "destructive"
-    })
-
-    if (isConfirmed) {
-      try {
-        await localFarmingService.deleteHarvestRecord(id)
-        toast({ title: "Thành công", description: "Đã xóa bản ghi thu hoạch." })
-        fetchData()
-      } catch {
-        toast({ title: "Lỗi", description: "Không thể xóa bản ghi.", variant: "destructive" })
-      }
     }
   }
 
@@ -175,8 +115,6 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
   let totalInputCost = 0
   costs.forEach((item) => {
     const amount = Number(item.total_cost) || 0
-    // 0: Seed, 1: Fertilizer, 2: Pesticide (Vật tư)
-    // 3: Labor, 4: Machinery, 5: Irrigation, 6: Other (Canh tác)
     if (item.category_id !== undefined && item.category_id <= 2) {
       totalInputCost += amount
     } else {
@@ -187,8 +125,6 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
   const costPerCong = amountOfLand > 0 ? totalCost / amountOfLand : 0
   const cultivationCostPerCong = amountOfLand > 0 ? totalCultivationCost / amountOfLand : 0
   const inputCostPerCong = amountOfLand > 0 ? totalInputCost / amountOfLand : 0
-  
-  const revenuePerCong = amountOfLand > 0 ? totalRevenue / amountOfLand : 0
   const profitPerCong = amountOfLand > 0 ? profit / amountOfLand : 0
 
   return (
@@ -384,94 +320,117 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
           </Card>
       </div>
 
-      {/* Chi tiết Chi phí */}
+      {/* Chi tiết Chi phí hoặc Thu hoạch */}
       <div className="space-y-4">
         <div className="flex items-center gap-3 px-2">
-           <PieChart className="w-5 h-5 text-rose-600" />
-           <h4 className="font-black text-gray-900 uppercase tracking-widest text-xs">Danh sách chi phí và thu hoạch</h4>
+            {defaultTab === "costs" ? (
+              <>
+                <PieChart className="w-5 h-5 text-rose-600" />
+                <h4 className="font-black text-gray-900 uppercase tracking-widest text-xs">Danh sách chi tiết các khoản chi</h4>
+              </>
+            ) : (
+              <>
+                <Wheat className="w-5 h-5 text-amber-600" />
+                <h4 className="font-black text-gray-900 uppercase tracking-widest text-xs">Lịch sử thu hoạch</h4>
+              </>
+            )}
         </div>
 
-        {costs.length === 0 && harvestRecords.length === 0 ? (
-          <div className="py-20 text-center bg-gray-50/50 rounded-[3rem] border-2 border-dashed border-gray-100">
-             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <PieChart className="w-10 h-10 text-gray-300" />
-             </div>
-             <p className="text-gray-400 font-black uppercase tracking-widest text-xs">Chưa có dữ liệu nào</p>
-          </div>
+        {defaultTab === "costs" ? (
+          costs.length === 0 ? (
+            <div className="py-20 text-center bg-gray-50/50 rounded-[3rem] border-2 border-dashed border-gray-100">
+               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <PieChart className="w-10 h-10 text-gray-300" />
+               </div>
+               <p className="text-gray-400 font-black uppercase tracking-widest text-xs">Chưa có bản ghi chi phí nào</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               {costs.map((item) => (
+                  <div key={`cost-${item.id}`} className="group bg-white p-5 rounded-[2rem] flex items-center justify-between shadow-sm border border-gray-100 hover:shadow-xl hover:border-rose-100 transition-all">
+                     <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center group-hover:bg-rose-600 group-hover:text-white transition-all text-rose-600">
+                           <Tag className="w-5 h-5" />
+                        </div>
+                        <div>
+                           <h5 className="font-bold text-gray-900">{item.item_name}</h5>
+                           <p className="text-xs text-gray-400 font-medium">
+                              <span className="text-rose-600 font-bold uppercase text-[9px] bg-rose-50 px-2 py-0.5 rounded-full mr-2">
+                                {COST_CATEGORIES[item.category_id as any]?.label ||  "Mục khác"}
+                              </span>
+                              {dayjs(item.expense_date).format("DD/MM/YYYY")}
+                           </p>
+                        </div>
+                     </div>
+                     <div className="flex items-center gap-4">
+                        <p className="font-black text-gray-900 text-lg">{convertCurrency(item.total_cost)}</p>
+                        <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button variant="ghost" size="icon" onClick={() => {
+                            setEditingItem(item);
+                            setIsModalOpen(true);
+                          }} className="h-8 w-8 text-gray-400 hover:text-rose-600"><Edit2 className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" onClick={async () => {
+                            const ok = await confirm({
+                              title: "Xóa chi phí",
+                              description: "Bạn có chắc chắn muốn xóa bản ghi này?",
+                            })
+                            if (ok) {
+                               await localFarmingService.deleteCostItem(item.id)
+                               fetchData()
+                            }
+                          }} className="h-8 w-8 text-gray-300 hover:text-red-600"><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                     </div>
+                  </div>
+               ))}
+            </div>
+          )
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             {costs.map((item) => (
-                <div key={`cost-${item.id}`} className="group bg-white p-5 rounded-[2rem] flex items-center justify-between shadow-sm border border-gray-100 hover:shadow-xl hover:border-rose-100 transition-all">
-                   <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center group-hover:bg-rose-600 group-hover:text-white transition-all text-rose-600">
-                         <Tag className="w-5 h-5" />
-                      </div>
-                      <div>
-                         <h5 className="font-bold text-gray-900">{item.item_name}</h5>
-                         <p className="text-xs text-gray-400 font-medium">
-                            <span className="text-rose-600 font-bold uppercase text-[9px] bg-rose-50 px-2 py-0.5 rounded-full mr-2">
-                              {COST_CATEGORIES[item.category_id as any]?.label ||  "Mục khác"}
-                            </span>
-                            {dayjs(item.expense_date).format("DD/MM/YYYY")}
-                         </p>
-                      </div>
-                   </div>
-                   <div className="flex items-center gap-4">
-                      <p className="font-black text-gray-900 text-lg">{convertCurrency(item.total_cost)}</p>
-                      <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button variant="ghost" size="icon" onClick={() => {
-                          setEditingItem(item);
-                          setIsModalOpen(true);
-                        }} className="h-8 w-8 text-gray-400 hover:text-rose-600"><Edit2 className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={async () => {
-                          const ok = await confirm({
-                            title: "Xóa chi phí",
-                            description: "Bạn có chắc chắn muốn xóa bản ghi này?",
-                          })
-                          if (ok) {
-                             await localFarmingService.deleteCostItem(item.id)
-                             fetchData()
-                          }
-                        }} className="h-8 w-8 text-gray-300 hover:text-red-600"><Trash2 className="h-4 w-4" /></Button>
-                      </div>
-                   </div>
-                </div>
-             ))}
-             {harvestRecords.map((item) => (
-                <div key={`harvest-${item.id}`} className="group bg-white p-5 rounded-[2rem] flex items-center justify-between shadow-sm border border-gray-100 hover:shadow-xl hover:border-amber-100 transition-all">
-                   <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all text-amber-600">
-                         <Wheat className="w-5 h-5" />
-                      </div>
-                      <div>
-                         <h5 className="font-bold text-gray-900">Thu hoạch {item.yield_amount} {item.yield_unit === 'tan' ? 'tấn' : item.yield_unit}</h5>
-                         <p className="text-xs text-gray-400 font-medium">
-                            {dayjs(item.harvest_date).format("DD/MM/YYYY")}
-                         </p>
-                      </div>
-                   </div>
-                   <div className="flex items-center gap-4">
-                      <p className="font-black text-amber-600 text-lg">{convertCurrency(item.total_revenue)}</p>
-                      <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button variant="ghost" size="icon" onClick={() => {
-                          setEditingHarvest(item);
-                          setIsHarvestModalOpen(true);
-                        }} className="h-8 w-8 text-gray-400 hover:text-amber-600"><Edit2 className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={async () => {
-                           const ok = await confirm({
-                             title: "Xóa thu hoạch",
-                             description: "Bạn có chắc chắn muốn xóa bản ghi này?",
-                           })
-                           if (ok) {
-                              await localFarmingService.deleteHarvestRecord(item.id)
-                              fetchData()
-                           }
-                        }} className="h-8 w-8 text-gray-300 hover:text-red-600"><Trash2 className="h-4 w-4" /></Button>
-                      </div>
-                   </div>
-                </div>
-             ))}
-          </div>
+          harvestRecords.length === 0 ? (
+            <div className="py-20 text-center bg-gray-50/50 rounded-[3rem] border-2 border-dashed border-gray-100">
+                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Wheat className="w-10 h-10 text-gray-300" />
+               </div>
+               <p className="text-gray-400 font-black uppercase tracking-widest text-xs">Chưa có kết quả thu hoạch</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               {harvestRecords.map((item) => (
+                  <div key={`harvest-${item.id}`} className="group bg-white p-5 rounded-[2rem] flex items-center justify-between shadow-sm border border-gray-100 hover:shadow-xl hover:border-amber-100 transition-all">
+                     <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all text-amber-600">
+                           <Wheat className="w-5 h-5" />
+                        </div>
+                        <div>
+                           <h5 className="font-bold text-gray-900">Thu hoạch {item.yield_amount} {item.yield_unit === 'tan' ? 'tấn' : item.yield_unit}</h5>
+                           <p className="text-xs text-gray-400 font-medium">
+                              {dayjs(item.harvest_date).format("DD/MM/YYYY")}
+                           </p>
+                        </div>
+                     </div>
+                     <div className="flex items-center gap-4">
+                        <p className="font-black text-amber-600 text-lg">{convertCurrency(item.total_revenue)}</p>
+                        <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button variant="ghost" size="icon" onClick={() => {
+                            setEditingHarvest(item);
+                            setIsHarvestModalOpen(true);
+                          }} className="h-8 w-8 text-gray-400 hover:text-amber-600"><Edit2 className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" onClick={async () => {
+                             const ok = await confirm({
+                               title: "Xóa thu hoạch",
+                               description: "Bạn có chắc chắn muốn xóa bản ghi này?",
+                             })
+                             if (ok) {
+                                await localFarmingService.deleteHarvestRecord(item.id)
+                                fetchData()
+                             }
+                          }} className="h-8 w-8 text-gray-300 hover:text-red-600"><Trash2 className="h-4 w-4" /></Button>
+                        </div>
+                     </div>
+                  </div>
+               ))}
+            </div>
+          )
         )}
       </div>
       
