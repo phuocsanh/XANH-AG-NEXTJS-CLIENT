@@ -228,10 +228,13 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                 </div>
 
                 {/* 3. Tổng chi phí canh tác */}
-                <div className="bg-emerald-50 rounded-[1.5rem] p-4 border border-emerald-100">
-                  <div className="flex items-center gap-2 mb-2 text-emerald-700">
-                    <Activity className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng Chi Canh tác</span>
+                <div className="bg-emerald-50 rounded-[1.5rem] p-4 border border-emerald-100 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1 text-emerald-700">
+                      <Activity className="w-3.5 h-3.5" />
+                      <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng Chi Canh tác</span>
+                    </div>
+                    <p className="text-[9px] text-emerald-600 font-medium mb-2 leading-tight">(cày, cắt, xịt, làm cỏ...)</p>
                   </div>
                   <p className="text-emerald-950 font-black text-base truncate">
                     {profitReport?.total_cultivation_cost !== undefined ? convertCurrency(profitReport.total_cultivation_cost) : '---'}
@@ -239,10 +242,13 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                 </div>
 
                 {/* 4. Chi phí canh tác mỗi công */}
-                <div className="bg-sky-50 rounded-[1.5rem] p-4 border border-sky-100">
-                  <div className="flex items-center gap-2 mb-2 text-sky-700">
-                    <Zap className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-bold uppercase tracking-tighter">Canh tác / công</span>
+                <div className="bg-sky-50 rounded-[1.5rem] p-4 border border-sky-100 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1 text-sky-700">
+                      <Zap className="w-3.5 h-3.5" />
+                      <span className="text-[10px] font-bold uppercase tracking-tighter">Canh tác / công</span>
+                    </div>
+                    <p className="text-[9px] text-sky-600 font-medium mb-2 leading-tight">(cày, cắt, xịt, làm cỏ...)</p>
                   </div>
                   <p className="text-sky-950 font-black text-base truncate">
                     {profitReport?.cultivation_cost_per_cong !== undefined ? convertCurrency(profitReport.cultivation_cost_per_cong) : '---'}
@@ -250,10 +256,13 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                 </div>
 
                 {/* 5. Tổng chi phí phân, thuốc, giống */}
-                <div className="bg-purple-50 rounded-[1.5rem] p-4 border border-purple-100">
-                  <div className="flex items-center gap-2 mb-2 text-purple-700">
-                    <FlaskConical className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng VT (Phân/Thuốc)</span>
+                <div className="bg-purple-50 rounded-[1.5rem] p-4 border border-purple-100 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1 text-purple-700">
+                      <FlaskConical className="w-3.5 h-3.5" />
+                      <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng VT (Phân/Thuốc)</span>
+                    </div>
+                    <p className="text-[9px] text-purple-600 font-medium mb-2 leading-tight">(Phân, Thuốc, Giống)</p>
                   </div>
                   <p className="text-purple-950 font-black text-base truncate">
                     {profitReport?.total_input_cost !== undefined ? convertCurrency(profitReport.total_input_cost) : '---'}
@@ -261,10 +270,13 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                 </div>
 
                 {/* 6. Chi phí phân thuốc giống cho mỗi công */}
-                <div className="bg-rose-50 rounded-[1.5rem] p-4 border border-rose-100">
-                  <div className="flex items-center gap-2 mb-2 text-rose-700">
-                    <Layers className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-bold uppercase tracking-tighter">Phân/Thuốc / công</span>
+                <div className="bg-rose-50 rounded-[1.5rem] p-4 border border-rose-100 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1 text-rose-700">
+                      <Layers className="w-3.5 h-3.5" />
+                      <span className="text-[10px] font-bold uppercase tracking-tighter">Phân/Thuốc / công</span>
+                    </div>
+                    <p className="text-[9px] text-rose-600 font-medium mb-2 leading-tight">(Phân, Thuốc, Giống)</p>
                   </div>
                   <p className="text-rose-950 font-black text-base truncate">
                     {profitReport?.input_cost_per_cong !== undefined ? convertCurrency(profitReport.input_cost_per_cong) : '---'}

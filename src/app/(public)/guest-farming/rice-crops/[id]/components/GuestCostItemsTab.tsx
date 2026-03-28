@@ -230,10 +230,11 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
             {/* 3. Tổng chi phí canh tác */}
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-gradient-to-br from-sky-500 to-sky-600 text-white overflow-hidden relative group">
               <CardContent className="p-8 relative z-10 h-full flex flex-col justify-center">
-                 <div className="flex items-center gap-3 mb-4 opacity-80">
+                 <div className="flex items-center gap-3 mb-2 opacity-80">
                     <Activity className="w-4 h-4" />
                     <p className="font-bold uppercase tracking-[0.2em] text-[10px]">Tổng chi canh tác</p>
                  </div>
+                 <p className="text-[10px] font-medium text-sky-100 mb-4 ml-7 leading-tight opacity-90">(cày, cắt, xịt, làm cỏ...)</p>
                  <h3 className="text-3xl font-bold tracking-tight">
                     {convertCurrency(totalCultivationCost)}
                  </h3>
@@ -243,12 +244,13 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
             {/* 4. Chi phí canh tác mỗi công */}
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white border border-sky-100 overflow-hidden relative group">
               <CardContent className="p-8 relative z-10 h-full flex flex-col justify-center">
-                 <div className="flex items-center gap-3 mb-4">
+                 <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 bg-sky-50 rounded-xl flex items-center justify-center">
                        <Zap className="w-5 h-5 text-sky-600" />
                     </div>
                     <p className="font-bold uppercase tracking-[0.2em] text-[10px] text-gray-400">Canh tác mỗi công</p>
                  </div>
+                 <p className="text-[10px] font-bold text-sky-600/60 mb-4 ml-12 leading-tight">(cày, cắt, xịt, làm cỏ...)</p>
                  <h3 className="text-3xl font-bold text-sky-600 tracking-tight">
                     {convertCurrency(Math.round(cultivationCostPerCong))}
                  </h3>
@@ -259,10 +261,11 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
             {/* 5. Tổng chi phí vật tư */}
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white overflow-hidden relative group">
               <CardContent className="p-8 relative z-10 h-full flex flex-col justify-center">
-                 <div className="flex items-center gap-3 mb-4 opacity-80">
+                 <div className="flex items-center gap-3 mb-2 opacity-80">
                     <FlaskConical className="w-4 h-4" />
                     <p className="font-bold uppercase tracking-[0.2em] text-[10px]">Tổng chi vật tư</p>
                  </div>
+                 <p className="text-[10px] font-medium text-purple-100 mb-4 ml-7 leading-tight opacity-90">(Phân, Thuốc, Giống)</p>
                  <h3 className="text-3xl font-bold tracking-tight">
                     {convertCurrency(totalInputCost)}
                  </h3>
@@ -272,12 +275,13 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
             {/* 6. Chi phí vật tư mỗi công */}
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white border border-purple-100 overflow-hidden relative group">
               <CardContent className="p-8 relative z-10 h-full flex flex-col justify-center">
-                 <div className="flex items-center gap-3 mb-4">
+                 <div className="flex items-center gap-3 mb-2">
                     <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
                        <Layers className="w-5 h-5 text-purple-600" />
                     </div>
                     <p className="font-bold uppercase tracking-[0.2em] text-[10px] text-gray-400">Vật tư mỗi công</p>
                  </div>
+                 <p className="text-[10px] font-bold text-purple-600/60 mb-4 ml-12 leading-tight">(Phân, Thuốc, Giống)</p>
                  <h3 className="text-3xl font-bold text-purple-600 tracking-tight">
                     {convertCurrency(Math.round(inputCostPerCong))}
                  </h3>

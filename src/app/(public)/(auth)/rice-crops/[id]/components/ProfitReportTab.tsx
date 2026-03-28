@@ -136,6 +136,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             <CardTitle className="text-[10px] font-bold text-sky-700 uppercase flex items-center gap-1.5 tracking-tight">
               <Activity className="h-3.5 w-3.5" /> Tổng CP Canh tác
             </CardTitle>
+            <p className="text-[9px] text-sky-600/70 font-bold ml-5 mt-0.5">(cày, cắt, xịt, làm cỏ...)</p>
           </CardHeader>
           <CardContent className="px-4 pb-3">
             <div className="text-lg font-black text-sky-900">{convertCurrency(total_cultivation_cost || 0)}</div>
@@ -148,6 +149,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             <CardTitle className="text-[10px] font-bold text-indigo-700 uppercase flex items-center gap-1.5 tracking-tight">
               <Zap className="h-3.5 w-3.5" /> Canh tác / Công
             </CardTitle>
+            <p className="text-[9px] text-indigo-600/70 font-bold ml-5 mt-0.5">(cày, cắt, xịt, làm cỏ...)</p>
           </CardHeader>
           <CardContent className="px-4 pb-3">
             <div className="text-lg font-black text-indigo-900">{convertCurrency(cultivation_cost_per_cong || 0)}</div>
@@ -160,6 +162,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             <CardTitle className="text-[10px] font-bold text-purple-700 uppercase flex items-center gap-1.5 tracking-tight">
               <FlaskConical className="h-3.5 w-3.5" /> Tổng CP Vật tư
             </CardTitle>
+            <p className="text-[9px] text-purple-600/70 font-bold ml-5 mt-0.5">(Phân, Thuốc, Giống)</p>
           </CardHeader>
           <CardContent className="px-4 pb-3">
             <div className="text-lg font-black text-purple-900">{convertCurrency(total_input_cost || 0)}</div>
@@ -172,6 +175,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             <CardTitle className="text-[10px] font-bold text-fuchsia-700 uppercase flex items-center gap-1.5 tracking-tight">
               <Layers className="h-3.5 w-3.5" /> Vật tư / Công
             </CardTitle>
+            <p className="text-[9px] text-fuchsia-600/70 font-bold ml-5 mt-0.5">(Phân, Thuốc, Giống)</p>
           </CardHeader>
           <CardContent className="px-4 pb-3">
             <div className="text-lg font-black text-fuchsia-900">{convertCurrency(input_cost_per_cong || 0)}</div>
