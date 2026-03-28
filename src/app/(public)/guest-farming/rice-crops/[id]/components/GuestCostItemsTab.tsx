@@ -1,7 +1,20 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Plus, DollarSign, Tag, Trash2, PieChart, TrendingDown } from "lucide-react"
+import { 
+  Plus, 
+  DollarSign, 
+  Tag, 
+  Trash2, 
+  PieChart, 
+  TrendingDown,
+  Activity,
+  Zap,
+  FlaskConical,
+  Layers,
+  Edit2, 
+  Wheat
+} from "lucide-react"
 import dayjs from "dayjs"
 import { localFarmingService } from "@/lib/local-farming-service"
 import { Button } from "@/components/ui/button"
@@ -13,7 +26,6 @@ import { useConfirm } from "@/hooks/use-confirm"
 import GuestCostItemModal from "./GuestCostItemModal"
 import GuestHarvestModal from "./GuestHarvestModal"
 import { CreateCostItemBodyType, CreateHarvestRecordBodyType } from "@/schemaValidations/rice-farming.schema"
-import { Edit2, Wheat } from "lucide-react"
 
 interface GuestCostItemsTabProps {
   riceCropId: number
@@ -150,11 +162,29 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
     }
   }
 
+  // Tính toán các chỉ số tài chính
   const totalCost = costs.reduce((sum, item) => sum + (Number(item.total_cost) || 0), 0)
   const totalRevenue = harvestRecords.reduce((sum, item) => sum + (Number(item.total_revenue) || 0), 0)
   const profit = totalRevenue - totalCost
 
+  // Phân loại chi phí local cho Guest
+  let totalCultivationCost = 0
+  let totalInputCost = 0
+  costs.forEach((item) => {
+    const amount = Number(item.total_cost) || 0
+    // 0: Seed, 1: Fertilizer, 2: Pesticide (Vật tư)
+    // 3: Labor, 4: Machinery, 5: Irrigation, 6: Other (Canh tác)
+    if (item.category_id !== undefined && item.category_id <= 2) {
+      totalInputCost += amount
+    } else {
+      totalCultivationCost += amount
+    }
+  })
+
   const costPerCong = amountOfLand > 0 ? totalCost / amountOfLand : 0
+  const cultivationCostPerCong = amountOfLand > 0 ? totalCultivationCost / amountOfLand : 0
+  const inputCostPerCong = amountOfLand > 0 ? totalInputCost / amountOfLand : 0
+  
   const revenuePerCong = amountOfLand > 0 ? totalRevenue / amountOfLand : 0
   const profitPerCong = amountOfLand > 0 ? profit / amountOfLand : 0
 
@@ -163,35 +193,93 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
       {/* Financial Summary Cards - Filtered by tab */}
       <div className={cn(
         "grid grid-cols-1 gap-6",
-        defaultTab === "costs" ? "md:grid-cols-3" : "md:grid-cols-2"
+        defaultTab === "costs" ? "md:grid-cols-2 lg:grid-cols-3" : "md:grid-cols-2"
       )}>
         {defaultTab === "costs" ? (
           <>
-            <Card className="rounded-[2.5rem] border-none shadow-xl bg-gradient-to-br from-rose-500 to-rose-700 text-white overflow-hidden relative group md:col-span-2">
+            {/* 1. Tổng chi phí */}
+            <Card className="rounded-[2.5rem] border-none shadow-xl bg-gradient-to-br from-rose-500 to-rose-700 text-white overflow-hidden relative group">
               <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full -translate-y-8 translate-x-8 blur-2xl group-hover:scale-125 transition-transform duration-500" />
-              <CardContent className="p-8 relative z-10">
+              <CardContent className="p-8 relative z-10 h-full flex flex-col justify-center">
                  <div className="flex items-center gap-3 mb-4 opacity-80">
                     <TrendingDown className="w-4 h-4" />
-                    <p className="font-bold uppercase tracking-[0.2em] text-[10px]">Tổng chi phí vụ mùa</p>
+                    <p className="font-bold uppercase tracking-[0.2em] text-[10px]">Tổng chi phí</p>
                  </div>
-                 <div className="flex items-baseline gap-2">
-                    <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
-                       {convertCurrency(totalCost)}
-                    </h2>
-                 </div>
+                 <h2 className="text-3xl font-bold tracking-tight">
+                    {convertCurrency(totalCost)}
+                 </h2>
               </CardContent>
             </Card>
 
+            {/* 2. Chi phí mỗi công */}
             <Card className="rounded-[2.5rem] border-none shadow-xl bg-white border border-rose-100 overflow-hidden relative group">
               <CardContent className="p-8 relative z-10 h-full flex flex-col justify-center">
                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center">
-                       <DollarSign className="w-5 h-5 text-rose-600" />
+                    <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
+                       <DollarSign className="w-5 h-5 text-amber-600" />
                     </div>
                     <p className="font-bold uppercase tracking-[0.2em] text-[10px] text-gray-400">Chi phí mỗi công</p>
                  </div>
-                 <h3 className="text-3xl font-bold text-rose-600 tracking-tight">
+                 <h3 className="text-3xl font-bold text-amber-600 tracking-tight">
                     {convertCurrency(Math.round(costPerCong))}
+                 </h3>
+                 <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">/ CÔNG ĐẤT</p>
+              </CardContent>
+            </Card>
+
+            {/* 3. Tổng chi phí canh tác */}
+            <Card className="rounded-[2.5rem] border-none shadow-xl bg-gradient-to-br from-sky-500 to-sky-600 text-white overflow-hidden relative group">
+              <CardContent className="p-8 relative z-10 h-full flex flex-col justify-center">
+                 <div className="flex items-center gap-3 mb-4 opacity-80">
+                    <Activity className="w-4 h-4" />
+                    <p className="font-bold uppercase tracking-[0.2em] text-[10px]">Tổng chi canh tác</p>
+                 </div>
+                 <h3 className="text-3xl font-bold tracking-tight">
+                    {convertCurrency(totalCultivationCost)}
+                 </h3>
+              </CardContent>
+            </Card>
+
+            {/* 4. Chi phí canh tác mỗi công */}
+            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white border border-sky-100 overflow-hidden relative group">
+              <CardContent className="p-8 relative z-10 h-full flex flex-col justify-center">
+                 <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-sky-50 rounded-xl flex items-center justify-center">
+                       <Zap className="w-5 h-5 text-sky-600" />
+                    </div>
+                    <p className="font-bold uppercase tracking-[0.2em] text-[10px] text-gray-400">Canh tác mỗi công</p>
+                 </div>
+                 <h3 className="text-3xl font-bold text-sky-600 tracking-tight">
+                    {convertCurrency(Math.round(cultivationCostPerCong))}
+                 </h3>
+                 <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">/ CÔNG ĐẤT</p>
+              </CardContent>
+            </Card>
+
+            {/* 5. Tổng chi phí vật tư */}
+            <Card className="rounded-[2.5rem] border-none shadow-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white overflow-hidden relative group">
+              <CardContent className="p-8 relative z-10 h-full flex flex-col justify-center">
+                 <div className="flex items-center gap-3 mb-4 opacity-80">
+                    <FlaskConical className="w-4 h-4" />
+                    <p className="font-bold uppercase tracking-[0.2em] text-[10px]">Tổng chi vật tư</p>
+                 </div>
+                 <h3 className="text-3xl font-bold tracking-tight">
+                    {convertCurrency(totalInputCost)}
+                 </h3>
+              </CardContent>
+            </Card>
+
+            {/* 6. Chi phí vật tư mỗi công */}
+            <Card className="rounded-[2.5rem] border-none shadow-xl bg-white border border-purple-100 overflow-hidden relative group">
+              <CardContent className="p-8 relative z-10 h-full flex flex-col justify-center">
+                 <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
+                       <Layers className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <p className="font-bold uppercase tracking-[0.2em] text-[10px] text-gray-400">Vật tư mỗi công</p>
+                 </div>
+                 <h3 className="text-3xl font-bold text-purple-600 tracking-tight">
+                    {convertCurrency(Math.round(inputCostPerCong))}
                  </h3>
                  <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">/ CÔNG ĐẤT</p>
               </CardContent>

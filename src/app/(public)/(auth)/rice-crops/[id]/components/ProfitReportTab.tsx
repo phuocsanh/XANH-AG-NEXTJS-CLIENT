@@ -18,7 +18,12 @@ import {
   TrendingUp, 
   TrendingDown, 
   DollarSign,
-  PieChart
+  PieChart,
+  Activity,
+  Zap,
+  FlaskConical,
+  Layers,
+  HandCoins
 } from "lucide-react"
 import { useProfitReport } from "@/hooks/use-profit-report"
 import { convertCurrency } from "@/lib/utils"
@@ -54,60 +59,122 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
     total_cost,
     net_profit,
     roi,
+    total_cultivation_cost,
+    cultivation_cost_per_cong,
+    total_input_cost,
+    input_cost_per_cong,
+    cost_per_cong,
     cost_breakdown = [],
   } = report
 
   const isProfitable = net_profit >= 0
-  const costPerLand = amountOfLand > 0 ? total_cost / amountOfLand : 0
+  const effectiveCostPerCong = cost_per_cong || (amountOfLand > 0 ? total_cost / amountOfLand : 0)
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="py-4 px-4">
-            <CardTitle className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-success" /> Tổng doanh thu
+      {/* HÀNG 1: DOANH THU & LỢI NHUẬN */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="bg-emerald-50/50 border-emerald-100">
+          <CardHeader className="py-4 px-4 pb-2">
+            <CardTitle className="text-xs font-bold text-emerald-700 uppercase flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" /> Tổng doanh thu
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
-            <div className="text-xl font-bold">{convertCurrency(total_revenue)}</div>
+            <div className="text-2xl font-black text-emerald-900">{convertCurrency(total_revenue)}</div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="py-4 px-4">
-            <CardTitle className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-2">
-              <TrendingDown className="h-4 w-4 text-destructive" /> Tổng chi phí
+
+        <Card className={isProfitable ? "bg-blue-50/50 border-blue-100" : "bg-red-50/50 border-red-100"}>
+          <CardHeader className="py-4 px-4 pb-2">
+            <CardTitle className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
+              <HandCoins className="h-4 w-4" /> Lợi nhuận ròng
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
-            <div className="text-xl font-bold">{convertCurrency(total_cost)}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="py-4 px-4">
-            <CardTitle className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-orange-500" /> Chi phí / Công
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-4 pb-4">
-            <div className="text-xl font-bold text-orange-600">{convertCurrency(costPerLand)}</div>
-          </CardContent>
-        </Card>
-        <Card className={isProfitable ? "bg-green-50/50 dark:bg-green-950/20" : "bg-red-50/50 dark:bg-red-950/20"}>
-          <CardHeader className="py-4 px-4">
-            <CardTitle className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-2">
-              <DollarSign className="h-4 w-4" /> Lợi nhuận ròng
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-4 pb-4">
-            <div className={`text-xl font-bold ${isProfitable ? "text-success" : "text-destructive"}`}>
+            <div className={`text-2xl font-black ${isProfitable ? "text-blue-700" : "text-destructive"}`}>
               {convertCurrency(net_profit)}
             </div>
             <div className="mt-1 flex items-center gap-2">
-              <Badge variant={isProfitable ? "success" : "destructive"} className="text-[9px] px-1 py-0">
+              <Badge variant={isProfitable ? "success" : "destructive"} className="text-[10px] px-2 py-0.5 rounded-full font-bold">
                 ROI: {roi.toFixed(1)}%
               </Badge>
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* HÀNG 2: 6 CỘT CHI PHÍ CHI TIẾT */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* 1. Tổng chi phí */}
+        <Card className="border-rose-100 bg-rose-50/30 shadow-sm">
+          <CardHeader className="py-3 px-4 pb-1">
+            <CardTitle className="text-[10px] font-bold text-rose-700 uppercase flex items-center gap-1.5 tracking-tight">
+              <TrendingDown className="h-3.5 w-3.5" /> Tổng chi phí
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-3">
+            <div className="text-lg font-black text-rose-900">{convertCurrency(total_cost)}</div>
+          </CardContent>
+        </Card>
+
+        {/* 2. Chi phí mỗi công */}
+        <Card className="border-amber-100 bg-amber-50/30 shadow-sm">
+          <CardHeader className="py-3 px-4 pb-1">
+            <CardTitle className="text-[10px] font-bold text-amber-700 uppercase flex items-center gap-1.5 tracking-tight">
+              <DollarSign className="h-3.5 w-3.5" /> Chi phí / Công
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-3">
+            <div className="text-lg font-black text-amber-900">{convertCurrency(effectiveCostPerCong)}</div>
+          </CardContent>
+        </Card>
+
+        {/* 3. Tổng chi phí canh tác */}
+        <Card className="border-sky-100 bg-sky-50/30 shadow-sm">
+          <CardHeader className="py-3 px-4 pb-1">
+            <CardTitle className="text-[10px] font-bold text-sky-700 uppercase flex items-center gap-1.5 tracking-tight">
+              <Activity className="h-3.5 w-3.5" /> Tổng CP Canh tác
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-3">
+            <div className="text-lg font-black text-sky-900">{convertCurrency(total_cultivation_cost || 0)}</div>
+          </CardContent>
+        </Card>
+
+        {/* 4. Chi phí canh tác mỗi công */}
+        <Card className="border-indigo-100 bg-indigo-50/30 shadow-sm">
+          <CardHeader className="py-3 px-4 pb-1">
+            <CardTitle className="text-[10px] font-bold text-indigo-700 uppercase flex items-center gap-1.5 tracking-tight">
+              <Zap className="h-3.5 w-3.5" /> Canh tác / Công
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-3">
+            <div className="text-lg font-black text-indigo-900">{convertCurrency(cultivation_cost_per_cong || 0)}</div>
+          </CardContent>
+        </Card>
+
+        {/* 5. Tổng chi phí phân, thuốc, giống */}
+        <Card className="border-purple-100 bg-purple-50/30 shadow-sm">
+          <CardHeader className="py-3 px-4 pb-1">
+            <CardTitle className="text-[10px] font-bold text-purple-700 uppercase flex items-center gap-1.5 tracking-tight">
+              <FlaskConical className="h-3.5 w-3.5" /> Tổng CP Vật tư
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-3">
+            <div className="text-lg font-black text-purple-900">{convertCurrency(total_input_cost || 0)}</div>
+          </CardContent>
+        </Card>
+
+        {/* 6. Chi phí phân thuốc giống cho mỗi công */}
+        <Card className="border-fuchsia-100 bg-fuchsia-50/30 shadow-sm">
+          <CardHeader className="py-3 px-4 pb-1">
+            <CardTitle className="text-[10px] font-bold text-fuchsia-700 uppercase flex items-center gap-1.5 tracking-tight">
+              <Layers className="h-3.5 w-3.5" /> Vật tư / Công
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-3">
+            <div className="text-lg font-black text-fuchsia-900">{convertCurrency(input_cost_per_cong || 0)}</div>
           </CardContent>
         </Card>
       </div>
