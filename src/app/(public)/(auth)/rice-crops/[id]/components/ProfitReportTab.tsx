@@ -133,7 +133,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
           </CardContent>
         </Card>
 
-        {/* CẶP 3: TỔNG CHI PHÍ & CHI PHÍ / CÔNG */}
+        {/* CẶP 3: TỔNG CHI PHÍ & Chi phí / Công */}
         <Card className="border-rose-100 bg-rose-50/30 shadow-sm flex flex-col justify-center min-h-[120px]">
           <CardHeader className="py-4 px-6 pb-1">
             <CardTitle className="text-xs font-bold text-rose-700 uppercase flex items-center gap-2 tracking-tight">
@@ -158,11 +158,11 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
           </CardContent>
         </Card>
 
-        {/* CẶP 4: TỔNG CANH TÁC & CANH TÁC / CÔNG */}
+        {/* CẶP 4: TỔNG CANH TÁC & chi phí canh tác / Công */}
         <Card className="border-sky-100 bg-sky-50/30 shadow-sm flex flex-col justify-center min-h-[120px]">
           <CardHeader className="py-4 px-6 pb-1">
             <CardTitle className="text-xs font-bold text-sky-700 uppercase flex items-center gap-2 tracking-tight">
-              <Activity className="h-4 w-4" /> Tổng CP Canh tác
+              <Activity className="h-4 w-4" /> Tổng Chi Phí Canh tác
             </CardTitle>
             <p className="text-[10px] text-sky-600/70 font-bold ml-6 mt-0.5 uppercase">(cày, cắt, xịt, làm cỏ...)</p>
           </CardHeader>
@@ -174,7 +174,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
         <Card className="border-indigo-100 bg-indigo-50/30 shadow-sm flex flex-col justify-center min-h-[120px]">
           <CardHeader className="py-4 px-6 pb-1">
             <CardTitle className="text-xs font-bold text-indigo-700 uppercase flex items-center gap-2 tracking-tight">
-              <Zap className="h-4 w-4" /> Canh tác / Công
+              <Zap className="h-4 w-4" /> Chi phí canh tác / Công
             </CardTitle>
             <p className="text-[10px] text-indigo-600/70 font-bold ml-6 mt-0.5 uppercase">(cày, cắt, xịt, làm cỏ...)</p>
           </CardHeader>
@@ -183,11 +183,11 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
           </CardContent>
         </Card>
 
-        {/* CẶP 5: TỔNG VẬT TƯ & VẬT TƯ / CÔNG */}
+        {/* CẶP 5: TỔNG VẬT TƯ & Chi Phí Vật tư / Công */}
         <Card className="border-purple-100 bg-purple-50/30 shadow-sm flex flex-col justify-center min-h-[120px]">
           <CardHeader className="py-4 px-6 pb-1">
             <CardTitle className="text-xs font-bold text-purple-700 uppercase flex items-center gap-2 tracking-tight">
-              <FlaskConical className="h-4 w-4" /> Tổng CP Vật tư
+              <FlaskConical className="h-4 w-4" /> Tổng Chi Phí Canh Tác
             </CardTitle>
             <p className="text-[10px] text-purple-600/70 font-bold ml-6 mt-0.5 uppercase">(Phân, Thuốc, Giống)</p>
           </CardHeader>
@@ -199,7 +199,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
         <Card className="border-fuchsia-100 bg-fuchsia-50/30 shadow-sm flex flex-col justify-center min-h-[120px]">
           <CardHeader className="py-4 px-6 pb-1">
             <CardTitle className="text-xs font-bold text-fuchsia-700 uppercase flex items-center gap-2 tracking-tight">
-              <Layers className="h-4 w-4" /> Vật tư / Công
+              <Layers className="h-4 w-4" /> Chi Phí Vật tư / Công
             </CardTitle>
             <p className="text-[10px] text-fuchsia-600/70 font-bold ml-6 mt-0.5 uppercase">(Phân, Thuốc, Giống)</p>
           </CardHeader>

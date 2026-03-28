@@ -305,7 +305,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                   <div>
                     <div className="flex items-center gap-2 mb-1 text-sky-700">
                       <Zap className="w-3.5 h-3.5" />
-                      <span className="text-[10px] font-bold uppercase tracking-tighter">Canh tác / công</span>
+                      <span className="text-[10px] font-bold uppercase tracking-tighter">Chi phí canh tác / Công</span>
                     </div>
                     <p className="text-[8px] text-sky-600 font-bold mb-1 leading-tight uppercase">(cày, cắt, xịt...)</p>
                   </div>
@@ -332,7 +332,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                   <div>
                     <div className="flex items-center gap-2 mb-1 text-fuchsia-700">
                       <Layers className="w-3.5 h-3.5" />
-                      <span className="text-[10px] font-bold uppercase tracking-tighter">Vật tư / công</span>
+                      <span className="text-[10px] font-bold uppercase tracking-tighter">Chi Phí Vật tư / Công</span>
                     </div>
                     <p className="text-[8px] text-fuchsia-600 font-bold mb-1 leading-tight uppercase">(Phân, Thuốc, Giống)</p>
                   </div>
