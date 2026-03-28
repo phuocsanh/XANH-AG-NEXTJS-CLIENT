@@ -352,7 +352,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                     <div>
                       <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Diện tích canh tác</p>
                       <p className="text-gray-900 font-black">
-                        {Number(effectiveAmountOfLand).toLocaleString('vi-VN', { maximumFractionDigits: 2 })} công
+                        {Number(effectiveAmountOfLand).toLocaleString('de-DE', { maximumFractionDigits: 2 })} công
                       </p>
                     </div>
                   </div>

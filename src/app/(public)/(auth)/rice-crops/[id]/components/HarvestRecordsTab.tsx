@@ -78,7 +78,7 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
       key: "yield_amount",
       render: (_, record) => (
         <span className="font-bold">
-          {Number(record.yield_amount || 0).toLocaleString("vi-VN")} {record.yield_unit === 'tan' ? 'Tấn' : 'kg'}
+          {Number(record.yield_amount || 0).toLocaleString("de-DE")} {record.yield_unit === 'tan' ? 'Tấn' : 'kg'}
         </span>
       ),
       priority: "high",
@@ -99,7 +99,7 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
     {
       title: "Giá bán",
       key: "selling_price_per_unit",
-      render: (val) => `${Number(val || 0).toLocaleString("vi-VN")} đ/kg`,
+      render: (val) => `${Number(val || 0).toLocaleString("de-DE")} đ/kg`,
       priority: "medium",
       className: "text-right",
     },
@@ -125,8 +125,8 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
             </div>
             <div className="text-3xl font-black text-blue-700">
               {totalYieldInKg < 1000 
-                ? `${totalYieldInKg.toLocaleString("vi-VN")} kg` 
-                : `${(totalYieldInKg / 1000).toLocaleString("vi-VN", { maximumFractionDigits: 2 })} Tấn`}
+                ? `${totalYieldInKg.toLocaleString("de-DE")} kg` 
+                : `${(totalYieldInKg / 1000).toLocaleString("de-DE", { maximumFractionDigits: 2 })} Tấn`}
             </div>
           </CardContent>
         </Card>
