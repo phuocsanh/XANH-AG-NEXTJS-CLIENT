@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { 
   Sprout, 
   TrendingUp, 
+  TrendingDown,
   DollarSign, 
   AreaChart, 
   Calendar, 
@@ -23,7 +24,8 @@ import {
   Activity,
   Zap,
   FlaskConical,
-  Layers
+  Layers,
+  HandCoins
 } from 'lucide-react'
 import Link from 'next/link'
 import { convertCurrency, calculateDaysDiff } from '@/lib/utils'
@@ -181,7 +183,12 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
             </div>
           ) : (
             <>
-              {/* Thông tin chính */}
+              {/* Lấy diện tích đất (amountOfLand) - mặc định 1 nếu không có */}
+              {(() => {
+                const amountOfLand = currentCrop.amount_of_land || (currentCrop.field_area / 1000) || 1;
+                return (
+                  <>
+                    {/* Thông tin chính */}
               <div className="bg-emerald-50 rounded-[1.5rem] p-5 border border-emerald-100 relative overflow-hidden group">
                 <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
                   <Sprout className="w-24 h-24 text-emerald-900" />
@@ -203,82 +210,126 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                 </div>
               </div>
 
-              {/* Thống kê chi phí - 6 CỘT */}
-              <div className="grid grid-cols-2 gap-4">
-                {/* 1. Tổng chi phí */}
-                <div className="bg-blue-50 rounded-[1.5rem] p-4 border border-blue-100">
-                  <div className="flex items-center gap-2 mb-2 text-blue-700">
-                    <DollarSign className="w-3.5 h-3.5" />
+              {/* Thống kê chi phí - 10 THẺ (2 cột x 5 hàng) */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* 1. Doanh thu & Lợi nhuận */}
+                <div className="bg-emerald-50 rounded-[1.5rem] p-4 border border-emerald-100 flex flex-col justify-between min-h-[100px]">
+                  <div className="flex items-center gap-2 mb-1 text-emerald-700">
+                    <TrendingUp className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng thu hoạch</span>
+                  </div>
+                  <p className="text-emerald-950 font-black text-xl truncate">
+                    {profitReport?.total_revenue !== undefined ? convertCurrency(profitReport.total_revenue) : '---'}
+                  </p>
+                </div>
+
+                <div className={`${(profitReport?.net_profit ?? 0) >= 0 ? 'bg-blue-50 border-blue-100' : 'bg-red-50 border-red-100'} rounded-[1.5rem] p-4 border flex flex-col justify-between min-h-[100px]`}>
+                  <div className={`flex items-center gap-2 mb-1 ${(profitReport?.net_profit ?? 0) >= 0 ? 'text-blue-700' : 'text-red-700'}`}>
+                    <HandCoins className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-tighter">Lợi nhuận ròng</span>
+                  </div>
+                  <p className={`${(profitReport?.net_profit ?? 0) >= 0 ? 'text-blue-950' : 'text-red-950'} font-black text-xl truncate`}>
+                    {profitReport?.net_profit !== undefined ? convertCurrency(profitReport.net_profit) : '---'}
+                  </p>
+                </div>
+
+                {/* 2. Diện tích & Lợi nhuận trên công */}
+                <div className="bg-slate-50 rounded-[1.5rem] p-4 border border-slate-100 flex flex-col justify-between min-h-[100px]">
+                  <div className="flex items-center gap-2 mb-1 text-slate-700">
+                    <Sprout className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-tighter">Diện tích</span>
+                  </div>
+                  <p className="text-slate-950 font-black text-xl truncate">
+                    {amountOfLand} <span className="text-xs opacity-50 uppercase">Công</span>
+                  </p>
+                </div>
+
+                <div className={`${(profitReport?.net_profit ?? 0) >= 0 ? 'bg-indigo-50 border-indigo-100' : 'bg-orange-50 border-orange-100'} rounded-[1.5rem] p-4 border flex flex-col justify-between min-h-[100px]`}>
+                  <div>
+                    <div className={`flex items-center gap-2 mb-0.5 ${(profitReport?.net_profit ?? 0) >= 0 ? 'text-indigo-700' : 'text-orange-700'}`}>
+                      <TrendingUp className="w-3.5 h-3.5" />
+                      <span className="text-[10px] font-bold uppercase tracking-tighter">Lợi nhuận / Công</span>
+                    </div>
+                    <p className={`text-[8px] font-bold mb-1 uppercase leading-tight opacity-60 ${(profitReport?.net_profit ?? 0) >= 0 ? 'text-indigo-600' : 'text-orange-600'}`}>
+                       (Bao gồm canh tác + vật tư)
+                    </p>
+                  </div>
+                  <p className={`${(profitReport?.net_profit ?? 0) >= 0 ? 'text-indigo-950' : 'text-orange-950'} font-black text-xl truncate`}>
+                    {profitReport?.net_profit !== undefined && amountOfLand > 0 ? convertCurrency(profitReport.net_profit / amountOfLand) : '---'}
+                  </p>
+                </div>
+
+                {/* 3. Tổng chi phí & Mỗi công */}
+                <div className="bg-rose-50 rounded-[1.5rem] p-4 border border-rose-100 flex flex-col justify-between min-h-[100px]">
+                  <div className="flex items-center gap-2 mb-1 text-rose-700">
+                    <TrendingDown className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng chi phí</span>
                   </div>
-                  <p className="text-blue-950 font-black text-base truncate">
+                  <p className="text-rose-950 font-black text-xl truncate">
                     {profitReport?.total_cost !== undefined ? convertCurrency(profitReport.total_cost) : '---'}
                   </p>
                 </div>
 
-                {/* 2. Chi phí mỗi công */}
-                <div className="bg-amber-50 rounded-[1.5rem] p-4 border border-amber-100">
-                  <div className="flex items-center gap-2 mb-2 text-amber-700">
-                    <TrendingUp className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-bold uppercase tracking-tighter">Mỗi công</span>
+                <div className="bg-amber-50 rounded-[1.5rem] p-4 border border-amber-100 flex flex-col justify-between min-h-[100px]">
+                  <div className="flex items-center gap-2 mb-1 text-amber-700">
+                    <DollarSign className="w-3.5 h-3.5" />
+                    <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng chi / Công</span>
                   </div>
-                  <p className="text-amber-950 font-black text-base truncate">
+                  <p className="text-amber-950 font-black text-xl truncate">
                     {profitReport?.cost_per_cong !== undefined ? convertCurrency(profitReport.cost_per_cong) : '---'}
                   </p>
                 </div>
 
-                {/* 3. Tổng chi phí canh tác */}
-                <div className="bg-emerald-50 rounded-[1.5rem] p-4 border border-emerald-100 flex flex-col justify-between">
+                {/* 4. Tổng canh tác & Mỗi công */}
+                <div className="bg-emerald-50 rounded-[1.5rem] p-4 border border-emerald-100 flex flex-col justify-between min-h-[100px]">
                   <div>
                     <div className="flex items-center gap-2 mb-1 text-emerald-700">
                       <Activity className="w-3.5 h-3.5" />
-                      <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng Chi Canh tác</span>
+                      <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng Canh tác</span>
                     </div>
-                    <p className="text-[9px] text-emerald-600 font-medium mb-2 leading-tight">(cày, cắt, xịt, làm cỏ...)</p>
+                    <p className="text-[8px] text-emerald-600 font-bold mb-1 leading-tight uppercase">(cày, cắt, xịt...)</p>
                   </div>
-                  <p className="text-emerald-950 font-black text-base truncate">
+                  <p className="text-emerald-950 font-black text-xl truncate">
                     {profitReport?.total_cultivation_cost !== undefined ? convertCurrency(profitReport.total_cultivation_cost) : '---'}
                   </p>
                 </div>
 
-                {/* 4. Chi phí canh tác mỗi công */}
-                <div className="bg-sky-50 rounded-[1.5rem] p-4 border border-sky-100 flex flex-col justify-between">
+                <div className="bg-sky-50 rounded-[1.5rem] p-4 border border-sky-100 flex flex-col justify-between min-h-[100px]">
                   <div>
                     <div className="flex items-center gap-2 mb-1 text-sky-700">
                       <Zap className="w-3.5 h-3.5" />
                       <span className="text-[10px] font-bold uppercase tracking-tighter">Canh tác / công</span>
                     </div>
-                    <p className="text-[9px] text-sky-600 font-medium mb-2 leading-tight">(cày, cắt, xịt, làm cỏ...)</p>
+                    <p className="text-[8px] text-sky-600 font-bold mb-1 leading-tight uppercase">(cày, cắt, xịt...)</p>
                   </div>
-                  <p className="text-sky-950 font-black text-base truncate">
+                  <p className="text-sky-950 font-black text-xl truncate">
                     {profitReport?.cultivation_cost_per_cong !== undefined ? convertCurrency(profitReport.cultivation_cost_per_cong) : '---'}
                   </p>
                 </div>
 
-                {/* 5. Tổng chi phí phân, thuốc, giống */}
-                <div className="bg-purple-50 rounded-[1.5rem] p-4 border border-purple-100 flex flex-col justify-between">
+                {/* 5. Tổng vật tư & Mỗi công */}
+                <div className="bg-purple-50 rounded-[1.5rem] p-4 border border-purple-100 flex flex-col justify-between min-h-[100px]">
                   <div>
                     <div className="flex items-center gap-2 mb-1 text-purple-700">
                       <FlaskConical className="w-3.5 h-3.5" />
-                      <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng VT (Phân/Thuốc)</span>
+                      <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng Vật tư</span>
                     </div>
-                    <p className="text-[9px] text-purple-600 font-medium mb-2 leading-tight">(Phân, Thuốc, Giống)</p>
+                    <p className="text-[8px] text-purple-600 font-bold mb-1 leading-tight uppercase">(Phân, Thuốc, Giống)</p>
                   </div>
-                  <p className="text-purple-950 font-black text-base truncate">
+                  <p className="text-purple-950 font-black text-xl truncate">
                     {profitReport?.total_input_cost !== undefined ? convertCurrency(profitReport.total_input_cost) : '---'}
                   </p>
                 </div>
 
-                {/* 6. Chi phí phân thuốc giống cho mỗi công */}
-                <div className="bg-rose-50 rounded-[1.5rem] p-4 border border-rose-100 flex flex-col justify-between">
+                <div className="bg-fuchsia-50 rounded-[1.5rem] p-4 border border-fuchsia-100 flex flex-col justify-between min-h-[100px]">
                   <div>
-                    <div className="flex items-center gap-2 mb-1 text-rose-700">
+                    <div className="flex items-center gap-2 mb-1 text-fuchsia-700">
                       <Layers className="w-3.5 h-3.5" />
-                      <span className="text-[10px] font-bold uppercase tracking-tighter">Phân/Thuốc / công</span>
+                      <span className="text-[10px] font-bold uppercase tracking-tighter">Vật tư / công</span>
                     </div>
-                    <p className="text-[9px] text-rose-600 font-medium mb-2 leading-tight">(Phân, Thuốc, Giống)</p>
+                    <p className="text-[8px] text-fuchsia-600 font-bold mb-1 leading-tight uppercase">(Phân, Thuốc, Giống)</p>
                   </div>
-                  <p className="text-rose-950 font-black text-base truncate">
+                  <p className="text-fuchsia-950 font-black text-xl truncate">
                     {profitReport?.input_cost_per_cong !== undefined ? convertCurrency(profitReport.input_cost_per_cong) : '---'}
                   </p>
                 </div>
@@ -325,6 +376,9 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                   </div>
                 </div>
               </div>
+                  </>
+                );
+              })()}
             </>
           )}
         </div>

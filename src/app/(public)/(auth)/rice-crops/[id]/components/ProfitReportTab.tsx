@@ -23,7 +23,8 @@ import {
   Zap,
   FlaskConical,
   Layers,
-  HandCoins
+  HandCoins,
+  Sprout
 } from "lucide-react"
 import { useProfitReport } from "@/hooks/use-profit-report"
 import { convertCurrency } from "@/lib/utils"
@@ -72,113 +73,135 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
 
   return (
     <div className="space-y-6">
-      {/* HÀNG 1: DOANH THU & LỢI NHUẬN */}
+      {/* BỐ CỤC 2 CỘT x 4 HÀNG Theo cặp */}
+      {/* BỐ CỤC 2 CỘT x 5 HÀNG Theo cặp */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="bg-emerald-50/50 border-emerald-100">
-          <CardHeader className="py-4 px-4 pb-2">
+        {/* CẶP 1: DOANH THU & DIỆN TÍCH */}
+        <Card className="bg-emerald-50/50 border-emerald-100 flex flex-col justify-center min-h-[120px]">
+          <CardHeader className="py-4 px-6 pb-2">
             <CardTitle className="text-xs font-bold text-emerald-700 uppercase flex items-center gap-2">
               <TrendingUp className="h-4 w-4" /> Tổng doanh thu
             </CardTitle>
           </CardHeader>
-          <CardContent className="px-4 pb-4">
-            <div className="text-2xl font-black text-emerald-900">{convertCurrency(total_revenue)}</div>
+          <CardContent className="px-6 pb-6">
+            <div className="text-3xl font-black text-emerald-900 leading-none">{convertCurrency(total_revenue)}</div>
           </CardContent>
         </Card>
 
-        <Card className={isProfitable ? "bg-blue-50/50 border-blue-100" : "bg-red-50/50 border-red-100"}>
-          <CardHeader className="py-4 px-4 pb-2">
-            <CardTitle className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
-              <HandCoins className="h-4 w-4" /> Lợi nhuận ròng
+        <Card className="bg-slate-50 border-slate-100 flex flex-col justify-center min-h-[120px]">
+          <CardHeader className="py-4 px-6 pb-2">
+            <CardTitle className="text-xs font-bold text-slate-700 uppercase flex items-center gap-2">
+               <Sprout className="h-4 w-4" /> Diện tích đất
             </CardTitle>
           </CardHeader>
-          <CardContent className="px-4 pb-4">
-            <div className={`text-2xl font-black ${isProfitable ? "text-blue-700" : "text-destructive"}`}>
+          <CardContent className="px-6 pb-6">
+            <div className="text-3xl font-black text-slate-900 leading-none">{amountOfLand} <span className="text-sm font-bold opacity-50 uppercase">Công</span></div>
+          </CardContent>
+        </Card>
+
+        {/* CẶP 2: LỢI NHUẬN RÒNG & LỢI NHUẬN / CÔNG */}
+        <Card className={`${isProfitable ? "bg-blue-50/50 border-blue-100" : "bg-red-50/50 border-red-100"} flex flex-col justify-center min-h-[140px]`}>
+          <CardHeader className="py-4 px-6 pb-2">
+            <CardTitle className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-2">
+              <HandCoins className="h-4 w-4" /> Lợi nhuận ròng (ROI: {roi.toFixed(1)}%)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-6 pb-6">
+            <div className={`text-3xl font-black leading-none ${isProfitable ? "text-blue-700" : "text-destructive"}`}>
               {convertCurrency(net_profit)}
             </div>
-            <div className="mt-1 flex items-center gap-2">
-              <Badge variant={isProfitable ? "success" : "destructive"} className="text-[10px] px-2 py-0.5 rounded-full font-bold">
-                ROI: {roi.toFixed(1)}%
-              </Badge>
+            <div className="mt-2">
+               <Badge variant={isProfitable ? "success" : "destructive"} className="text-[10px] px-2 py-0.5 rounded-full font-bold">
+                  {isProfitable ? "CÓ LỢI NHUẬN" : "ĐANG LỖ"}
+               </Badge>
             </div>
           </CardContent>
         </Card>
-      </div>
 
-      {/* HÀNG 2: 6 CỘT CHI PHÍ CHI TIẾT */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* 1. Tổng chi phí */}
-        <Card className="border-rose-100 bg-rose-50/30 shadow-sm">
-          <CardHeader className="py-3 px-4 pb-1">
-            <CardTitle className="text-[10px] font-bold text-rose-700 uppercase flex items-center gap-1.5 tracking-tight">
-              <TrendingDown className="h-3.5 w-3.5" /> Tổng chi phí
-            </CardTitle>
+        <Card className={`${isProfitable ? "bg-indigo-50 border-indigo-100" : "bg-orange-50 border-orange-100"} flex flex-col justify-center min-h-[140px]`}>
+          <CardHeader className="py-4 px-6 pb-2">
+             <CardTitle className={`text-xs font-bold uppercase flex items-center gap-2 ${isProfitable ? "text-indigo-700" : "text-orange-700"}`}>
+                <TrendingUp className="h-4 w-4" /> Lợi nhuận / Công
+             </CardTitle>
+             <p className={`text-[9px] font-bold mt-1 uppercase ${isProfitable ? "text-indigo-600/60" : "text-orange-600/60"}`}> (Bao gồm chi phí canh tác + vật tư)</p>
           </CardHeader>
-          <CardContent className="px-4 pb-3">
-            <div className="text-lg font-black text-rose-900">{convertCurrency(total_cost)}</div>
+          <CardContent className="px-6 pb-6">
+             <div className={`text-3xl font-black leading-none ${isProfitable ? "text-indigo-900" : "text-orange-900"}`}>
+                {convertCurrency(net_profit / amountOfLand)}
+             </div>
           </CardContent>
         </Card>
 
-        {/* 2. Chi phí mỗi công */}
-        <Card className="border-amber-100 bg-amber-50/30 shadow-sm">
-          <CardHeader className="py-3 px-4 pb-1">
-            <CardTitle className="text-[10px] font-bold text-amber-700 uppercase flex items-center gap-1.5 tracking-tight">
-              <DollarSign className="h-3.5 w-3.5" /> Chi phí / Công
+        {/* CẶP 3: TỔNG CHI PHÍ & CHI PHÍ / CÔNG */}
+        <Card className="border-rose-100 bg-rose-50/30 shadow-sm flex flex-col justify-center min-h-[120px]">
+          <CardHeader className="py-4 px-6 pb-1">
+            <CardTitle className="text-xs font-bold text-rose-700 uppercase flex items-center gap-2 tracking-tight">
+              <TrendingDown className="h-4 w-4" /> Tổng chi phí
             </CardTitle>
           </CardHeader>
-          <CardContent className="px-4 pb-3">
-            <div className="text-lg font-black text-amber-900">{convertCurrency(effectiveCostPerCong)}</div>
+          <CardContent className="px-6 pb-6">
+            <div className="text-3xl font-black text-rose-900 leading-none">{convertCurrency(total_cost)}</div>
           </CardContent>
         </Card>
 
-        {/* 3. Tổng chi phí canh tác */}
-        <Card className="border-sky-100 bg-sky-50/30 shadow-sm">
-          <CardHeader className="py-3 px-4 pb-1">
-            <CardTitle className="text-[10px] font-bold text-sky-700 uppercase flex items-center gap-1.5 tracking-tight">
-              <Activity className="h-3.5 w-3.5" /> Tổng CP Canh tác
+        <Card className="border-amber-100 bg-amber-50/30 shadow-sm flex flex-col justify-center min-h-[120px]">
+          <CardHeader className="py-4 px-6 pb-1">
+            <CardTitle className="text-xs font-bold text-amber-700 uppercase flex items-center gap-2 tracking-tight">
+              <DollarSign className="h-4 w-4" /> Chi phí / Công
             </CardTitle>
-            <p className="text-[9px] text-sky-600/70 font-bold ml-5 mt-0.5">(cày, cắt, xịt, làm cỏ...)</p>
           </CardHeader>
-          <CardContent className="px-4 pb-3">
-            <div className="text-lg font-black text-sky-900">{convertCurrency(total_cultivation_cost || 0)}</div>
+          <CardContent className="px-6 pb-6">
+            <div className="text-3xl font-black text-amber-900 leading-none">{convertCurrency(effectiveCostPerCong)}</div>
           </CardContent>
         </Card>
 
-        {/* 4. Chi phí canh tác mỗi công */}
-        <Card className="border-indigo-100 bg-indigo-50/30 shadow-sm">
-          <CardHeader className="py-3 px-4 pb-1">
-            <CardTitle className="text-[10px] font-bold text-indigo-700 uppercase flex items-center gap-1.5 tracking-tight">
-              <Zap className="h-3.5 w-3.5" /> Canh tác / Công
+        {/* CẶP 4: TỔNG CANH TÁC & CANH TÁC / CÔNG */}
+        <Card className="border-sky-100 bg-sky-50/30 shadow-sm flex flex-col justify-center min-h-[120px]">
+          <CardHeader className="py-4 px-6 pb-1">
+            <CardTitle className="text-xs font-bold text-sky-700 uppercase flex items-center gap-2 tracking-tight">
+              <Activity className="h-4 w-4" /> Tổng CP Canh tác
             </CardTitle>
-            <p className="text-[9px] text-indigo-600/70 font-bold ml-5 mt-0.5">(cày, cắt, xịt, làm cỏ...)</p>
+            <p className="text-[10px] text-sky-600/70 font-bold ml-6 mt-0.5 uppercase">(cày, cắt, xịt, làm cỏ...)</p>
           </CardHeader>
-          <CardContent className="px-4 pb-3">
-            <div className="text-lg font-black text-indigo-900">{convertCurrency(cultivation_cost_per_cong || 0)}</div>
+          <CardContent className="px-6 pb-6">
+            <div className="text-3xl font-black text-sky-900 leading-none">{convertCurrency(total_cultivation_cost || 0)}</div>
           </CardContent>
         </Card>
 
-        {/* 5. Tổng chi phí phân, thuốc, giống */}
-        <Card className="border-purple-100 bg-purple-50/30 shadow-sm">
-          <CardHeader className="py-3 px-4 pb-1">
-            <CardTitle className="text-[10px] font-bold text-purple-700 uppercase flex items-center gap-1.5 tracking-tight">
-              <FlaskConical className="h-3.5 w-3.5" /> Tổng CP Vật tư
+        <Card className="border-indigo-100 bg-indigo-50/30 shadow-sm flex flex-col justify-center min-h-[120px]">
+          <CardHeader className="py-4 px-6 pb-1">
+            <CardTitle className="text-xs font-bold text-indigo-700 uppercase flex items-center gap-2 tracking-tight">
+              <Zap className="h-4 w-4" /> Canh tác / Công
             </CardTitle>
-            <p className="text-[9px] text-purple-600/70 font-bold ml-5 mt-0.5">(Phân, Thuốc, Giống)</p>
+            <p className="text-[10px] text-indigo-600/70 font-bold ml-6 mt-0.5 uppercase">(cày, cắt, xịt, làm cỏ...)</p>
           </CardHeader>
-          <CardContent className="px-4 pb-3">
-            <div className="text-lg font-black text-purple-900">{convertCurrency(total_input_cost || 0)}</div>
+          <CardContent className="px-6 pb-6">
+            <div className="text-3xl font-black text-indigo-900 leading-none">{convertCurrency(cultivation_cost_per_cong || 0)}</div>
           </CardContent>
         </Card>
 
-        {/* 6. Chi phí phân thuốc giống cho mỗi công */}
-        <Card className="border-fuchsia-100 bg-fuchsia-50/30 shadow-sm">
-          <CardHeader className="py-3 px-4 pb-1">
-            <CardTitle className="text-[10px] font-bold text-fuchsia-700 uppercase flex items-center gap-1.5 tracking-tight">
-              <Layers className="h-3.5 w-3.5" /> Vật tư / Công
+        {/* CẶP 5: TỔNG VẬT TƯ & VẬT TƯ / CÔNG */}
+        <Card className="border-purple-100 bg-purple-50/30 shadow-sm flex flex-col justify-center min-h-[120px]">
+          <CardHeader className="py-4 px-6 pb-1">
+            <CardTitle className="text-xs font-bold text-purple-700 uppercase flex items-center gap-2 tracking-tight">
+              <FlaskConical className="h-4 w-4" /> Tổng CP Vật tư
             </CardTitle>
-            <p className="text-[9px] text-fuchsia-600/70 font-bold ml-5 mt-0.5">(Phân, Thuốc, Giống)</p>
+            <p className="text-[10px] text-purple-600/70 font-bold ml-6 mt-0.5 uppercase">(Phân, Thuốc, Giống)</p>
           </CardHeader>
-          <CardContent className="px-4 pb-3">
-            <div className="text-lg font-black text-fuchsia-900">{convertCurrency(input_cost_per_cong || 0)}</div>
+          <CardContent className="px-6 pb-6">
+            <div className="text-3xl font-black text-purple-900 leading-none">{convertCurrency(total_input_cost || 0)}</div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-fuchsia-100 bg-fuchsia-50/30 shadow-sm flex flex-col justify-center min-h-[120px]">
+          <CardHeader className="py-4 px-6 pb-1">
+            <CardTitle className="text-xs font-bold text-fuchsia-700 uppercase flex items-center gap-2 tracking-tight">
+              <Layers className="h-4 w-4" /> Vật tư / Công
+            </CardTitle>
+            <p className="text-[10px] text-fuchsia-600/70 font-bold ml-6 mt-0.5 uppercase">(Phân, Thuốc, Giống)</p>
+          </CardHeader>
+          <CardContent className="px-6 pb-6">
+            <div className="text-3xl font-black text-fuchsia-900 leading-none">{convertCurrency(input_cost_per_cong || 0)}</div>
           </CardContent>
         </Card>
       </div>
