@@ -191,10 +191,11 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
         {/* CẶP 3: TỔNG CHI PHÍ & CHI PHÍ MỖI CÔNG */}
         <Card className="rounded-[2.5rem] border-none shadow-xl bg-gradient-to-br from-rose-500 to-rose-700 text-white overflow-hidden relative group">
           <CardContent className="p-10 relative z-10 h-full flex flex-col justify-center">
-             <div className="flex items-center gap-3 mb-4 opacity-80">
+             <div className="flex items-center gap-3 mb-1 opacity-80">
                 <TrendingDown className="w-5 h-5" />
                 <p className="font-bold uppercase tracking-[0.2em] text-[12px]">Tổng chi phí</p>
              </div>
+             <p className="text-[12px] font-medium text-rose-100 mb-6 ml-8 leading-tight opacity-90 uppercase font-black">(gồm cày, cắt, làm cỏ, phân, thuốc, giống)</p>
              <h2 className="text-5xl font-bold tracking-tighter">
                 {convertCurrency(totalCost)}
              </h2>
@@ -203,12 +204,13 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
 
         <Card className="rounded-[2.5rem] border-none shadow-xl bg-white border border-rose-100 overflow-hidden relative group">
           <CardContent className="p-10 relative z-10 h-full flex flex-col justify-center">
-             <div className="flex items-center gap-3 mb-4">
+             <div className="flex items-center gap-3 mb-2">
                 <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center">
                    <DollarSign className="w-6 h-6 text-amber-600" />
                 </div>
                 <p className="font-bold uppercase tracking-[0.2em] text-[12px] text-gray-400">Chi phí mỗi công</p>
              </div>
+             <p className="text-[12px] font-bold text-amber-600/40 mb-6 ml-14 leading-tight uppercase font-black">(gồm cày, cắt, làm cỏ, phân, thuốc, giống)</p>
              <h3 className="text-5xl font-bold text-amber-600 tracking-tighter">
                 {convertCurrency(Math.round(costPerCong))}
              </h3>

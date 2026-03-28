@@ -262,20 +262,26 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
 
                 {/* 3. Tổng chi phí & Mỗi công */}
                 <div className="bg-rose-50 rounded-[1.5rem] p-4 border border-rose-100 flex flex-col justify-between min-h-[100px]">
-                  <div className="flex items-center gap-2 mb-1 text-rose-700">
+                  <div className="flex items-center gap-2 mb-0.5 text-rose-700">
                     <TrendingDown className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng chi phí</span>
                   </div>
+                  <p className="text-[8px] font-bold text-rose-600/40 mb-1 uppercase leading-tight italic">
+                    (gồm cày, cắt, làm cỏ, phân, thuốc, giống)
+                  </p>
                   <p className="text-rose-950 font-black text-xl truncate">
                     {profitReport?.total_cost !== undefined ? convertCurrency(profitReport.total_cost) : '---'}
                   </p>
                 </div>
 
                 <div className="bg-amber-50 rounded-[1.5rem] p-4 border border-amber-100 flex flex-col justify-between min-h-[100px]">
-                  <div className="flex items-center gap-2 mb-1 text-amber-700">
+                  <div className="flex items-center gap-2 mb-0.5 text-amber-700">
                     <DollarSign className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-bold uppercase tracking-tighter">Tổng chi / Công</span>
                   </div>
+                  <p className="text-[8px] font-bold text-amber-600/40 mb-1 uppercase leading-tight italic">
+                    (gồm cày, cắt, làm cỏ, phân, thuốc, giống)
+                  </p>
                   <p className="text-amber-950 font-black text-xl truncate">
                     {profitReport?.cost_per_cong !== undefined ? convertCurrency(profitReport.cost_per_cong) : '---'}
                   </p>

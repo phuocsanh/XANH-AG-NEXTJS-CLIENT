@@ -139,6 +139,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             <CardTitle className="text-xs font-bold text-rose-700 uppercase flex items-center gap-2 tracking-tight">
               <TrendingDown className="h-4 w-4" /> Tổng chi phí
             </CardTitle>
+            <p className="text-[10px] text-rose-600/70 font-bold ml-6 mt-0.5 uppercase">(gồm cày, cắt, làm cỏ, phân, thuốc, giống)</p>
           </CardHeader>
           <CardContent className="px-6 pb-6">
             <div className="text-3xl font-black text-rose-900 leading-none">{convertCurrency(total_cost)}</div>
@@ -150,6 +151,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             <CardTitle className="text-xs font-bold text-amber-700 uppercase flex items-center gap-2 tracking-tight">
               <DollarSign className="h-4 w-4" /> Chi phí / Công
             </CardTitle>
+            <p className="text-[10px] text-amber-600/70 font-bold ml-6 mt-0.5 uppercase">(gồm cày, cắt, làm cỏ, phân, thuốc, giống)</p>
           </CardHeader>
           <CardContent className="px-6 pb-6">
             <div className="text-3xl font-black text-amber-900 leading-none">{convertCurrency(effectiveCostPerCong)}</div>
