@@ -258,7 +258,7 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {isMobileMenuOpen && (
-          <div className='sm:hidden border-t border-emerald-700/30' style={{background: 'linear-gradient(180deg, #10b981 0%, #059669 100%)'}}>
+          <div className='absolute top-full left-0 w-full sm:hidden border-t border-emerald-700/30 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-300' style={{background: 'linear-gradient(180deg, #10b981 0%, #059669 100%)'}}>
             <div className='px-4 py-2 space-y-1'>
               <Link
                 href='/'
