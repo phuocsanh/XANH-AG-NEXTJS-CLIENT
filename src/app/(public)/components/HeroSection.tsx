@@ -1,183 +1,114 @@
-'use client'
-
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Phone, MapPin } from 'lucide-react'
+import { Phone, MapPin, ShoppingCart, MessageSquare, ChevronRight, ShieldCheck, Zap } from 'lucide-react'
 import Img from '@/app/components/Img'
 
-const StarField = () => {
-  const [mounted, setMounted] = useState(false)
-  const [starProps, setStarProps] = useState<{
-    twinkle: boolean;
-    delay: number;
-    duration: number;
-    opacity: number;
-    size: number;
-  }[]>([])
-  
-  useEffect(() => {
-    // Tổng số ngôi sao trong mạng lưới
-    const totalStars = 2000
-    // Khởi tạo tất cả là sao tĩnh
-    const props = Array.from({ length: totalStars }).map(() => ({
-      twinkle: false,
-      delay: 0,
-      duration: 60000, // Chu kỳ 1 phút
-      opacity: 0.1 + Math.random() * 0.15,
-      size: 10 + Math.random() * 4
-    }))
-
-    // Chọn ngẫu nhiên 150 vị trí để làm sao nhấp nháy
-    const indices: number[] = Array.from({ length: totalStars }, (_, i) => i)
-    for (let i = indices.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      const temp = indices[i]
-      if (temp !== undefined) {
-        indices[i] = indices[j] as number
-        indices[j] = temp
-      }
-    }
-
-    const numTwinklingStars = 300
-    for (let i = 0; i < numTwinklingStars; i++) {
-        const idx = indices[i]
-        if (idx !== undefined && props[idx]) {
-          const star = props[idx]
-          if (star) {
-            star.twinkle = true
-            star.delay = Math.random() * 20000 
-            star.duration = 5000 + Math.random() * 5000 // Chu kỳ 5s - 10s
-            star.size = 12 + Math.random() * 6
-          }
-        }
-    }
-
-    setStarProps(props)
-    setMounted(true)
-  }, [])
-
-  if (!mounted || starProps.length === 0) return null
-
-  return (
-    <div className="absolute inset-0 pointer-events-none select-none" style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, 30px)',
-      gridAutoRows: '30px',
-      padding: '4px 0 0 6px',
-      opacity: 0.4
-    }}>
-      {starProps.map((prop, i) => (
-        <div
-          key={i}
-          className={`flex items-center justify-center text-white ${prop.twinkle ? 'animate-twinkle' : ''}`}
-          style={{
-            animationDelay: prop.twinkle ? `${prop.delay}ms` : undefined,
-            animationDuration: prop.twinkle ? `${prop.duration}ms` : undefined,
-            fontSize: `${prop.size}px`,
-            opacity: prop.twinkle ? undefined : prop.opacity
-          }}
-        >
-          +
-        </div>
-      ))}
-      <style jsx global>{`
-        @keyframes twinkle {
-          0%, 35%, 65%, 100% { 
-            opacity: 0.2; 
-            transform: scale(0.9);
-            text-shadow: none;
-          }
-          45%, 55% { 
-            opacity: 1; 
-            transform: scale(1.6);
-            text-shadow: 0 0 15px rgba(255, 255, 255, 1), 0 0 30px rgba(255, 255, 255, 0.6);
-          }
-        }
-        .animate-twinkle {
-          animation: twinkle ease-in-out infinite;
-        }
-      `}</style>
-    </div>
-  )
-}
-
 /**
- * Hero Section Component
- * Banner chính với gradient xanh và product showcase
+ * Hero Section Component - Premium Agriculture Banner
  */
 export default function HeroSection() {
   return (
-    <section className="relative w-full h-[500px] md:h-[550px] lg:h-[650px] bg-gradient-agri overflow-hidden" aria-label="Hero Banner">
-      {/* Background pattern overlay with Twinkling Stars */}
-      <StarField />
-
-      {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-center items-center text-center pt-8 md:pt-0">
-        {/* Main heading */}
-        <h1 className="text-white font-bold text-xl sm:text-3xl md:text-4xl lg:text-5xl mb-4 drop-shadow-lg max-w-sm sm:max-w-none">
-          CỬA HÀNG VẬT TƯ NÔNG NGHIỆP XANH
-        </h1>
-
-        {/* Subheading */}
-        <p className="text-green-100 italic text-xs sm:text-base md:text-lg lg:text-xl mb-6 max-w-4xl px-4">
-          CHUYÊN CUNG CẤP: THUỐC BẢO VỆ THỰC VẬT - PHÂN BÓN
-        </p>
-
-        {/* Contact info - Dùng address tag */}
-        <address className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-8 text-white not-italic">
-          <a 
-            href="tel:0987383606" 
-            className="flex items-center justify-center gap-2 hover:text-green-200 transition-colors"
-            aria-label="Số điện thoại"
-          >
-            <Phone className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
-            <span className="font-semibold text-sm sm:text-base">0987.383.606</span>
-          </a>
-          <div className="hidden sm:block text-green-300" aria-hidden="true">|</div>
-          <div className="flex items-center justify-center gap-2">
-            <MapPin className="w-4 h-4 sm:w-5 sm:h-5" aria-hidden="true" />
-            <span className="text-xs sm:text-sm">Số nhà 257, Tân Hòa A, Tân Hiệp - An Giang</span>
-          </div>
-        </address>
-
-        {/* CTA Buttons - Dùng nav tag */}
-        <nav className="flex flex-row gap-4 pb-32 md:pb-40 lg:pb-20" aria-label="Primary actions">
-          <Link
-            href="/products"
-            className="text-xs sm:text-base bg-yellow-500 hover:bg-yellow-600 text-black px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg font-bold transition-all transform hover:scale-105 shadow-xl min-w-[120px] sm:min-w-[180px] flex items-center justify-center"
-          >
-            Xem sản phẩm
-          </Link>
-          <Link
-            href="/promotions"
-            className="text-xs sm:text-base bg-white hover:bg-agri-50 text-agri-700 px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg font-semibold transition-all transform hover:scale-105 shadow-xl min-w-[120px] sm:min-w-[180px] flex items-center justify-center"
-          >
-            Khuyến mãi
-          </Link>
-        </nav>
+    <section className="relative w-full min-h-[600px] md:min-h-[700px] lg:min-h-[750px] overflow-hidden" aria-label="Hero Banner">
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 z-0">
+        <Img 
+          src="https://images.unsplash.com/photo-1560493676-04071c5f467b?w=1920&q=80" 
+          alt="Cánh đồng nông nghiệp" 
+          className="w-full h-full bg-emerald-900"
+          classNameImg="object-cover scale-105"
+        />
+        {/* Fresh and Bright Overlay */}
+        <div className="absolute inset-0 bg-emerald-900/20 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/60 via-transparent to-black/10 z-10" />
       </div>
 
-      {/* Product images overlay - positioned at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 md:h-56 pointer-events-none overflow-hidden">
-        <div className="container mx-auto px-4 h-full flex justify-center items-end gap-2 md:gap-6">
-          {[
-            'https://images.unsplash.com/photo-1594771804886-a933bb2d609b?w=300&h=400&fit=crop',
-            'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=300&h=400&fit=crop',
-            'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=300&h=400&fit=crop',
-            'https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=300&h=400&fit=crop'
-          ].map((url, i) => (
-            <div 
-              key={i}
-              className="w-20 md:w-36 h-24 md:h-48 bg-white/20 backdrop-blur-md rounded-t-xl md:rounded-t-2xl border-x border-t border-white/30 shadow-2xl transform translate-y-3 md:translate-y-4 hover:translate-y-0 transition-transform duration-500 relative overflow-hidden"
-              style={{ transitionDelay: `${i * 100}ms` }}
+      {/* Content Container */}
+      <div className="relative z-20 container mx-auto px-6 h-full flex flex-col justify-center items-center text-center min-h-[600px] md:min-h-[700px] lg:min-h-[750px]">
+        <div className="max-w-4xl pt-12 md:pt-0">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 bg-yellow-500/20 backdrop-blur-md border border-yellow-500/30 px-3 py-1 rounded-full text-yellow-400 text-xs sm:text-sm font-semibold mb-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <ShieldCheck size={16} />
+            <span>Đối tác tin cậy của nhà nông</span>
+          </div>
+
+          {/* Main Heading */}
+          <h1 className="text-white font-black text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4 leading-tight drop-shadow-2xl animate-in fade-in slide-in-from-left-4 duration-700 delay-100 uppercase">
+            Cửa hàng Vật tư <br />
+            <span className="text-yellow-400">Nông nghiệp xanh</span>
+          </h1>
+
+          {/* Subheading */}
+          <p className="text-white font-medium text-sm sm:text-lg md:text-xl mb-8 max-w-2xl leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+            Cung cấp giải pháp canh tác thông minh với các dòng thuốc bảo vệ thực vật và phân bón chất lượng cao, giúp mùa màng bội thu.
+          </p>
+
+          {/* Contact Info Row */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-8 mb-10 text-white animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+            <a 
+              href="tel:0987383606" 
+              className="group flex items-center gap-4 hover:text-yellow-400 transition-all"
             >
-              <Img 
-                src={url} 
-                alt={`Sản phẩm nông nghiệp ${i + 1}`} 
-                className="object-cover opacity-80"
-              />
+              <div className="w-12 h-12 rounded-full bg-yellow-500 flex items-center justify-center text-black group-hover:scale-110 transition-transform shadow-lg shadow-yellow-500/20">
+                <Phone size={20} fill="currentColor" />
+              </div>
+              <div className="text-left">
+                <p className="text-xs text-white/80 font-medium uppercase tracking-wider">Hotline tư vấn</p>
+                <p className="text-lg font-bold text-yellow-400">0987.383.606</p>
+              </div>
+            </a>
+            
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+                <MapPin size={20} className="text-yellow-400" />
+              </div>
+              <div className="text-left">
+                <p className="text-xs text-white/80 font-medium uppercase tracking-wider">Địa chỉ cửa hàng</p>
+                <p className="text-sm font-medium text-white">Số nhà 257, Tân Hòa A, An Giang</p>
+              </div>
             </div>
-          ))}
+          </div>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-5 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
+            <Link
+              href="/products"
+              className="group bg-yellow-500 hover:bg-yellow-600 text-black px-10 py-4 rounded-full font-bold transition-all flex items-center gap-2 shadow-xl transform hover:-translate-y-1"
+            >
+              <ShoppingCart size={20} />
+              <span>Xem sản phẩm</span>
+              <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
+            
+            <Link
+              href="/contact"
+              className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border border-white/30 px-10 py-4 rounded-full font-semibold transition-all flex items-center gap-2 transform hover:-translate-y-1"
+            >
+              <MessageSquare size={20} />
+              <span>Tư vấn ngay</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Decorative Bottom Wave/Curve */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent z-30" />
+
+      {/* Bottom Floating Images Showcase */}
+      <div className="absolute bottom-12 left-0 right-0 z-40 hidden md:block">
+        <div className="container mx-auto px-6">
+           <div className="flex justify-center gap-6">
+              {[
+                'https://images.unsplash.com/photo-1594771804886-a933bb2d609b?w=400&q=80',
+                'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=400&q=80',
+                'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=400&q=80'
+              ].map((url, i) => (
+                <div 
+                  key={i}
+                  className="w-28 h-20 rounded-xl overflow-hidden border border-white/30 shadow-2xl hover:scale-110 transition-transform duration-300"
+                >
+                  <Img src={url} alt="Gallery" className="object-cover w-full h-full" />
+                </div>
+              ))}
+           </div>
         </div>
       </div>
     </section>
