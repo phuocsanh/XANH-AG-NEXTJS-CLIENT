@@ -2,6 +2,7 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
   LogOut,
@@ -32,6 +33,7 @@ interface ProductType {
 }
 
 export default function Navbar() {
+  const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false) // State cho dropdown sản phẩm trên mobile
   const [productTypes, setProductTypes] = useState<ProductType[]>([])
@@ -108,14 +110,20 @@ export default function Navbar() {
             <div className='hidden sm:flex items-center space-x-6'>
               <Link
                 href='/'
-                className='text-white hover:text-yellow-300 font-medium transition-colors'
+                className={cn(
+                  'font-medium transition-colors',
+                  pathname === '/' ? 'text-yellow-400' : 'text-white hover:text-yellow-300'
+                )}
               >
                 Trang chủ
               </Link>
               <div className='relative group'>
                 <Link
                   href='/products'
-                  className='text-white hover:text-yellow-300 font-medium flex items-center transition-colors'
+                  className={cn(
+                    'font-medium flex items-center transition-colors',
+                    pathname.startsWith('/products') ? 'text-yellow-400' : 'text-white hover:text-yellow-300'
+                  )}
                 >
                   Sản phẩm
                   <IoMdArrowDropdown className='w-5 h-5 ml-1 transition-transform duration-300 transform group-hover:rotate-180' />
@@ -143,12 +151,15 @@ export default function Navbar() {
                   )}
                 </div>
               </div>
-              <Link
+              {/* <Link
                 href='/promotions'
-                className='text-white hover:text-yellow-300 font-medium transition-colors'
+                className={cn(
+                  'font-medium transition-colors',
+                  pathname === '/promotions' ? 'text-yellow-400' : 'text-white hover:text-yellow-300'
+                )}
               >
                 Khuyến mãi
-              </Link>
+              </Link> */}
               {/* Ẩn Chat UI */}
               {/* <Link
                 href='/chat'
@@ -158,7 +169,10 @@ export default function Navbar() {
               </Link> */}
               <Link
                 href='/weather-forecast'
-                className='text-white hover:text-yellow-300 font-medium transition-colors'
+                className={cn(
+                  'font-medium transition-colors',
+                  pathname === '/weather-forecast' ? 'text-yellow-400' : 'text-white hover:text-yellow-300'
+                )}
               >
                 Thời tiết
               </Link>
@@ -180,13 +194,19 @@ export default function Navbar() {
               )}
               <Link
                 href='/lunar-calendar'
-                className='text-white hover:text-yellow-300 font-medium transition-colors'
+                className={cn(
+                  'font-medium transition-colors',
+                  pathname === '/lunar-calendar' ? 'text-yellow-400' : 'text-white hover:text-yellow-300'
+                )}
               >
                 Lịch vạn niên
               </Link>
               <Link
                 href='/contact'
-                className='text-white hover:text-yellow-300 font-medium transition-colors'
+                className={cn(
+                  'font-medium transition-colors',
+                  pathname === '/contact' ? 'text-yellow-400' : 'text-white hover:text-yellow-300'
+                )}
               >
                 Liên hệ
               </Link>
@@ -307,13 +327,13 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
-              <Link
+              {/* <Link
                 href='/promotions'
                 className='block py-2 text-white hover:text-yellow-300 font-medium text-sm transition-colors'
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Khuyến mãi
-              </Link>
+              </Link> */}
               <Link
                 href='/weather-forecast'
                 className='block py-2 text-white hover:text-yellow-300 font-medium text-sm transition-colors'
