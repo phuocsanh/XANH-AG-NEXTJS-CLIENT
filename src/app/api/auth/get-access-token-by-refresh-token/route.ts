@@ -16,19 +16,19 @@ export async function POST() {
           code: 401,
           data: null,
         },
-        { status: 401 }
+        { status: 401 },
       )
     }
 
     const response = await fetch(
-      `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/api/v1/access/handleRefreshToken`,
+      `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/refresh`,
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${refreshToken}`,
           "Content-Type": "application/json",
         },
-      }
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      },
     )
 
     if (!response.ok) {
@@ -38,19 +38,17 @@ export async function POST() {
           code: 401,
           data: null,
         },
-        { status: 401 }
+        { status: 401 },
       )
     }
 
     const responseData = await response.json()
+    const payload = responseData?.data || responseData
+    const accessToken = payload?.access_token || payload?.accessToken
+    const newRefreshToken = payload?.refresh_token || payload?.refreshToken
 
     // Update cookies with new tokens
-    if (
-      responseData.data?.tokens.accessToken &&
-      responseData.data?.tokens.refreshToken
-    ) {
-      const { accessToken, refreshToken: newRefreshToken } =
-        responseData.data.tokens
+    if (accessToken && newRefreshToken) {
       const decodeAccessToken = jwt.decode(accessToken) as { exp: number }
       const decodeRefreshToken = jwt.decode(newRefreshToken) as { exp: number }
 
@@ -58,6 +56,7 @@ export async function POST() {
         path: "/",
         httpOnly: true,
         sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
         expires: decodeAccessToken.exp * 1000,
       })
 
@@ -65,11 +64,24 @@ export async function POST() {
         path: "/",
         httpOnly: true,
         sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
         expires: decodeRefreshToken.exp * 1000,
+      })
+
+      return createApiResponse({
+        accessToken,
+        refreshToken: newRefreshToken,
       })
     }
 
-    return createApiResponse(responseData)
+    return NextResponse.json(
+      {
+        message: "Invalid refresh response",
+        code: 500,
+        data: responseData,
+      },
+      { status: 500 },
+    )
   } catch (error) {
     return serverHandleApiError(error)
   }

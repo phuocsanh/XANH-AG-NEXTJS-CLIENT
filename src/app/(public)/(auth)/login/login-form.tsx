@@ -50,21 +50,21 @@ const LoginForm = () => {
     }
   }, [form])
 
-  const onSubmit = async (data: LoginBodyType, e?: React.BaseSyntheticEvent) => {
+  const onSubmit = async (
+    data: LoginBodyType,
+    e?: React.BaseSyntheticEvent,
+  ) => {
     if (e) {
       e.preventDefault()
     }
-    
+
     setIsLoading(true)
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:3003"
-      
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify({
           account: data.user_account,
           password: data.user_password,
@@ -74,12 +74,13 @@ const LoginForm = () => {
       const result = await response.json()
 
       if (!response.ok) {
-        const errorData = result;
-        throw { 
-          response: { 
+        const errorData = result
+        throw {
+          response: {
             data: errorData,
-            message: errorData.message || "Tài khoản hoặc mật khẩu không chính xác" 
-          } 
+            message:
+              errorData.message || "Tài khoản hoặc mật khẩu không chính xác",
+          },
         }
       }
 
@@ -87,39 +88,43 @@ const LoginForm = () => {
 
       // Lưu tokens - response có cấu trúc { success, data: { access_token, refresh_token, user } }
       const tokens = result.data || result // Fallback nếu không có .data wrapper
-      
+
       if (rememberMe) {
         // Lưu tokens
         localStorage.setItem("accessToken", tokens.access_token)
         localStorage.setItem("refreshToken", tokens.refresh_token)
         localStorage.setItem("user", JSON.stringify(tokens.user))
-        
+
         // Lưu credentials để auto-fill lần sau
         localStorage.setItem("savedAccount", data.user_account)
         localStorage.setItem("savedPassword", data.user_password)
         localStorage.setItem("rememberMe", "true")
-        
+
         console.log("✅ Saved to localStorage:", {
-          accessToken: localStorage.getItem("accessToken")?.substring(0, 20) + "...",
-          refreshToken: localStorage.getItem("refreshToken")?.substring(0, 20) + "...",
+          accessToken:
+            localStorage.getItem("accessToken")?.substring(0, 20) + "...",
+          refreshToken:
+            localStorage.getItem("refreshToken")?.substring(0, 20) + "...",
           user: tokens.user?.account,
-          savedCredentials: true
+          savedCredentials: true,
         })
       } else {
         // Lưu tokens vào sessionStorage
         sessionStorage.setItem("accessToken", tokens.access_token)
         sessionStorage.setItem("refreshToken", tokens.refresh_token)
         sessionStorage.setItem("user", JSON.stringify(tokens.user))
-        
+
         // Xóa saved credentials nếu không chọn "Nhớ mật khẩu"
         localStorage.removeItem("savedAccount")
         localStorage.removeItem("savedPassword")
         localStorage.removeItem("rememberMe")
-        
+
         console.log("✅ Saved to sessionStorage:", {
-          accessToken: sessionStorage.getItem("accessToken")?.substring(0, 20) + "...",
-          refreshToken: sessionStorage.getItem("refreshToken")?.substring(0, 20) + "...",
-          user: tokens.user?.account
+          accessToken:
+            sessionStorage.getItem("accessToken")?.substring(0, 20) + "...",
+          refreshToken:
+            sessionStorage.getItem("refreshToken")?.substring(0, 20) + "...",
+          user: tokens.user?.account,
         })
       }
 
@@ -142,18 +147,19 @@ const LoginForm = () => {
   return (
     <div className='bg-white/80 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white/50 p-8 sm:p-10 relative overflow-hidden'>
       {/* Decorative Elements */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-400/20 to-transparent rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-amber-400/20 to-transparent rounded-full blur-2xl"></div>
+      <div className='absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-400/20 to-transparent rounded-full blur-3xl'></div>
+      <div className='absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-amber-400/20 to-transparent rounded-full blur-2xl'></div>
 
       {/* Header */}
       <div className='relative mb-8'>
-        <div className="flex items-center gap-3 mb-2">
-         
+        <div className='flex items-center gap-3 mb-2'>
           <h1 className='font-black text-3xl sm:text-4xl bg-gradient-to-r from-green-700 to-green-600 bg-clip-text text-transparent'>
             Chào mừng trở lại
           </h1>
         </div>
-        <p className="text-gray-600 font-medium text-sm">Đăng nhập để tiếp tục quản lý nông trại của bạn</p>
+        <p className='text-gray-600 font-medium text-sm'>
+          Đăng nhập để tiếp tục quản lý nông trại của bạn
+        </p>
       </div>
 
       {/* Form */}
@@ -170,7 +176,7 @@ const LoginForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className='text-sm font-bold text-gray-700 flex items-center gap-2'>
-                  <Phone className="w-4 h-4 text-green-600" />
+                  <Phone className='w-4 h-4 text-green-600' />
                   Số điện thoại
                 </FormLabel>
                 <FormControl>
@@ -193,30 +199,30 @@ const LoginForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className='text-sm font-bold text-gray-700 flex items-center gap-2'>
-                  <Lock className="w-4 h-4 text-green-600" />
+                  <Lock className='w-4 h-4 text-green-600' />
                   Mật khẩu
                 </FormLabel>
                 <FormControl>
-                  <div className="relative group">
+                  <div className='relative group'>
                     <Input
                       placeholder='••••••••'
                       {...field}
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       className='h-12 text-base bg-white/50 border-2 border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all rounded-xl text-gray-800 font-medium pr-12'
                     />
                     <button
-                      type="button"
+                      type='button'
                       onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setShowPassword(!showPassword);
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setShowPassword(!showPassword)
                       }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-green-600 transition-colors rounded-lg hover:bg-green-50 z-10"
+                      className='absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-green-600 transition-colors rounded-lg hover:bg-green-50 z-10'
                     >
                       {showPassword ? (
-                        <EyeOff className="w-5 h-5" />
+                        <EyeOff className='w-5 h-5' />
                       ) : (
-                        <Eye className="w-5 h-5" />
+                        <Eye className='w-5 h-5' />
                       )}
                     </button>
                   </div>
@@ -227,24 +233,24 @@ const LoginForm = () => {
           />
 
           {/* Remember Me & Forgot Password */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center gap-2'>
               <Checkbox
-                id="remember"
+                id='remember'
                 checked={rememberMe}
                 onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                className="border-gray-300 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                className='border-gray-300 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600'
               />
               <label
-                htmlFor="remember"
-                className="text-sm font-medium text-gray-600 cursor-pointer select-none"
+                htmlFor='remember'
+                className='text-sm font-medium text-gray-600 cursor-pointer select-none'
               >
                 Nhớ mật khẩu
               </label>
             </div>
             <Link
-              href="/forgot-password"
-              className="text-sm font-bold text-green-600 hover:text-green-700 transition-colors"
+              href='/forgot-password'
+              className='text-sm font-bold text-green-600 hover:text-green-700 transition-colors'
             >
               Quên mật khẩu?
             </Link>
@@ -258,13 +264,13 @@ const LoginForm = () => {
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className='w-5 h-5 animate-spin' />
                 Đang đăng nhập...
               </>
             ) : (
               <>
                 Đăng nhập
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className='w-5 h-5 group-hover:translate-x-1 transition-transform' />
               </>
             )}
           </button>
@@ -287,9 +293,16 @@ const LoginForm = () => {
       {/* Shake Animation */}
       <style jsx>{`
         @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-5px); }
-          75% { transform: translateX(5px); }
+          0%,
+          100% {
+            transform: translateX(0);
+          }
+          25% {
+            transform: translateX(-5px);
+          }
+          75% {
+            transform: translateX(5px);
+          }
         }
         :global(.animate-shake) {
           animation: shake 0.3s ease-in-out;

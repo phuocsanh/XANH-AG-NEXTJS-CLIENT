@@ -42,8 +42,6 @@ interface EntityErrorResponse extends HttpErrorResponse {
   data: EntityErrorPayload
 }
 
-
-
 // Constants
 const AUTHENTICATION_ERROR_STATUS = 401
 const isClient = typeof window !== "undefined"
@@ -67,6 +65,7 @@ export class EntityError extends HttpError {
 class HttpClient {
   private static instance: HttpClient
   private clientLogoutRequest: Promise<unknown> | null = null
+  private refreshRetryCount = 0
 
   private constructor() {}
 
@@ -80,10 +79,12 @@ class HttpClient {
   private async getAccessToken(): Promise<string | null> {
     if (isClient) {
       // Ưu tiên lấy từ LocalStorage/SessionStorage
-      const token = localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken")
+      const token =
+        localStorage.getItem("accessToken") ||
+        sessionStorage.getItem("accessToken")
       if (token) return token
     }
-    
+
     // Fallback: Thử gọi API route (nếu dùng cookies)
     try {
       const response = await fetch("/api/auth/get-access-token")
@@ -102,61 +103,40 @@ class HttpClient {
   private async refreshAccessToken(): Promise<string | null> {
     // Nếu đang có một tiến trình refresh rồi, trả về promise đó luôn
     if (this.refreshTokenPromise) {
-      console.log('⏳ Refresh token process already in progress, waiting for it...')
+      console.log(
+        "⏳ Refresh token process already in progress, waiting for it...",
+      )
       return this.refreshTokenPromise
     }
 
     this.refreshTokenPromise = (async () => {
       try {
-        // 1. Nếu là Client và có RefreshToken trong Storage -> Gọi trực tiếp Backend
-        if (isClient) {
-          const refreshToken = localStorage.getItem("refreshToken") || sessionStorage.getItem("refreshToken")
-          if (refreshToken) {
-            try {
-              const baseUrl = envConfig.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:3003"
-              const response = await fetch(`${baseUrl}/auth/refresh`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ refresh_token: refreshToken }),
-              })
-
-              if (!response.ok) {
-                console.warn(`Failed to refresh access token directly: ${response.status}`)
-              } else {
-                const data = await response.json()
-                const newTokens = data.data || data
-                const accessToken = newTokens?.accessToken || newTokens?.access_token
-                const newRefreshToken = newTokens?.refreshToken || newTokens?.refresh_token
-                
-                if (accessToken) {
-                  // Cập nhật lại Storage
-                  if (localStorage.getItem("accessToken")) {
-                    localStorage.setItem("accessToken", accessToken)
-                    if (newRefreshToken) localStorage.setItem("refreshToken", newRefreshToken)
-                  } else {
-                    sessionStorage.setItem("accessToken", accessToken)
-                    if (newRefreshToken) sessionStorage.setItem("refreshToken", newRefreshToken)
-                  }
-                  return accessToken
-                }
-              }
-            } catch (error) {
-              console.error("Error refreshing token client-side:", error)
-            }
-          }
-        }
-
-        // 2. Fallback: Gọi qua API route (Cookies)
+        // Luôn refresh qua Next API route để đồng bộ cookie + client storage
         try {
           const response = await fetch(
             "/api/auth/get-access-token-by-refresh-token",
             {
               method: "POST",
-            }
+            },
           )
           if (response.ok) {
-            const { accessToken } = await response.json()
-            return accessToken
+            const data = await response.json()
+            const payload = data?.data || data
+            const accessToken = payload?.accessToken || payload?.access_token
+            const refreshToken = payload?.refreshToken || payload?.refresh_token
+
+            if (accessToken) {
+              if (localStorage.getItem("accessToken")) {
+                localStorage.setItem("accessToken", accessToken)
+                if (refreshToken)
+                  localStorage.setItem("refreshToken", refreshToken)
+              } else {
+                sessionStorage.setItem("accessToken", accessToken)
+                if (refreshToken)
+                  sessionStorage.setItem("refreshToken", refreshToken)
+              }
+              return accessToken
+            }
           }
         } catch (error) {
           console.error("Error refreshing access token via proxy:", error)
@@ -181,10 +161,11 @@ class HttpClient {
       sessionStorage.removeItem("refreshToken")
       sessionStorage.removeItem("user")
     }
-    
+
     if (!this.clientLogoutRequest) {
       this.clientLogoutRequest = fetch("/api/auth/logout", {
         method: "POST",
+        credentials: "include",
       }).finally(() => {
         this.clientLogoutRequest = null
       })
@@ -196,46 +177,76 @@ class HttpClient {
     url: string,
     options: CustomOptions,
     method: string,
-    body?: string | FormData
+    body?: string | FormData,
   ): Promise<Response> {
-    console.log('🔄 Handling 401 error, attempting token refresh...')
-    
+    console.log("🔄 Handling 401 error, attempting token refresh...")
+
     // CLIENT-SIDE: Refresh qua API route
     if (isClient) {
       const accessToken = await this.refreshAccessToken()
       if (!accessToken) {
-        console.warn('❌ Client-side refresh failed')
+        console.warn("❌ Client-side refresh failed")
+
+        // Retry mềm 1 lần để tránh văng tài khoản do lỗi mạng tạm thời
+        if (this.refreshRetryCount < 1) {
+          this.refreshRetryCount += 1
+          await new Promise((resolve) => setTimeout(resolve, 400))
+          const retryToken = await this.refreshAccessToken()
+          if (retryToken) {
+            this.refreshRetryCount = 0
+            const baseHeaders = this.getBaseHeaders(body)
+            baseHeaders.Authorization = `Bearer ${retryToken}`
+            return fetch(url, {
+              ...options,
+              headers: { ...baseHeaders, ...options?.headers },
+              body,
+              method,
+            })
+          }
+        }
+
+        this.refreshRetryCount = 0
         const { pathname } = window.location
-        
+
         // Luôn logout để xóa token và reset state
         await this.handleLogout()
-        
+
         // Cập nhật Zustand store nếu có thể
         try {
-          const { useAppStore } = await import('@/stores')
+          const { useAppStore } = await import("@/stores")
           useAppStore.getState().setIsLogin(false)
         } catch (e) {
-          console.error('Failed to update store state:', e)
+          console.error("Failed to update store state:", e)
         }
 
         // Chỉ redirect nếu không phải trang chủ hoặc trang public
         // Danh sách các trang không tự động redirect khi hết hạn token
-        const publicPaths = ['/', '/login', '/weather-forecast', '/lunar-calendar', '/news', '/products', '/contact']
+        const publicPaths = [
+          "/",
+          "/login",
+          "/weather-forecast",
+          "/lunar-calendar",
+          "/news",
+          "/products",
+          "/contact",
+        ]
         const isPublicPath = publicPaths.includes(pathname)
 
         if (!isPublicPath) {
-           console.log('Redirecting to login from protected path:', pathname)
-           location.href = "/login"
+          console.log("Redirecting to login from protected path:", pathname)
+          location.href = "/login"
         } else {
-           console.log('Stay on public path after session expired:', pathname)
-           // Tùy chọn: reload để cập nhật UI đồng nhất
-           // location.reload() 
+          console.log("Stay on public path after session expired:", pathname)
+          // Tùy chọn: reload để cập nhật UI đồng nhất
+          // location.reload()
         }
-        
+
         throw new Error("Unauthorized")
       }
 
-      console.log('✅ Client-side token refreshed, retrying request')
+      this.refreshRetryCount = 0
+
+      console.log("✅ Client-side token refreshed, retrying request")
       const baseHeaders = this.getBaseHeaders(body)
       baseHeaders.Authorization = `Bearer ${accessToken}`
 
@@ -246,25 +257,25 @@ class HttpClient {
         method,
       })
     }
-    
+
     // SERVER-SIDE: Refresh trực tiếp từ backend
-    console.log('🔄 Server-side refresh attempt...')
-    
+    console.log("🔄 Server-side refresh attempt...")
+
     // Dynamic import để tránh lỗi khi chạy client-side
-    const { getValidAccessToken } = await import('@/lib/server-auth')
+    const { getValidAccessToken } = await import("@/lib/server-auth")
     const newAccessToken = await getValidAccessToken()
-    
+
     if (!newAccessToken) {
-      console.warn('❌ Server-side refresh failed')
+      console.warn("❌ Server-side refresh failed")
       // Throw error để API route có thể xử lý
       throw new HttpError({
         code: 401,
         data: null,
-        message: "Unauthorized - token refresh failed"
+        message: "Unauthorized - token refresh failed",
       })
     }
 
-    console.log('✅ Server-side token refreshed, retrying request')
+    console.log("✅ Server-side token refreshed, retrying request")
     const baseHeaders = this.getBaseHeaders(body)
     baseHeaders.Authorization = `Bearer ${newAccessToken}`
 
@@ -287,7 +298,7 @@ class HttpClient {
   private async request<T>(
     method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
     url: string,
-    options: CustomOptions = {}
+    options: CustomOptions = {},
   ): Promise<T> {
     const baseUrl = options?.baseUrl ?? envConfig.NEXT_PUBLIC_API_ENDPOINT
     const fullUrl = `${baseUrl}/${normalizePath(url)}`
@@ -304,7 +315,7 @@ class HttpClient {
     }
 
     const baseHeaders = this.getBaseHeaders(body)
-    
+
     // Ưu tiên token từ options (server-side)
     if (options?.accessToken) {
       baseHeaders.Authorization = `Bearer ${options.accessToken}`
@@ -334,14 +345,14 @@ class HttpClient {
     console.log("Response status:", response.status)
     console.log(
       "Response headers:",
-      Object.fromEntries(response.headers.entries())
+      Object.fromEntries(response.headers.entries()),
     )
 
     if (!response) {
       const errorMessage = "An error occurred while fetching data."
       if (isClient) {
         window.location.href = `/error?message=${encodeURIComponent(
-          errorMessage
+          errorMessage,
         )}`
       } else {
         redirect(`/error?message=${encodeURIComponent("Error")}`)
@@ -355,14 +366,18 @@ class HttpClient {
           fullUrl,
           options,
           method,
-          body
+          body,
         )
-        
+
         // Kiểm tra lại response sau khi retry với token mới
         if (!response.ok) {
-          console.error('❌ Request failed even after token refresh:', response.status)
+          console.error(
+            "❌ Request failed even after token refresh:",
+            response.status,
+          )
           let errorData = null
-          let errorMessage = response.statusText || "Request failed after authentication"
+          let errorMessage =
+            response.statusText || "Request failed after authentication"
 
           try {
             const contentType = response.headers.get("content-type")
@@ -414,7 +429,7 @@ class HttpClient {
         })
 
         // Log backend error details nếu có (RFC 7807 format)
-        if (errorData && typeof errorData === 'object') {
+        if (errorData && typeof errorData === "object") {
           const backendError = errorData as Partial<BackendErrorResponse>
           if (backendError.type || backendError.title) {
             console.error("Backend Error Details:", {
