@@ -86,46 +86,22 @@ const LoginForm = () => {
 
       console.log("✅ Login response:", result)
 
-      // Lưu tokens - response có cấu trúc { success, data: { access_token, refresh_token, user } }
-      const tokens = result.data || result // Fallback nếu không có .data wrapper
-
+      // Tokens đã được set trong cookies via /api/auth/login
+      // Chỉ lưu credentials cho "Remember me" feature
       if (rememberMe) {
-        // Lưu tokens
-        localStorage.setItem("accessToken", tokens.access_token)
-        localStorage.setItem("refreshToken", tokens.refresh_token)
-        localStorage.setItem("user", JSON.stringify(tokens.user))
-
         // Lưu credentials để auto-fill lần sau
         localStorage.setItem("savedAccount", data.user_account)
         localStorage.setItem("savedPassword", data.user_password)
         localStorage.setItem("rememberMe", "true")
 
-        console.log("✅ Saved to localStorage:", {
-          accessToken:
-            localStorage.getItem("accessToken")?.substring(0, 20) + "...",
-          refreshToken:
-            localStorage.getItem("refreshToken")?.substring(0, 20) + "...",
-          user: tokens.user?.account,
-          savedCredentials: true,
-        })
+        console.log("✅ Saved credentials to localStorage")
       } else {
-        // Lưu tokens vào sessionStorage
-        sessionStorage.setItem("accessToken", tokens.access_token)
-        sessionStorage.setItem("refreshToken", tokens.refresh_token)
-        sessionStorage.setItem("user", JSON.stringify(tokens.user))
-
         // Xóa saved credentials nếu không chọn "Nhớ mật khẩu"
         localStorage.removeItem("savedAccount")
         localStorage.removeItem("savedPassword")
         localStorage.removeItem("rememberMe")
 
-        console.log("✅ Saved to sessionStorage:", {
-          accessToken:
-            sessionStorage.getItem("accessToken")?.substring(0, 20) + "...",
-          refreshToken:
-            sessionStorage.getItem("refreshToken")?.substring(0, 20) + "...",
-          user: tokens.user?.account,
-        })
+        console.log("✅ Cleared saved credentials")
       }
 
       setIsLogin(true)

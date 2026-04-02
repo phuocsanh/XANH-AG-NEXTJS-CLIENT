@@ -66,6 +66,8 @@ class HttpClient {
   private static instance: HttpClient
   private clientLogoutRequest: Promise<unknown> | null = null
   private refreshRetryCount = 0
+  // Per-session refresh lock
+  private refreshPromiseMap = new Map<string, Promise<string | null>>()
 
   private constructor() {}
 
@@ -74,6 +76,19 @@ class HttpClient {
       HttpClient.instance = new HttpClient()
     }
     return HttpClient.instance
+  }
+
+  private getSessionKey(): string {
+    if (isClient) {
+      const token =
+        localStorage.getItem("accessToken") ||
+        sessionStorage.getItem("accessToken")
+      if (token) {
+        // Dùng first 32 chars của token làm session key (unique per session)
+        return `refresh-${token.substring(0, 32)}`
+      }
+    }
+    return "refresh-default"
   }
 
   private async getAccessToken(): Promise<string | null> {
@@ -98,18 +113,16 @@ class HttpClient {
     }
   }
 
-  private refreshTokenPromise: Promise<string | null> | null = null
-
   private async refreshAccessToken(): Promise<string | null> {
-    // Nếu đang có một tiến trình refresh rồi, trả về promise đó luôn
-    if (this.refreshTokenPromise) {
-      console.log(
-        "⏳ Refresh token process already in progress, waiting for it...",
-      )
-      return this.refreshTokenPromise
+    const sessionKey = this.getSessionKey()
+
+    // Nếu đang có một tiến trình refresh cho session này, trả về promise đó
+    if (this.refreshPromiseMap.has(sessionKey)) {
+      console.log(`⏳ Refresh token process already in progress for session, waiting...`)
+      return this.refreshPromiseMap.get(sessionKey)!
     }
 
-    this.refreshTokenPromise = (async () => {
+    const promise = (async () => {
       try {
         // Luôn refresh qua Next API route để đồng bộ cookie + client storage
         try {
@@ -123,18 +136,10 @@ class HttpClient {
             const data = await response.json()
             const payload = data?.data || data
             const accessToken = payload?.accessToken || payload?.access_token
-            const refreshToken = payload?.refreshToken || payload?.refresh_token
 
             if (accessToken) {
-              if (localStorage.getItem("accessToken")) {
-                localStorage.setItem("accessToken", accessToken)
-                if (refreshToken)
-                  localStorage.setItem("refreshToken", refreshToken)
-              } else {
-                sessionStorage.setItem("accessToken", accessToken)
-                if (refreshToken)
-                  sessionStorage.setItem("refreshToken", refreshToken)
-              }
+              // NOTE: Không lưu vào storage nữa - chỉ rely on cookies
+              // Storage được sync từ cookies khi cần
               return accessToken
             }
           }
@@ -144,15 +149,16 @@ class HttpClient {
 
         return null
       } finally {
-        // Reset promise sau khi xong
-        this.refreshTokenPromise = null
+        // Clean up promise từ map
+        this.refreshPromiseMap.delete(sessionKey)
       }
     })()
 
-    return this.refreshTokenPromise
+    this.refreshPromiseMap.set(sessionKey, promise)
+    return promise
   }
 
-  private async handleLogout(): Promise<void> {
+  private async handleLogout(withRetry = true): Promise<void> {
     if (isClient) {
       localStorage.removeItem("accessToken")
       localStorage.removeItem("refreshToken")
@@ -162,15 +168,39 @@ class HttpClient {
       sessionStorage.removeItem("user")
     }
 
-    if (!this.clientLogoutRequest) {
-      this.clientLogoutRequest = fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      }).finally(() => {
-        this.clientLogoutRequest = null
-      })
+    // Clear refresh promises
+    this.refreshPromiseMap.clear()
+
+    // Call logout API with retry logic
+    let retries = 0
+    const maxRetries = withRetry ? 2 : 1
+
+    while (retries < maxRetries) {
+      try {
+        if (!this.clientLogoutRequest) {
+          this.clientLogoutRequest = fetch("/api/auth/logout", {
+            method: "POST",
+            credentials: "include",
+          }).finally(() => {
+            this.clientLogoutRequest = null
+          })
+        }
+
+        await this.clientLogoutRequest
+        console.log("✅ Logout successful")
+        return
+      } catch (error) {
+        retries++
+        console.warn(`Logout attempt ${retries} failed:`, error)
+
+        if (retries < maxRetries) {
+          // Backoff: wait 500ms before retry
+          await new Promise((resolve) => setTimeout(resolve, 500))
+        }
+      }
     }
-    await this.clientLogoutRequest
+
+    console.warn("❌ Logout failed after retries, but session cleared locally")
   }
 
   private async handleAuthenticationError(
