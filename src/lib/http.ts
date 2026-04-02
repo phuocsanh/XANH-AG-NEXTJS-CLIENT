@@ -78,11 +78,10 @@ class HttpClient {
     return HttpClient.instance
   }
 
-  private getSessionKey(): string {
+  private async getSessionKey(): Promise<string> {
     if (isClient) {
-      const token =
-        localStorage.getItem("accessToken") ||
-        sessionStorage.getItem("accessToken")
+      // Lấy token từ API route (từ httpOnly cookies)
+      const token = await this.getAccessToken()
       if (token) {
         // Dùng first 32 chars của token làm session key (unique per session)
         return `refresh-${token.substring(0, 32)}`
@@ -92,15 +91,12 @@ class HttpClient {
   }
 
   private async getAccessToken(): Promise<string | null> {
-    if (isClient) {
-      // Ưu tiên lấy từ LocalStorage/SessionStorage
-      const token =
-        localStorage.getItem("accessToken") ||
-        sessionStorage.getItem("accessToken")
-      if (token) return token
+    if (!isClient) {
+      // Server-side: không thể lấy từ cookies trực tiếp, phải qua server-auth
+      return null
     }
 
-    // Fallback: Thử gọi API route (nếu dùng cookies)
+    // Client-side: Lấy từ API route (đọc từ httpOnly cookies)
     try {
       const response = await fetch("/api/auth/get-access-token")
       if (!response.ok) {
@@ -114,11 +110,13 @@ class HttpClient {
   }
 
   private async refreshAccessToken(): Promise<string | null> {
-    const sessionKey = this.getSessionKey()
+    const sessionKey = await this.getSessionKey()
 
     // Nếu đang có một tiến trình refresh cho session này, trả về promise đó
     if (this.refreshPromiseMap.has(sessionKey)) {
-      console.log(`⏳ Refresh token process already in progress for session, waiting...`)
+      console.log(
+        `⏳ Refresh token process already in progress for session, waiting...`,
+      )
       return this.refreshPromiseMap.get(sessionKey)!
     }
 
