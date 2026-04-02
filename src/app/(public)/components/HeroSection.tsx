@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Phone, MapPin, ShoppingCart, MessageSquare, ChevronRight, ShieldCheck, Zap } from 'lucide-react'
+import { Phone, MapPin, ShoppingCart, MessageSquare, ChevronRight, ShieldCheck } from 'lucide-react'
 import Img from '@/app/components/Img'
 
 /**
