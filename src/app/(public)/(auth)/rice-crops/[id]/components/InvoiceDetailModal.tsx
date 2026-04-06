@@ -137,10 +137,41 @@ export default function InvoiceDetailModal({
                           )}
                         </TableCell>
                         <TableCell className="px-1 text-center text-xs whitespace-nowrap">
-                          {item.quantity} {item.unit_name || item.unit || item.product?.unit_name || ''}
+                          <div className="flex flex-col items-center">
+                            <span>{item.quantity} {item.unit_name || item.unit || item.product?.unit_name || ''}</span>
+                            {item.other_unit_name && Number(item.other_unit_factor) > 0 && (
+                              <span className="text-[9px] text-muted-foreground italic font-normal">
+                                {(() => {
+                                  const isBase = Number(item.conversion_factor || 1) === 1;
+                                  const otherFactor = Number(item.other_unit_factor);
+                                  const factor = Number(item.conversion_factor || 1);
+                                  
+                                  const otherQty = isBase ? (item.quantity / otherFactor) : (item.base_quantity || (item.quantity * factor));
+                                  return `(${otherQty.toLocaleString('vi-VN')} ${item.other_unit_name})`;
+                                })()}
+                              </span>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell className="px-2 text-right text-xs whitespace-nowrap font-mono">
-                          {convertCurrency(Number(item.unit_price || item.price || 0))}
+                          <div className="flex flex-col items-end">
+                            <span>{convertCurrency(Number(item.unit_price || item.price || 0))}</span>
+                            {item.other_unit_name && Number(item.other_unit_factor) > 0 && (
+                              <span className="text-[9px] text-muted-foreground italic font-normal">
+                                {(() => {
+                                  const isBase = Number(item.conversion_factor || 1) === 1;
+                                  const otherFactor = Number(item.other_unit_factor);
+                                  const factor = Number(item.conversion_factor || 1);
+                                  
+                                  const otherPrice = isBase 
+                                    ? (Number(item.unit_price || item.price || 0) * otherFactor)
+                                    : (Number(item.unit_price || item.price || 0) / factor);
+                                    
+                                  return `(${convertCurrency(otherPrice)}/${item.other_unit_name})`;
+                                })()}
+                              </span>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell className="px-2 text-right font-bold text-xs whitespace-nowrap font-mono">
                           {convertCurrency(Number(item.total_price || (item.quantity * (item.price || 0))))}
