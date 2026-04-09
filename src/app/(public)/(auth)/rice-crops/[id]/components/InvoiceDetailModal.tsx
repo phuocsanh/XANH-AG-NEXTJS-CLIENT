@@ -137,46 +137,20 @@ export default function InvoiceDetailModal({
                         <TableCell className="px-1 text-center text-xs whitespace-nowrap">
                           <div className="flex flex-col items-center">
                             <span>{formatNumber(item.quantity || 0)} {item.unit_name || item.unit || item.product?.unit_name || ''}</span>
-                            {(() => {
-                              // Đồng bộ logic 100% với React Admin
-                              let otherUnitName = item.other_unit_name;
-                              let otherUnitFactor = Number(item.other_unit_factor);
+                            {/* Logic quy đổi đơn vị đối ứng - y hệt React Admin */}
+                            {item.other_unit_name && Number(item.other_unit_factor) > 0 && (() => {
+                              const isBase = Number(item.conversion_factor || 1) === 1;
+                              const otherFactor = Number(item.other_unit_factor);
                               const factor = Number(item.conversion_factor || 1);
-                              const isBase = factor === 1;
 
-                              // Fallback dùng dữ liệu product nếu snapshot thiếu
-                              if (!otherUnitName && item.product?.unit_conversions?.length > 1) {
-                                const conversions = item.product.unit_conversions;
-                                const currentUnitName = (item.unit_name || item.unit || item.product?.unit_name || '').toLowerCase();
-                                const targetConv = conversions.find((c: any) => 
-                                  c.unit_name && c.unit_name.toLowerCase() !== currentUnitName
-                                );
-                                if (targetConv) {
-                                  otherUnitName = targetConv.unit_name;
-                                  otherUnitFactor = Number(targetConv.conversion_factor);
-                                }
-                              }
+                              const otherQty = isBase ? (item.quantity / otherFactor) : (item.base_quantity || (item.quantity * factor));
+                              const otherPrice = isBase ? (Number(item.unit_price || item.price || 0) * otherFactor) : (Number(item.unit_price || item.price || 0) / factor);
 
-                              if (otherUnitName && otherUnitFactor > 0) {
-                                const quantity = Number(item.quantity || 0);
-                                const unitPrice = Number(item.unit_price || item.price || 0);
-                                
-                                // Tính toán số lượng và đơn giá đối ứng
-                                const otherQty = isBase 
-                                  ? (quantity / otherUnitFactor) 
-                                  : (item.base_quantity || (quantity * factor));
-                                  
-                                const otherPrice = isBase 
-                                  ? (unitPrice * otherUnitFactor) 
-                                  : (unitPrice / factor);
-
-                                return (
-                                  <span className="text-[9px] text-muted-foreground italic font-normal">
-                                    {`(${formatNumber(otherQty)} ${otherUnitName} - ${convertCurrency(otherPrice)}/${otherUnitName})`}
-                                  </span>
-                                );
-                              }
-                              return null;
+                              return (
+                                <span className="text-[9px] text-muted-foreground italic font-normal">
+                                  {`(${formatNumber(otherQty)} ${item.other_unit_name} - ${convertCurrency(otherPrice)}/${item.other_unit_name})`}
+                                </span>
+                              );
                             })()}
                           </div>
                         </TableCell>
