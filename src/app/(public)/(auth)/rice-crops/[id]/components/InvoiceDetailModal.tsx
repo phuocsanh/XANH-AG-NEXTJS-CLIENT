@@ -136,34 +136,39 @@ export default function InvoiceDetailModal({
                         </TableCell>
                         <TableCell className="px-1 text-center text-xs whitespace-nowrap">
                           <div className="flex flex-col items-center">
-                            <span>{formatNumber(item.quantity)} {item.unit_name || item.unit || item.product?.unit_name || ''}</span>
+                            <span>{formatNumber(item.quantity || 0)} {item.unit_name || item.unit || item.product?.unit_name || ''}</span>
                             {(() => {
-                              // Logic quy đổi đơn vị đối ứng
+                              // Đồng bộ logic 100% với React Admin
                               let otherUnitName = item.other_unit_name;
-                              let otherUnitFactor = Number(item.other_unit_factor || 0);
+                              let otherUnitFactor = Number(item.other_unit_factor);
+                              const factor = Number(item.conversion_factor || 1);
+                              const isBase = factor === 1;
 
-                              // Fallback nếu thiếu snapshot (cho hóa đơn cũ)
+                              // Fallback dùng dữ liệu product nếu snapshot thiếu
                               if (!otherUnitName && item.product?.unit_conversions?.length > 1) {
                                 const conversions = item.product.unit_conversions;
-                                const baseConv = conversions.find((c: any) => c.is_base_unit);
-                                const otherConv = conversions.find((c: any) => !c.is_base_unit);
-                                if (baseConv && otherConv) {
-                                  if (Number(item.conversion_factor || 1) === 1) {
-                                    otherUnitName = otherConv.unit_name;
-                                    otherUnitFactor = Number(otherConv.conversion_factor);
-                                  } else {
-                                    otherUnitName = baseConv.unit_name;
-                                    otherUnitFactor = Number(baseConv.conversion_factor);
-                                  }
+                                const currentUnitName = (item.unit_name || item.unit || item.product?.unit_name || '').toLowerCase();
+                                const targetConv = conversions.find((c: any) => 
+                                  c.unit_name && c.unit_name.toLowerCase() !== currentUnitName
+                                );
+                                if (targetConv) {
+                                  otherUnitName = targetConv.unit_name;
+                                  otherUnitFactor = Number(targetConv.conversion_factor);
                                 }
                               }
 
                               if (otherUnitName && otherUnitFactor > 0) {
-                                const isBase = Number(item.conversion_factor || 1) === 1;
-                                const factor = Number(item.conversion_factor || 1);
+                                const quantity = Number(item.quantity || 0);
+                                const unitPrice = Number(item.unit_price || item.price || 0);
                                 
-                                const otherQty = isBase ? (item.quantity / otherUnitFactor) : (item.base_quantity || (item.quantity * factor));
-                                const otherPrice = isBase ? (Number(item.unit_price || item.price || 0) * otherUnitFactor) : (Number(item.unit_price || item.price || 0) / factor);
+                                // Tính toán số lượng và đơn giá đối ứng
+                                const otherQty = isBase 
+                                  ? (quantity / otherUnitFactor) 
+                                  : (item.base_quantity || (quantity * factor));
+                                  
+                                const otherPrice = isBase 
+                                  ? (unitPrice * otherUnitFactor) 
+                                  : (unitPrice / factor);
 
                                 return (
                                   <span className="text-[9px] text-muted-foreground italic font-normal">
