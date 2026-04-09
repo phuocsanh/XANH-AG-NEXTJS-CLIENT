@@ -16,10 +16,15 @@ export const convertCurrency = (data: number) => {
  * - Nếu có số lẻ: 40,5 (dùng dấu phẩy)
  * - Xóa các số 0 thừa ở cuối
  */
-export const formatNumber = (data: number, maximumFractionDigits: number = 2) => {
+export const formatNumber = (data: number | string | undefined | null, maximumFractionDigits: number = 2) => {
+  if (data === undefined || data === null) return "0";
+  const num = typeof data === "string" ? parseFloat(data) : data;
+  if (isNaN(num)) return "0";
+  
   return new Intl.NumberFormat("vi-VN", {
+    minimumFractionDigits: 0,
     maximumFractionDigits,
-  }).format(data || 0);
+  }).format(num);
 };
 
 export function cn(...inputs: ClassValue[]) {

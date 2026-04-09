@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { convertCurrency } from "@/lib/utils"
+import { convertCurrency, formatNumber } from "@/lib/utils"
 import dayjs from "dayjs"
 import { StatusBadge } from "@/components/common/status-badge"
 import { ShoppingCart, FileText, Calendar, Store, CreditCard } from "lucide-react"
