@@ -7,7 +7,7 @@ import {
   useHarvestRecords, 
   useDeleteHarvestRecord 
 } from "@/hooks/use-harvest-record"
-import { convertCurrency } from "@/lib/utils"
+import { convertCurrency, formatNumber } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { useConfirm } from "@/hooks/use-confirm"
 import CreateHarvestRecordModal from "@/app/(public)/(auth)/rice-crops/[id]/components/CreateHarvestRecordModal"
@@ -78,7 +78,7 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
       key: "yield_amount",
       render: (_, record) => (
         <span className="font-bold">
-          {Number(record.yield_amount || 0).toLocaleString("de-DE")} {record.yield_unit === 'tan' ? 'Tấn' : 'kg'}
+          {formatNumber(Number(record.yield_amount || 0))} {record.yield_unit === 'tan' ? 'Tấn' : 'kg'}
         </span>
       ),
       priority: "high",
@@ -99,7 +99,7 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
     {
       title: "Giá bán",
       key: "selling_price_per_unit",
-      render: (val) => `${Number(val || 0).toLocaleString("de-DE")} đ/kg`,
+      render: (val) => `${formatNumber(Number(val || 0))} đ/kg`,
       priority: "medium",
       className: "text-right",
     },
@@ -125,8 +125,8 @@ export default function HarvestRecordsTab({ riceCropId }: HarvestRecordsTabProps
             </div>
             <div className="text-3xl font-black text-blue-700">
               {totalYieldInKg < 1000 
-                ? `${totalYieldInKg.toLocaleString("de-DE")} kg` 
-                : `${(totalYieldInKg / 1000).toLocaleString("de-DE", { maximumFractionDigits: 2 })} Tấn`}
+                ? `${formatNumber(totalYieldInKg)} kg` 
+                : `${formatNumber(totalYieldInKg / 1000, 2)} Tấn`}
             </div>
           </CardContent>
         </Card>

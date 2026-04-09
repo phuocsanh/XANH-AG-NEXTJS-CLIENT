@@ -27,7 +27,7 @@ import {
   Sprout
 } from "lucide-react"
 import { useProfitReport } from "@/hooks/use-profit-report"
-import { convertCurrency } from "@/lib/utils"
+import { convertCurrency, formatNumber } from "@/lib/utils"
 
 interface ProfitReportTabProps {
   riceCropId: number
@@ -94,7 +94,7 @@ export default function ProfitReportTab({ riceCropId, amountOfLand = 1 }: Profit
             </CardTitle>
           </CardHeader>
           <CardContent className="px-6 pb-6">
-            <div className="text-2xl font-black text-slate-900 leading-none">{amountOfLand} <span className="text-sm font-bold opacity-50 uppercase">Công</span></div>
+            <div className="text-2xl font-black text-slate-900 leading-none">{formatNumber(amountOfLand)} <span className="text-sm font-bold opacity-50 uppercase">Công</span></div>
           </CardContent>
         </Card>
 

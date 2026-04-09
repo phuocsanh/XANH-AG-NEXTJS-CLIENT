@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ArrowLeft, Edit, Calendar, Sprout, Info } from "lucide-react"
 import dayjs from "dayjs"
-import { calculateDaysDiff } from "@/lib/utils"
+import { calculateDaysDiff, formatNumber } from "@/lib/utils"
 
 // Tab components
 import GuestFarmingSchedulesTab from "./components/GuestFarmingSchedulesTab"
@@ -129,10 +129,10 @@ export default function GuestRiceCropDetailPage() {
                     <Sprout className="w-6 h-6 text-agri-600 mb-3" />
                     <p className="text-[10px] font-bold text-gray-400 uppercase">Diện tích</p>
                     <p className="text-xl font-black text-gray-900">
-                      {riceCrop.amount_of_land} <span className="text-sm font-medium">công</span>
+                      {formatNumber(Number(riceCrop.amount_of_land))} <span className="text-sm font-medium">công</span>
                     </p>
                     <p className="text-[10px] font-medium text-gray-500 italic">
-                      (~ {Number(riceCrop.field_area).toLocaleString("vi-VN")} m²)
+                      (~ {formatNumber(Number(riceCrop.field_area))} m²)
                     </p>
                   </div>
                   <div className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm">
@@ -249,7 +249,7 @@ export default function GuestRiceCropDetailPage() {
                      <div className="space-y-1">
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Diện tích canh tác</p>
                         <p className="text-gray-800 font-medium">
-                           {riceCrop.amount_of_land} công (~ {Number(riceCrop.field_area).toLocaleString("vi-VN")} m²)
+                           {formatNumber(Number(riceCrop.amount_of_land))} công (~ {formatNumber(Number(riceCrop.field_area))} m²)
                         </p>
                      </div>
                     

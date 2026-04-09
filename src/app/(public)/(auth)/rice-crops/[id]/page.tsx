@@ -20,7 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ArrowLeft, Edit } from "lucide-react"
 import dayjs from "dayjs"
-import { cn, calculateDaysDiff } from "@/lib/utils"
+import { cn, calculateDaysDiff, formatNumber } from "@/lib/utils"
 
 import FarmingSchedulesTab from "./components/FarmingSchedulesTab"
 import GrowthTrackingTab from "./components/GrowthTrackingTab"
@@ -209,7 +209,7 @@ export default function RiceCropDetailPage() {
                   label="Diện tích" 
                   value={
                     riceCrop.field_area 
-                      ? `${Number(riceCrop.field_area).toLocaleString("vi-VN")} m² (${Number(riceCrop.amount_of_land).toLocaleString("vi-VN")} công)` 
+                      ? `${formatNumber(Number(riceCrop.field_area))} m² (${formatNumber(Number(riceCrop.amount_of_land))} công)` 
                       : "-"
                   } 
                 />

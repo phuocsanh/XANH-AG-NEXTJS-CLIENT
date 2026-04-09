@@ -23,7 +23,7 @@ import { localFarmingService } from "@/lib/local-farming-service"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { type CostItem } from "@/models/rice-farming"
-import { convertCurrency } from "@/lib/utils"
+import { convertCurrency, formatNumber } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { useConfirm } from "@/hooks/use-confirm"
 import GuestCostItemModal from "./GuestCostItemModal"
@@ -166,7 +166,7 @@ export default function GuestCostItemsTab({ riceCropId, defaultTab = "costs", am
                 <p className="font-bold uppercase tracking-[0.2em] text-[12px] text-gray-400">Diện tích đất</p>
              </div>
              <h3 className="text-3xl font-bold text-slate-600 tracking-tighter">
-               {amountOfLand} <span className="text-xl opacity-50 uppercase">Công</span>
+               {formatNumber(amountOfLand)} <span className="text-xl opacity-50 uppercase">Công</span>
              </h3>
           </CardContent>
         </Card>

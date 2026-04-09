@@ -26,6 +26,7 @@ import {
   type RiceCrop,
 } from "@/models/rice-farming"
 import { Eye, Plus } from "lucide-react"
+import { formatNumber } from "@/lib/utils"
 import CreateGuestRiceCropModal from "./components/CreateGuestRiceCropModal"
 
 export default function GuestFarmingPage() {
@@ -137,7 +138,7 @@ export default function GuestFarmingPage() {
                           {crop.season?.name || "Kỳ vụ local"}
                         </TableCell>
                         <TableCell className="py-5 px-6 font-medium text-gray-600">
-                           {Number(crop.field_area || 0).toLocaleString("vi-VN")} m²
+                           {formatNumber(Number(crop.field_area || 0))} m²
                         </TableCell>
                         <TableCell className="py-5 px-6">
                            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-bold">

@@ -28,7 +28,7 @@ import {
   HandCoins
 } from 'lucide-react'
 import Link from 'next/link'
-import { convertCurrency, calculateDaysDiff } from '@/lib/utils'
+import { convertCurrency, calculateDaysDiff, formatNumber } from '@/lib/utils'
 import { getGrowthStageText, type ProfitReport } from '@/models/rice-farming'
 import dayjs from 'dayjs'
 import { convertSolar2Lunar } from '@/lib/lunar-calendar'
@@ -241,7 +241,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                     <span className="text-[10px] font-bold uppercase tracking-tighter">Diện tích</span>
                   </div>
                   <p className="text-slate-950 font-black text-lg truncate">
-                    {amountOfLand} <span className="text-xs opacity-50 uppercase">Công</span>
+                    {formatNumber(Number(amountOfLand))} <span className="text-xs opacity-50 uppercase">Công</span>
                   </p>
                 </div>
 
@@ -352,7 +352,7 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                     <div>
                       <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Diện tích canh tác</p>
                       <p className="text-gray-900 font-black">
-                        {Number(effectiveAmountOfLand).toLocaleString('de-DE', { maximumFractionDigits: 2 })} công
+                        {formatNumber(Number(effectiveAmountOfLand))} công
                       </p>
                     </div>
                   </div>

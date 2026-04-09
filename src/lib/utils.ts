@@ -10,6 +10,18 @@ export const convertCurrency = (data: number) => {
   return new Intl.NumberFormat("de-DE").format(Math.round(data || 0)) + " ₫";
 };
 
+/**
+ * Định dạng số theo chuẩn Việt Nam:
+ * - Nếu là số nguyên: 40
+ * - Nếu có số lẻ: 40,5 (dùng dấu phẩy)
+ * - Xóa các số 0 thừa ở cuối
+ */
+export const formatNumber = (data: number, maximumFractionDigits: number = 2) => {
+  return new Intl.NumberFormat("vi-VN", {
+    maximumFractionDigits,
+  }).format(data || 0);
+};
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }

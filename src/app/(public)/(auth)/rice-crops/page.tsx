@@ -36,6 +36,7 @@ import {
   type CropStatus,
 } from "@/models/rice-farming"
 import { Eye, Search, ArrowLeft } from "lucide-react"
+import { formatNumber } from "@/lib/utils"
 
 export default function RiceCropsPage() {
   const router = useRouter()
@@ -266,10 +267,10 @@ export default function RiceCropsPage() {
                           {crop.season?.year && ` (${crop.season.year})`}
                         </TableCell>
                         <TableCell className="text-center">
-                          {Number(crop.amount_of_land || 0).toLocaleString('vi-VN', { maximumFractionDigits: 2 })}
+                          {formatNumber(Number(crop.amount_of_land || 0))}
                         </TableCell>
                         <TableCell className="text-center sm:text-left">
-                          {Number(crop.field_area).toLocaleString("vi-VN")}
+                          {formatNumber(Number(crop.field_area))}
                         </TableCell>
                         <TableCell>{crop.rice_variety}</TableCell>
                         <TableCell>
