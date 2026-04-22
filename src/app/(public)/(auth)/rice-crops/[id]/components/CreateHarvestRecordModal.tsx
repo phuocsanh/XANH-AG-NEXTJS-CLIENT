@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -23,8 +23,6 @@ import { convertCurrency } from "@/lib/utils"
 import { CreateHarvestRecordBody, CreateHarvestRecordBodyType } from "@/schemaValidations/rice-farming.schema"
 import { FormDatePicker, FormNumberInput, FormComboBox, FormTextarea, FormFieldWrapper } from "@/components/form"
 import type { HarvestRecord } from "@/models/rice-farming"
-import RiceWeighingTool from "@/components/common/RiceWeighingTool"
-import { Calculator } from "lucide-react"
 
 interface CreateHarvestRecordModalProps {
   isOpen: boolean
@@ -40,7 +38,6 @@ export default function CreateHarvestRecordModal({
   riceCropId,
 }: CreateHarvestRecordModalProps) {
   const { toast } = useToast()
-  const [isWeighingOpen, setIsWeighingOpen] = useState(false)
   
   const form = useForm<CreateHarvestRecordBodyType>({
     resolver: zodResolver(CreateHarvestRecordBody),
@@ -146,17 +143,6 @@ export default function CreateHarvestRecordModal({
 
             {/* Khu vực nhập Sản lượng, Đơn vị, Giá bán */}
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-4">
-              <div className="flex justify-between items-center bg-white p-2 px-4 rounded-xl border border-agri-100 shadow-sm">
-                <span className="text-sm font-bold text-agri-800">Cân lúa tại ruộng?</span>
-                <Button 
-                  type="button" 
-                  className="bg-agri-600 hover:bg-agri-700 text-white rounded-full px-4 h-9 font-bold shadow-md animate-pulse flex gap-2"
-                  onClick={() => setIsWeighingOpen(true)}
-                >
-                  <Calculator className="h-4 w-4" /> Mở máy cân điện tử
-                </Button>
-              </div>
-
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormNumberInput
                   control={form.control}
@@ -240,15 +226,6 @@ export default function CreateHarvestRecordModal({
           </form>
         </Form>
       </DialogContent>
-
-      <RiceWeighingTool
-        isOpen={isWeighingOpen}
-        onClose={() => setIsWeighingOpen(false)}
-        onSave={(total) => {
-          form.setValue("yield_amount", total)
-          form.setValue("yield_unit", "kg") // Máy cân tính bằng kg
-        }}
-      />
     </Dialog>
   )
 }
