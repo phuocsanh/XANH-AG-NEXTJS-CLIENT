@@ -11,14 +11,13 @@ export default function HeroSection() {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <Img 
-          src="https://images.unsplash.com/photo-1560493676-04071c5f467b?w=1920&q=80" 
-          alt="Cánh đồng nông nghiệp" 
+          src="/assets/banner.png" 
+          alt="Cửa hàng Vật tư Nông nghiệp Xanh" 
           className="w-full h-full bg-emerald-900"
-          classNameImg="object-cover scale-105"
+          classNameImg="object-cover object-center"
         />
-        {/* Fresh and Bright Overlay */}
-        <div className="absolute inset-0 bg-emerald-900/20 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/60 via-transparent to-black/10 z-10" />
+        {/* Overlay nhẹ để đảm bảo text đọc được */}
+        <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/40 via-transparent to-transparent z-10" />
       </div>
 
       {/* Content Container */}
