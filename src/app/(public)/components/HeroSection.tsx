@@ -37,18 +37,24 @@ export default function HeroSection() {
           >
             <span className="block sm:inline whitespace-nowrap">Cửa hàng Vật tư Nông nghiệp</span> <br />
             <span 
-              className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#059669] via-[#84cc16] to-[#059669] bg-[length:200%_auto] animate-shine text-5xl sm:text-6xl md:text-7xl lg:text-8xl pt-2"
+              className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#059669] via-[#84cc16] to-[#059669] bg-[length:200%_auto] animate-shine text-5xl sm:text-6xl md:text-7xl lg:text-8xl pt-2 pb-1"
               style={{ 
                 filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.6)) drop-shadow(0 0 15px rgba(16,185,129,0.4))',
                 WebkitTextStroke: '0.5px rgba(255,255,255,0.1)'
               }}
             >
               XANH
-              {/* Ánh sao lấp lánh */}
-              <Star className="absolute -top-1 left-2 w-4 h-4 text-white animate-pulse opacity-70 blur-[1px]" fill="white" />
-              <Star className="absolute top-1/2 -right-2 w-3 h-3 text-yellow-200 animate-bounce opacity-80" fill="currentColor" style={{ animationDuration: '3s' }} />
-              <Star className="absolute -bottom-2 left-1/3 w-3 h-3 text-white animate-pulse opacity-60" fill="white" style={{ animationDelay: '1s' }} />
-              <Star className="absolute top-0 right-1/4 w-2 h-2 text-yellow-100 animate-pulse" fill="white" style={{ animationDelay: '0.5s' }} />
+              {/* Ánh sao lấp lánh rực rỡ hơn */}
+              <div className="absolute inset-0 pointer-events-none z-30">
+                <Star className="absolute top-[20%] left-[10%] w-3 h-3 text-yellow-400 animate-pulse fill-yellow-400" />
+                <Star className="absolute top-[60%] left-[25%] w-2 h-2 text-white animate-pulse fill-white" style={{ animationDelay: '0.2s' }} />
+                <Star className="absolute top-[30%] left-[45%] w-4 h-4 text-yellow-300 animate-bounce fill-yellow-300 shadow-[0_0_8px_white]" style={{ animationDuration: '3s' }} />
+                <Star className="absolute top-[70%] left-[60%] w-2 h-2 text-white animate-pulse fill-white" style={{ animationDelay: '0.5s' }} />
+                <Star className="absolute top-[15%] left-[80%] w-3 h-3 text-yellow-400 animate-pulse fill-yellow-400" style={{ animationDelay: '1.2s' }} />
+                <Star className="absolute top-[50%] left-[90%] w-2 h-2 text-white animate-pulse fill-white" style={{ animationDelay: '0.8s' }} />
+                <Star className="absolute bottom-[10%] left-[40%] w-2 h-2 text-yellow-200 animate-pulse fill-yellow-200" style={{ animationDelay: '1.5s' }} />
+                <Star className="absolute top-[40%] left-[15%] w-2 h-2 text-white animate-ping fill-white" style={{ animationDuration: '4s' }} />
+              </div>
             </span>
           </h1>
 
@@ -66,7 +72,7 @@ export default function HeroSection() {
               href="tel:0987383606" 
               className="group flex items-center gap-4 bg-black/20 backdrop-blur-md border border-white/20 p-3 rounded-2xl hover:bg-black/30 transition-all shadow-xl"
             >
-              <div className="w-12 h-12 rounded-full bg-yellow-500 flex items-center justify-center text-black group-hover:scale-110 transition-transform shadow-lg shadow-yellow-500/20">
+              <div className="w-12 h-12 rounded-full bg-yellow-500 flex items-center justify-center text-white group-hover:scale-110 transition-transform shadow-lg shadow-yellow-500/20">
                 <Phone size={20} fill="currentColor" />
               </div>
               <div className="text-left">
@@ -90,7 +96,7 @@ export default function HeroSection() {
           <div className="flex flex-wrap items-center justify-center gap-5 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500">
             <Link
               href="/products"
-              className="group bg-yellow-500 hover:bg-yellow-600 text-black px-10 py-4 rounded-full font-bold transition-all flex items-center gap-2 shadow-xl transform hover:-translate-y-1"
+              className="group bg-yellow-500 hover:bg-yellow-600 text-white px-10 py-4 rounded-full font-bold transition-all flex items-center gap-2 shadow-xl transform hover:-translate-y-1"
             >
               <ShoppingCart size={20} />
               <span>Xem sản phẩm</span>
