@@ -3,14 +3,14 @@ import StaticPageWrapper from '../components/StaticPageWrapper'
 import { CheckCircle, Award, Target } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Giới thiệu về Xanh AG | Giải pháp nông nghiệp bền vững',
-  description: 'Xanh AG chuyên cung cấp vật tư nông nghiệp chất lượng cao, giải pháp kỹ thuật canh tác hiện đại và đồng hành cùng bà con nông dân vì một tương lai nông nghiệp xanh.',
-  keywords: ['giới thiệu Xanh AG', 'nông nghiệp xanh', 'vật tư nông nghiệp', 'An Giang', 'giải pháp nông nghiệp'],
+  title: 'Giới thiệu về Xanh AGRI | Giải pháp nông nghiệp bền vững',
+  description: 'Xanh AGRI chuyên cung cấp vật tư nông nghiệp chất lượng cao, giải pháp kỹ thuật canh tác hiện đại và đồng hành cùng bà con nông dân vì một tương lai nông nghiệp xanh.',
+  keywords: ['giới thiệu Xanh AGRI', 'nông nghiệp xanh', 'vật tư nông nghiệp', 'An Giang', 'giải pháp nông nghiệp'],
   openGraph: {
-    title: 'Giới thiệu về Xanh AG | Giải pháp nông nghiệp bền vững',
+    title: 'Giới thiệu về Xanh AGRI | Giải pháp nông nghiệp bền vững',
     description: 'Đồng hành cùng bà con nông dân vì một tương lai nông nghiệp xanh và thịnh vượng.',
     url: 'https://xanh-ag-nextjs-client.vercel.app/about',
-    siteName: 'Xanh AG',
+    siteName: 'Xanh AGRI',
     type: 'website',
   },
 }
@@ -18,16 +18,16 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <StaticPageWrapper 
-      title="Về Xanh AG" 
+      title="Về Xanh AGRI" 
       breadcrumb={[{ label: 'Giới thiệu' }]}
     >
       <section className="space-y-6">
         <h2 className="text-3xl font-bold text-agri-700">Câu chuyện thương hiệu</h2>
         <p>
-          Chào mừng bạn đến với <strong>Xanh AG</strong> - đối tác chiến lược hàng đầu của bà con nông dân trong hành trình kiến tạo nền nông nghiệp bền vững. Xuất thân từ vùng đất An Giang trù phú, chúng tôi thấu hiểu sâu sắc những thách thức cũng như tiềm năng to lớn của nông sản Việt Nam.
+          Chào mừng bạn đến với <strong>Xanh AGRI</strong> - đối tác chiến lược hàng đầu của bà con nông dân trong hành trình kiến tạo nền nông nghiệp bền vững. Xuất thân từ vùng đất An Giang trù phú, chúng tôi thấu hiểu sâu sắc những thách thức cũng như tiềm năng to lớn của nông sản Việt Nam.
         </p>
         <p>
-          Với tâm niệm "Nông nghiệp xanh - Tương lai thịnh", Xanh AG không chỉ dừng lại ở việc cung cấp vật tư, sản phẩm; chúng tôi mang đến những giải pháp toàn diện về kỹ thuật, tư vấn chuyên sâu để tối ưu hóa năng suất và chất lượng sản phẩm cho mọi nhà vườn.
+          Với tâm niệm "Nông nghiệp xanh - Tương lai thịnh", Xanh AGRI không chỉ dừng lại ở việc cung cấp vật tư, sản phẩm; chúng tôi mang đến những giải pháp toàn diện về kỹ thuật, tư vấn chuyên sâu để tối ưu hóa năng suất và chất lượng sản phẩm cho mọi nhà vườn.
         </p>
       </section>
 
@@ -66,7 +66,7 @@ export default function AboutPage() {
             <CheckCircle className="w-6 h-6 text-agri-500 mt-1 flex-shrink-0" />
             <div>
               <h4 className="font-bold text-gray-800">Đồng hành & Tận tâm</h4>
-              <p className="text-sm">Xanh AG luôn sát cánh cùng bà con trong mọi giai đoạn của mùa vụ, từ lúc gieo hạt cho đến khi thu hoạch.</p>
+              <p className="text-sm">Xanh AGRI luôn sát cánh cùng bà con trong mọi giai đoạn của mùa vụ, từ lúc gieo hạt cho đến khi thu hoạch.</p>
             </div>
           </div>
           <div className="flex gap-4 items-start">

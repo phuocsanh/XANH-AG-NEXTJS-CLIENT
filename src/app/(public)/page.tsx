@@ -7,14 +7,14 @@ import { Metadata } from 'next'
 import Block from "@/app/components/Block"
 
 export const metadata: Metadata = {
-  title: 'Xanh AG - Nông nghiệp thông minh | Vật tư nông nghiệp chất lượng',
-  description: 'Xanh AG cung cấp vật tư nông nghiệp chất lượng cao, dự báo thời tiết chính xác, lịch vạn niên và tư vấn kỹ thuật canh tác cho nông dân Việt Nam',
+  title: 'Xanh AGRI - Nông nghiệp thông minh | Vật tư nông nghiệp chất lượng',
+  description: 'Xanh AGRI cung cấp vật tư nông nghiệp chất lượng cao, dự báo thời tiết chính xác, lịch vạn niên và tư vấn kỹ thuật canh tác cho nông dân Việt Nam',
   keywords: ['nông nghiệp', 'vật tư nông nghiệp', 'phân bón', 'thuốc trừ sâu', 'dự báo thời tiết', 'lịch vạn niên'],
   openGraph: {
-    title: 'Xanh AG - Nông nghiệp thông minh',
+    title: 'Xanh AGRI - Nông nghiệp thông minh',
     description: 'Giải pháp nông nghiệp toàn diện cho nông dân Việt Nam',
     url: 'https://xanhag.com',
-    siteName: 'Xanh AG',
+    siteName: 'Xanh AGRI',
     locale: 'vi_VN',
     type: 'website',
   },
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 }
 
 /**
- * Homepage của Xanh AG
+ * Homepage của Xanh AGRI
  */
 async function Page() {
   try {
@@ -43,7 +43,7 @@ async function Page() {
           {/* Latest News - Tin tức nông nghiệp mới nhất */}
           <LatestNews />
           
-           {/* Features Section - Giới thiệu về Xanh AG */}
+           {/* Features Section - Giới thiệu về Xanh AGRI */}
           <FeaturesSection />
         </Block>
       </main>

@@ -134,7 +134,7 @@ export default function ProductShowcase() {
                     <span className="w-2 h-8 bg-agri-500 rounded-full" />
                     {group.type.name}
                   </h3>
-                  <p className="text-gray-500 mt-2 font-medium">Sản phẩm chất lượng cao từ Xanh AG</p>
+                  <p className="text-gray-500 mt-2 font-medium">Sản phẩm chất lượng cao từ Xanh AGRI</p>
                 </div>
                 
                 <Link
@@ -230,7 +230,7 @@ export default function ProductShowcase() {
              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-20 translate-x-20" />
              <div className="relative z-10">
                <h3 className="text-2xl md:text-4xl font-extrabold mb-4 uppercase">Bạn đang tìm kiếm gì khác?</h3>
-               <p className="text-agri-100 mb-8 max-w-xl mx-auto italic font-medium opacity-80">"Xanh AG cam kết mang đến những sản phẩm nông nghiệp sạch, chất lượng và giải pháp canh tác thông minh nhất cho bà con."</p>
+               <p className="text-agri-100 mb-8 max-w-xl mx-auto italic font-medium opacity-80">"Xanh AGRI cam kết mang đến những sản phẩm nông nghiệp sạch, chất lượng và giải pháp canh tác thông minh nhất cho bà con."</p>
                <Link
                 href="/products"
                 className="inline-flex items-center gap-3 bg-yellow-500 hover:bg-yellow-400 text-black px-10 py-4 rounded-2xl font-black transition-all transform hover:scale-105 shadow-xl uppercase tracking-wider"

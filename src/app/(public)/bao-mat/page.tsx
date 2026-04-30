@@ -3,12 +3,12 @@ import StaticPageWrapper from '../components/StaticPageWrapper'
 import { ShieldCheck, Lock, EyeOff, UserCheck } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Chính sách bảo mật thông tin | Xanh AG',
-  description: 'Chính sách bảo mật thông tin khách hàng tại Xanh AG: quy trình thu thập, xử lý và cam kết bảo vệ dữ liệu cá nhân của bà con nông dân khi mua sắm.',
-  keywords: ['chính sách bảo mật', 'bảo vệ thông tin khách hàng', 'bảo mật dữ liệu', 'Xanh AG'],
+  title: 'Chính sách bảo mật thông tin | Xanh AGRI',
+  description: 'Chính sách bảo mật thông tin khách hàng tại Xanh AGRI: quy trình thu thập, xử lý và cam kết bảo vệ dữ liệu cá nhân của bà con nông dân khi mua sắm.',
+  keywords: ['chính sách bảo mật', 'bảo vệ thông tin khách hàng', 'bảo mật dữ liệu', 'Xanh AGRI'],
   openGraph: {
-    title: 'Cam kết bảo mật thông tin tại Xanh AG',
-    description: 'An tâm mua sắm với cam kết bảo vệ dữ liệu cá nhân cao nhất tại Xanh AG.',
+    title: 'Cam kết bảo mật thông tin tại Xanh AGRI',
+    description: 'An tâm mua sắm với cam kết bảo vệ dữ liệu cá nhân cao nhất tại Xanh AGRI.',
     url: 'https://xanh-ag-nextjs-client.vercel.app/bao-mat',
   },
 }
@@ -17,7 +17,7 @@ export default function PrivacyPolicyPage() {
   const sections = [
     {
       title: 'Mục đích thu thập thông tin',
-      content: 'Xanh AG thu thập thông tin khách hàng (Họ tên, SĐT, Địa chỉ) để xử lý đơn hàng, liên hệ tư vấn kỹ thuật và thông báo các chương trình ưu đãi, khuyến mãi mới nhất cho bà con.',
+      content: 'Xanh AGRI thu thập thông tin khách hàng (Họ tên, SĐT, Địa chỉ) để xử lý đơn hàng, liên hệ tư vấn kỹ thuật và thông báo các chương trình ưu đãi, khuyến mãi mới nhất cho bà con.',
       icon: <UserCheck className="w-6 h-6 text-agri-600" />
     },
     {
@@ -27,12 +27,12 @@ export default function PrivacyPolicyPage() {
     },
     {
       title: 'Cam kết bảo mật dữ liệu',
-      content: 'Toàn bộ dữ liệu khách hàng được lưu trữ an toàn trên hệ thống máy chủ bảo mật của Xanh AG. Chúng tôi áp dụng các biện pháp kỹ thuật tiên tiến để phòng tránh việc truy cập trái phép hoặc rò rỉ thông tin.',
+      content: 'Toàn bộ dữ liệu khách hàng được lưu trữ an toàn trên hệ thống máy chủ bảo mật của Xanh AGRI. Chúng tôi áp dụng các biện pháp kỹ thuật tiên tiến để phòng tránh việc truy cập trái phép hoặc rò rỉ thông tin.',
       icon: <Lock className="w-6 h-6 text-agri-600" />
     },
     {
       title: 'Quyền lợi của khách hàng',
-      content: 'Quý khách có quyền yêu cầu truy xuất, chỉnh sửa hoặc xóa bỏ thông tin cá nhân của mình khỏi hệ thống của Xanh AG bất kỳ lúc nào bằng cách liên hệ với bộ phận hỗ trợ khách hàng của chúng tôi.',
+      content: 'Quý khách có quyền yêu cầu truy xuất, chỉnh sửa hoặc xóa bỏ thông tin cá nhân của mình khỏi hệ thống của Xanh AGRI bất kỳ lúc nào bằng cách liên hệ với bộ phận hỗ trợ khách hàng của chúng tôi.',
       icon: <EyeOff className="w-6 h-6 text-agri-600" />
     }
   ]
@@ -44,7 +44,7 @@ export default function PrivacyPolicyPage() {
     >
       <section className="space-y-6">
         <h2 className="text-2xl font-bold text-gray-800 underline decoration-agri-500 decoration-4 underline-offset-10">Sự tin tưởng khơi nguồn thịnh vượng</h2>
-        <p className="text-gray-600 mt-8">Bảo mật thông tin khách hàng là nền tảng cốt lõi trong hoạt động kinh doanh của Xanh AG. Chúng tôi cam kết bảo vệ quyền riêng tư của quý khách một cách tuyệt đối thông qua những quy định cụ thể dưới đây.</p>
+        <p className="text-gray-600 mt-8">Bảo mật thông tin khách hàng là nền tảng cốt lõi trong hoạt động kinh doanh của Xanh AGRI. Chúng tôi cam kết bảo vệ quyền riêng tư của quý khách một cách tuyệt đối thông qua những quy định cụ thể dưới đây.</p>
         
         <div className="space-y-12 mt-12 px-2">
           {sections.map((section, idx) => (

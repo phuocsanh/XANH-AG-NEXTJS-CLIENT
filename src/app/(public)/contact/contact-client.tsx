@@ -15,7 +15,7 @@ export default function ContactPage() {
         <div className="container mx-auto px-4 relative z-10 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Liên Hệ</h1>
           <p className="text-agri-100 max-w-2xl mx-auto text-lg">
-            Xanh AG luôn sẵn sàng lắng nghe và tư vấn giải pháp tốt nhất cho mùa vụ của bạn.
+            Xanh AGRI luôn sẵn sàng lắng nghe và tư vấn giải pháp tốt nhất cho mùa vụ của bạn.
           </p>
         </div>
         {/* Abstract leaf shape decoration */}
@@ -90,7 +90,7 @@ export default function ContactPage() {
             allowFullScreen={true} 
             loading="lazy" 
             referrerPolicy="no-referrer-when-downgrade"
-            title="Vị trí Xanh AG trên Google Maps"
+            title="Vị trí Xanh AGRI trên Google Maps"
             className="rounded-xl"
           ></iframe>
         </div>

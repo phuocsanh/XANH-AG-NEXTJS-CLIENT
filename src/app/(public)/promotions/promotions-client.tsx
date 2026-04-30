@@ -56,7 +56,7 @@ export default function PromotionsClient() {
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Chương Trình Khuyến Mãi</h1>
             <p className="text-xl text-agri-100 mb-0 leading-relaxed">
-              Khám phá những ưu đãi hấp dẫn dành riêng cho bà con nông dân. Đồng hành cùng Xanh AG cho mùa màng bội thu.
+              Khám phá những ưu đãi hấp dẫn dành riêng cho bà con nông dân. Đồng hành cùng Xanh AGRI cho mùa màng bội thu.
             </p>
           </div>
         </div>
@@ -139,7 +139,7 @@ export default function PromotionsClient() {
             <div className="max-w-xl">
               <h2 className="text-3xl font-bold text-gray-800 mb-4">Đừng bỏ lỡ ưu đãi nào!</h2>
               <p className="text-gray-600 text-lg">
-                Đăng ký nhận tin để trở thành người đầu tiên nhận thông tin khuyến mãi và tư vấn kỹ thuật từ Xanh AG.
+                Đăng ký nhận tin để trở thành người đầu tiên nhận thông tin khuyến mãi và tư vấn kỹ thuật từ Xanh AGRI.
               </p>
             </div>
             <div className="flex w-full md:w-auto gap-2">

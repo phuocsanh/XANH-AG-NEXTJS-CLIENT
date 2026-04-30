@@ -10,13 +10,13 @@ import { JsonLd } from "@/components/JsonLd"
 const lexend = Lexend({ subsets: ["latin", "vietnamese"] })
 
 export const metadata: Metadata = {
-  title: "Xanh AG - Nông nghiệp thông minh",
+  title: "Xanh AGRI - Nông nghiệp thông minh",
   description: "Ứng dụng quản lý nông nghiệp thông minh cho nông dân",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Xanh AG",
+    title: "Xanh AGRI",
   },
   icons: {
     apple: "/assets/logo3.png",
@@ -36,7 +36,7 @@ export const viewport = {
 const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'Xanh AG',
+  name: 'Xanh AGRI',
   url: 'https://xanhag.com',
   logo: 'https://xanhag.com/assets/logo3.png',
   description: 'Ứng dụng quản lý nông nghiệp thông minh cho nông dân Việt Nam',

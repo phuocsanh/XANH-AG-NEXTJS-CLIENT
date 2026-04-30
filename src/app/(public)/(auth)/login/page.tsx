@@ -32,7 +32,7 @@ export default function Login() {
             <span className="text-2xl sm:text-3xl font-black text-white">🌾</span>
           </div>
           <div className="hidden sm:block">
-            <h1 className="text-xl font-black text-green-700 tracking-tight">XANH AG</h1>
+            <h1 className="text-xl font-black text-green-700 tracking-tight">XANH AGRI</h1>
             <p className="text-xs text-green-600 font-bold">Nông nghiệp thông minh</p>
           </div>
         </Link>

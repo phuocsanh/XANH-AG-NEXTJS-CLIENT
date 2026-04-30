@@ -3,14 +3,14 @@ import ProductsClient from './products-client'
 import Block from "@/app/components/Block"
 
 export const metadata: Metadata = {
-  title: 'Sản phẩm vật tư nông nghiệp | Xanh AG',
+  title: 'Sản phẩm vật tư nông nghiệp | Xanh AGRI',
   description: 'Danh sách đầy đủ các sản phẩm vật tư nông nghiệp: phân bón, thuốc trừ sâu, thuốc diệt cỏ, chất kích thích sinh trưởng chất lượng cao',
   keywords: ['vật tư nông nghiệp', 'phân bón', 'thuốc trừ sâu', 'thuốc diệt cỏ', 'chất kích thích sinh trưởng'],
   openGraph: {
-    title: 'Sản phẩm vật tư nông nghiệp | Xanh AG',
+    title: 'Sản phẩm vật tư nông nghiệp | Xanh AGRI',
     description: 'Danh sách đầy đủ các sản phẩm vật tư nông nghiệp chất lượng cao',
     url: 'https://xanhag.com/products',
-    siteName: 'Xanh AG',
+    siteName: 'Xanh AGRI',
     locale: 'vi_VN',
     type: 'website',
   },

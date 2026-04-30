@@ -3,11 +3,11 @@ import StaticPageWrapper from '../components/StaticPageWrapper'
 import { Undo2, XCircle, Clock4, CheckCircle } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Chính sách đổi trả hàng | Xanh AG',
-  description: 'Chính sách đổi trả hàng hóa rõ ràng tại Xanh AG: quy trình đổi hàng lỗi, trả hàng không đúng quy cách để bảo vệ quyền lợi khách hàng và bà con nông dân.',
-  keywords: ['chính sách đổi trả', 'đổi trả hàng lỗi', 'quy định mua hàng', 'Xanh AG'],
+  title: 'Chính sách đổi trả hàng | Xanh AGRI',
+  description: 'Chính sách đổi trả hàng hóa rõ ràng tại Xanh AGRI: quy trình đổi hàng lỗi, trả hàng không đúng quy cách để bảo vệ quyền lợi khách hàng và bà con nông dân.',
+  keywords: ['chính sách đổi trả', 'đổi trả hàng lỗi', 'quy định mua hàng', 'Xanh AGRI'],
   openGraph: {
-    title: 'Chính sách đổi trả linh hoạt tại Xanh AG',
+    title: 'Chính sách đổi trả linh hoạt tại Xanh AGRI',
     description: 'Bảo vệ quyền lợi tối đa cho bà con nông dân với quy trình đổi trả đơn giản và minh bạch.',
     url: 'https://xanh-ag-nextjs-client.vercel.app/chinh-sach-doi-tra',
   },
@@ -36,7 +36,7 @@ export default function ExchangePolicyPage() {
     {
       title: 'Thời gian xử lý',
       items: [
-        'Xanh AG sẽ xác nhận và xử lý đổi trả trong vòng 3-5 ngày làm việc.',
+        'Xanh AGRI sẽ xác nhận và xử lý đổi trả trong vòng 3-5 ngày làm việc.',
         'Đối với trường hợp hoàn tiền, thời gian sẽ tùy thuộc vào phương thức thanh toán ban đầu.',
       ],
       icon: <Clock4 className="w-6 h-6 text-agri-600" />
@@ -59,7 +59,7 @@ export default function ExchangePolicyPage() {
     >
       <section className="space-y-6">
         <h2 className="text-2xl font-bold text-gray-800">Quyền lợi khách hàng trên hết</h2>
-        <p className="text-gray-600">Tại Xanh AG, chúng tôi luôn nỗ lực mang lại trải nghiệm mua sắm an tâm tuyệt đối cho khách hàng. Chính sách đổi trả này giúp bảo vệ quyền lợi của bà con khi sản phẩm gặp vấn đề ngoài ý muốn.</p>
+        <p className="text-gray-600">Tại Xanh AGRI, chúng tôi luôn nỗ lực mang lại trải nghiệm mua sắm an tâm tuyệt đối cho khách hàng. Chính sách đổi trả này giúp bảo vệ quyền lợi của bà con khi sản phẩm gặp vấn đề ngoài ý muốn.</p>
         
         <div className="grid md:grid-cols-2 gap-8 mt-12">
           {policies.map((policy, idx) => (
@@ -97,7 +97,7 @@ export default function ExchangePolicyPage() {
           </div>
         </div>
       </div>
-      <p className="text-center text-xs italic text-gray-400">* Lưu ý: Xanh AG có quyền đưa ra quyết định cuối cùng về việc chấp nhận đổi trả dựa trên tình trạng kiểm định thực tế của sản phẩm.</p>
+      <p className="text-center text-xs italic text-gray-400">* Lưu ý: Xanh AGRI có quyền đưa ra quyết định cuối cùng về việc chấp nhận đổi trả dựa trên tình trạng kiểm định thực tế của sản phẩm.</p>
     </StaticPageWrapper>
   )
 }

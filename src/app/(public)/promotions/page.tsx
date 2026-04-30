@@ -3,14 +3,14 @@ import PromotionsClient from './promotions-client'
 import Block from "@/app/components/Block"
 
 export const metadata: Metadata = {
-  title: 'Khuyến mãi - Ưu đãi đặc biệt | Xanh AG',
+  title: 'Khuyến mãi - Ưu đãi đặc biệt | Xanh AGRI',
   description: 'Khám phá các chương trình khuyến mãi, ưu đãi đặc biệt về vật tư nông nghiệp: phân bón, thuốc trừ sâu. Giảm giá lên đến 15%, miễn phí vận chuyển',
   keywords: ['khuyến mãi', 'ưu đãi', 'giảm giá', 'vật tư nông nghiệp', 'phân bón giảm giá'],
   openGraph: {
-    title: 'Khuyến mãi - Ưu đãi đặc biệt | Xanh AG',
+    title: 'Khuyến mãi - Ưu đãi đặc biệt | Xanh AGRI',
     description: 'Ưu đãi hấp dẫn dành riêng cho nông dân',
     url: 'https://xanhag.com/promotions',
-    siteName: 'Xanh AG',
+    siteName: 'Xanh AGRI',
     locale: 'vi_VN',
     type: 'website',
   },

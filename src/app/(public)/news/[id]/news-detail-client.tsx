@@ -123,7 +123,7 @@ export default function NewsDetailClient() {
                   {(news.author || 'A')[0]}
                 </div>
                 <div>
-                  <p className="font-bold text-xs sm:text-sm leading-none mb-1">{news.author || 'Ban biên tập Xanh AG'}</p>
+                  <p className="font-bold text-xs sm:text-sm leading-none mb-1">{news.author || 'Ban biên tập Xanh AGRI'}</p>
                   <p className="text-[10px] sm:text-xs text-white/60">Tác giả chuyên mục Tin tức</p>
                 </div>
               </div>

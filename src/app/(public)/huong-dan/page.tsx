@@ -3,11 +3,11 @@ import StaticPageWrapper from '../components/StaticPageWrapper'
 import { ShoppingCart, ClipboardList, CreditCard, CheckCircle2 } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Hướng dẫn mua hàng | Xanh AG',
-  description: 'Hướng dẫn các bước đặt mua vật tư nông nghiệp tại Xanh AG: từ việc chọn sản phẩm, đặt hàng cho đến thanh toán và nhận hàng thuận tiện nhất.',
-  keywords: ['hướng dẫn mua hàng', 'mua vật tư nông nghiệp', 'đặt hàng nông sản', 'Xanh AG'],
+  title: 'Hướng dẫn mua hàng | Xanh AGRI',
+  description: 'Hướng dẫn các bước đặt mua vật tư nông nghiệp tại Xanh AGRI: từ việc chọn sản phẩm, đặt hàng cho đến thanh toán và nhận hàng thuận tiện nhất.',
+  keywords: ['hướng dẫn mua hàng', 'mua vật tư nông nghiệp', 'đặt hàng nông sản', 'Xanh AGRI'],
   openGraph: {
-    title: 'Hướng dẫn mua hàng tại Xanh AG',
+    title: 'Hướng dẫn mua hàng tại Xanh AGRI',
     description: 'Quy trình đặt hàng dễ dàng và nhanh chóng giúp bà con sở hữu những sản phẩm nông nghiệp tốt nhất.',
     url: 'https://xanh-ag-nextjs-client.vercel.app/huong-dan',
   },
@@ -17,7 +17,7 @@ export default function GuidePage() {
   const steps = [
     {
       title: 'Bước 1: Chọn sản phẩm',
-      desc: 'Tìm kiếm hoặc lựa chọn các sản phẩm vật tư nông nghiệp (phân bón, thuốc bảo vệ thực vật, hạt giống...) mà bạn cần trong danh mục sản phẩm của Xanh AG.',
+      desc: 'Tìm kiếm hoặc lựa chọn các sản phẩm vật tư nông nghiệp (phân bón, thuốc bảo vệ thực vật, hạt giống...) mà bạn cần trong danh mục sản phẩm của Xanh AGRI.',
       icon: <ShoppingCart className="w-8 h-8" />
     },
     {
@@ -32,7 +32,7 @@ export default function GuidePage() {
     },
     {
       title: 'Bước 4: Xác nhận & Nhận hàng',
-      desc: 'Sau khi nhận đơn, nhân viên tư vấn của Xanh AG sẽ liên hệ xác nhận và tiến hành đóng gói giao hàng cho bạn trong thời gian sớm nhất.',
+      desc: 'Sau khi nhận đơn, nhân viên tư vấn của Xanh AGRI sẽ liên hệ xác nhận và tiến hành đóng gói giao hàng cho bạn trong thời gian sớm nhất.',
       icon: <CheckCircle2 className="w-8 h-8" />
     }
   ]
@@ -44,7 +44,7 @@ export default function GuidePage() {
     >
       <section className="space-y-6">
         <h2 className="text-2xl font-bold text-gray-800">Quy trình đặt hàng đơn giản</h2>
-        <p className="text-gray-600">Xanh AG luôn nỗ lực tối giản hóa quy trình để bà con có thể tiếp cận với vật tư nông nghiệp chất lượng một cách nhanh chóng nhất.</p>
+        <p className="text-gray-600">Xanh AGRI luôn nỗ lực tối giản hóa quy trình để bà con có thể tiếp cận với vật tư nông nghiệp chất lượng một cách nhanh chóng nhất.</p>
         
         <div className="space-y-8 mt-10">
           {steps.map((step, idx) => (
@@ -74,7 +74,7 @@ export default function GuidePage() {
 
       <section>
         <h3 className="text-xl font-bold text-gray-800 mb-6 underline decoration-accent-gold decoration-4 underline-offset-8">Giao hàng & Theo dõi vận chuyển</h3>
-        <p className="text-sm">Xanh AG hợp tác với các đơn vị vận chuyển uy tín để đảm bảo hàng hóa được giao nguyên vẹn và đúng lịch hẹn. Bạn sẽ được cung cấp mã theo dõi vận chuyển (nếu có) sau khi đơn hàng được gửi đi.</p>
+        <p className="text-sm">Xanh AGRI hợp tác với các đơn vị vận chuyển uy tín để đảm bảo hàng hóa được giao nguyên vẹn và đúng lịch hẹn. Bạn sẽ được cung cấp mã theo dõi vận chuyển (nếu có) sau khi đơn hàng được gửi đi.</p>
       </section>
     </StaticPageWrapper>
   )

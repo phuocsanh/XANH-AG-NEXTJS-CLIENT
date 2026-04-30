@@ -71,7 +71,7 @@ export default function NewsClient() {
         <div className="container mx-auto px-4 relative z-10">
           <h1 className="text-3xl md:text-6xl font-bold mb-6 text-center text-white tracking-tight">Kỹ Thuật & Tin Tức</h1>
           <p className="text-agri-100 text-center max-w-2xl mx-auto text-sm md:text-lg leading-relaxed">
-            Cập nhật những thông tin mới nhất về kỹ thuật canh tác, thị trường nông sản và các giải pháp nông nghiệp bền vững từ chuyên gia Xanh AG.
+            Cập nhật những thông tin mới nhất về kỹ thuật canh tác, thị trường nông sản và các giải pháp nông nghiệp bền vững từ chuyên gia Xanh AGRI.
           </p>
         </div>
       </header>

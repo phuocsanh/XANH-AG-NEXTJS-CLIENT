@@ -3,14 +3,14 @@ import WeatherClient from './weather-client'
 import Block from "@/app/components/Block"
 
 export const metadata: Metadata = {
-  title: 'Dự báo thời tiết nông nghiệp | Xanh AG',
+  title: 'Dự báo thời tiết nông nghiệp | Xanh AGRI',
   description: 'Dự báo thời tiết chính xác 7 ngày, phân tích điều kiện thời tiết phù hợp cho phun thuốc và canh tác. Cập nhật theo giờ với khả năng mưa, nhiệt độ, độ ẩm và gió',
   keywords: ['dự báo thời tiết', 'thời tiết nông nghiệp', 'thời tiết phun thuốc', 'dự báo mưa', 'nhiệt độ'],
   openGraph: {
-    title: 'Dự báo thời tiết nông nghiệp | Xanh AG',
+    title: 'Dự báo thời tiết nông nghiệp | Xanh AGRI',
     description: 'Dự báo thời tiết chính xác 7 ngày cho nông dân',
     url: 'https://xanhag.com/weather-forecast',
-    siteName: 'Xanh AG',
+    siteName: 'Xanh AGRI',
     locale: 'vi_VN',
     type: 'website',
   },

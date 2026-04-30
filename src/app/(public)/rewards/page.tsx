@@ -62,7 +62,7 @@ export default function RewardsPage() {
             <div className="text-center md:text-left">
               <h1 className="text-2xl md:text-3xl font-bold">Xin chào, {user.user_profile?.nickname || user.account}!</h1>
               <p className="opacity-90 flex items-center justify-center md:justify-start gap-2 mt-1 font-medium">
-                <CheckCircle2 size={16} /> Thành viên thân thiết Xanh AG
+                <CheckCircle2 size={16} /> Thành viên thân thiết Xanh AGRI
               </p>
             </div>
           </div>
@@ -157,7 +157,7 @@ export default function RewardsPage() {
                 <div>
                   <h3 className="font-bold text-white text-xl">Chương trình tri ân nhà nông</h3>
                   <p className="text-emerald-50 mt-2 leading-relaxed font-light">
-                    Cám ơn chú đã tin tưởng đồng hành cùng Xanh AG. Khi chú đạt mốc tích lũy <span className="font-bold text-yellow-300">60 Triệu đồng</span>, 
+                    Cám ơn chú đã tin tưởng đồng hành cùng Xanh AGRI. Khi chú đạt mốc tích lũy <span className="font-bold text-yellow-300">60 Triệu đồng</span>, 
                     hệ thống sẽ gửi tặng chú một phần quà tri ân thay lời cảm ơn chân thành.
                   </p>
                 </div>

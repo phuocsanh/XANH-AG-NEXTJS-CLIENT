@@ -97,7 +97,7 @@ export default function Navbar() {
             >
               <div className='relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-white shadow-sm border border-emerald-600/20 transition-transform hover:scale-105'>
                 <Img
-                  alt='Xanh AG Logo'
+                  alt='Xanh AGRI Logo'
                   src='/assets/logo3.png'
                   fill
                   className='bg-transparent p-1'

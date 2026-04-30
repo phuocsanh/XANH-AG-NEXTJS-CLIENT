@@ -35,11 +35,11 @@ export async function generateMetadata(
   
   const cleanDescription = news?.content 
         ? news.content.replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim().substring(0, 160) + '...'
-        : 'Chia sẻ kiến thức kỹ thuật nông nghiệp, kinh nghiệm canh tác và giải pháp nông nghiệp bền vững từ chuyên gia Xanh AG.'
+        : 'Chia sẻ kiến thức kỹ thuật nông nghiệp, kinh nghiệm canh tác và giải pháp nông nghiệp bền vững từ chuyên gia Xanh AGRI.'
 
   const title = news?.title 
-    ? `${news.title} | Xanh AG` 
-    : 'Chi tiết tin tức nông nghiệp | Xanh AG'
+    ? `${news.title} | Xanh AGRI` 
+    : 'Chi tiết tin tức nông nghiệp | Xanh AGRI'
     
   return {
     title,
@@ -79,12 +79,12 @@ export default async function NewsDetailPage({ params }: Props) {
     dateModified: news.updated_at || news.created_at,
     author: [{
       '@type': 'Person',
-      name: news.author || 'Ban biên tập Xanh AG',
+      name: news.author || 'Ban biên tập Xanh AGRI',
       url: 'https://xanhag.com',
     }],
     publisher: {
       '@type': 'Organization',
-      name: 'Xanh AG',
+      name: 'Xanh AGRI',
       logo: {
         '@type': 'ImageObject',
         url: 'https://xanhag.com/logo.png', // Assuming logo path

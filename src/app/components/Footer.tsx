@@ -13,7 +13,7 @@ const footerLinks = {
     { name: "Điều khoản sử dụng", href: "/dieu-khoan" },
   ],
   company: [
-    { name: "Giới thiệu Xanh AG", href: "/about" },
+    { name: "Giới thiệu Xanh AGRI", href: "/about" },
     { name: "Sản phẩm", href: "/products" },
     { name: "Tin tức", href: "/news" },
     { name: "Liên hệ", href: "/contact" },
@@ -31,7 +31,7 @@ export default function Footer() {
               <div className="flex items-center gap-3">
                 <div className="w-16 h-16 bg-white rounded-full p-1 overflow-hidden">
                   <Img
-                    alt="Xanh AG Logo"
+                    alt="Xanh AGRI Logo"
                     src="/assets/logo3.png"
                     fill
                     className="bg-transparent"
@@ -39,12 +39,12 @@ export default function Footer() {
                   />
                 </div>
                 <span className="text-2xl font-bold tracking-tight text-white uppercase">
-                  Xanh <span className="text-agri-400">AG</span>
+                  Xanh <span className="text-agri-400">AGRI</span>
                 </span>
               </div>
             </Link>
             <p className="text-agri-100/80 leading-relaxed">
-              Xanh AG - Giải pháp nông nghiệp xanh, bền vững. Chúng tôi cung cấp vật tư nông nghiệp chất lượng cao cho bà con nông dân.
+              Xanh AGRI - Giải pháp nông nghiệp xanh, bền vững. Chúng tôi cung cấp vật tư nông nghiệp chất lượng cao cho bà con nông dân.
             </p>
             <div className="flex items-center gap-4">
               <a href="#" className="w-10 h-10 rounded-full bg-agri-700 flex items-center justify-center hover:bg-agri-600 transition-colors shadow-lg">
@@ -59,7 +59,7 @@ export default function Footer() {
           {/* Quick Links */}
           <div>
             <h3 className="text-lg font-bold mb-6 relative inline-block">
-              Về Xanh AG
+              Về Xanh AGRI
               <span className="absolute -bottom-2 left-0 w-12 h-1 bg-accent-gold rounded-full"></span>
             </h3>
             <ul className="space-y-4">
@@ -119,7 +119,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-agri-700/50 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-agri-100/60">
-          <p>© {new Date().getFullYear()} Xanh AG. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Xanh AGRI. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <Link href="/bao-mat" className="hover:text-white transition-colors">Bảo mật</Link>
             <Link href="/dieu-khoan" className="hover:text-white transition-colors">Điều khoản</Link>
