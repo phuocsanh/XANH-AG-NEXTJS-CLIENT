@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Phone, MapPin, ShoppingCart, MessageSquare, ChevronRight, ShieldCheck } from 'lucide-react'
+import { Phone, MapPin, ShoppingCart, MessageSquare, ChevronRight, ShieldCheck, Star } from 'lucide-react'
 import Img from '@/app/components/Img'
 
 /**
@@ -30,13 +30,26 @@ export default function HeroSection() {
             <span>Đối tác tin cậy của nhà nông</span>
           </div>
 
-          {/* Main Heading - Trắng & Xanh lá Header */}
+          {/* Main Heading - Trắng & Xanh lá Header với hiệu ứng cao cấp */}
           <h1 
             className="text-white font-black text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4 leading-tight animate-in fade-in slide-in-from-left-4 duration-700 delay-100 uppercase"
             style={{ textShadow: '0 4px 12px rgba(0,0,0,0.4)' }}
           >
             <span className="block sm:inline whitespace-nowrap">Cửa hàng Vật tư Nông nghiệp</span> <br />
-            <span className="text-[#059669]">XANH</span>
+            <span 
+              className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#059669] via-[#84cc16] to-[#059669] bg-[length:200%_auto] animate-shine text-5xl sm:text-6xl md:text-7xl lg:text-8xl pt-2"
+              style={{ 
+                filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.6)) drop-shadow(0 0 15px rgba(16,185,129,0.4))',
+                WebkitTextStroke: '0.5px rgba(255,255,255,0.1)'
+              }}
+            >
+              XANH
+              {/* Ánh sao lấp lánh */}
+              <Star className="absolute -top-1 left-2 w-4 h-4 text-white animate-pulse opacity-70 blur-[1px]" fill="white" />
+              <Star className="absolute top-1/2 -right-2 w-3 h-3 text-yellow-200 animate-bounce opacity-80" fill="currentColor" style={{ animationDuration: '3s' }} />
+              <Star className="absolute -bottom-2 left-1/3 w-3 h-3 text-white animate-pulse opacity-60" fill="white" style={{ animationDelay: '1s' }} />
+              <Star className="absolute top-0 right-1/4 w-2 h-2 text-yellow-100 animate-pulse" fill="white" style={{ animationDelay: '0.5s' }} />
+            </span>
           </h1>
 
           {/* Subheading - Trắng sáng có bóng đổ */}
