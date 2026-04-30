@@ -1,53 +1,97 @@
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import http from "@/lib/http"
 
-export interface RewardTracking {
-  pending_amount: number
-  total_accumulated: number
-  reward_count: number
-  reward_threshold: number
-  shortage_to_next: number
-  last_reward_date?: string
+export interface PromotionFeaturedReward {
+  rewardName: string
+  rewardValue: number
 }
 
-export interface RewardHistoryItem {
+export interface PromotionProgressItem {
+  promotionId: number
+  promotionName: string
+  startAt: string
+  endAt: string
+  thresholdAmount: number
+  qualifiedAmount: number
+  remainingAmount: number
+  earnedSpinCount: number
+  usedSpinCount: number
+  remainingSpinCount: number
+  winCount: number
+  featuredRewards: PromotionFeaturedReward[]
+  statusLabel: string
+}
+
+export interface PromotionProgressResponse {
+  items: PromotionProgressItem[]
+}
+
+export interface PromotionSpinLogItem {
   id: number
-  reward_date: string
-  gift_description: string
-  accumulated_amount: number
-  season_names: string[]
+  resultType: "win" | "lose"
+  rewardName?: string | null
+  rewardValue: number
+  spunAt: string
+  note?: string | null
 }
 
-export interface RewardHistoryResponse {
-  items: RewardHistoryItem[]
-  total: number
-  page: number
-  limit: number
+export interface PromotionSpinLogResponse {
+  items: PromotionSpinLogItem[]
 }
 
-/**
- * Hook lấy thông tin tích lũy của tôi
- */
-export function useMyRewardTracking() {
+export interface SpinResultResponse {
+  success: boolean
+  appliedRate: number
+  resultType: "win" | "lose"
+  remainingSpinCount: number
+  winCount: number
+  reward: {
+    rewardName: string
+    rewardValue: number
+  } | null
+  message: string
+}
+
+export function useMyPromotionProgress() {
   return useQuery({
-    queryKey: ["my-reward-tracking"],
+    queryKey: ["my-promotion-progress"],
     queryFn: async () => {
-      const response = await http.get<{ data: RewardTracking }>("/customer-rewards/my-tracking")
+      const response = await http.get<{ data: PromotionProgressResponse }>("/promotion-campaigns/my-progress")
       return response.data
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 60 * 1000,
   })
 }
 
-/**
- * Hook lấy lịch sử nhận quà của tôi
- */
-export function useMyRewardHistory(page: number = 1, limit: number = 10) {
+export function useMyPromotionSpinLogs(promotionId?: number | null) {
   return useQuery({
-    queryKey: ["my-reward-history", page, limit],
+    queryKey: ["my-promotion-spin-logs", promotionId],
     queryFn: async () => {
-      const response = await http.get<{ data: RewardHistoryResponse }>(`/customer-rewards/my-history?page=${page}&limit=${limit}`)
+      const response = await http.get<{ data: PromotionSpinLogResponse }>(
+        `/promotion-campaigns/${promotionId}/my-spins`,
+      )
       return response.data
+    },
+    enabled: !!promotionId,
+  })
+}
+
+export function useSpinPromotionMutation() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (promotionId: number) => {
+      const response = await http.post<{ data: SpinResultResponse }>(
+        `/promotion-campaigns/${promotionId}/spin`,
+        {},
+      )
+      return response.data
+    },
+    onSuccess: (_data, promotionId) => {
+      queryClient.invalidateQueries({ queryKey: ["my-promotion-progress"] })
+      queryClient.invalidateQueries({
+        queryKey: ["my-promotion-spin-logs", promotionId],
+      })
     },
   })
 }

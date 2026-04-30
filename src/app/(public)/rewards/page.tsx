@@ -1,275 +1,386 @@
 "use client"
 
-import { useMyRewardTracking, useMyRewardHistory } from "@/hooks/use-rewards"
-import { useCurrentUser } from "@/hooks/use-user-profile"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Gift, History, Award, CheckCircle2, AlertCircle, Calendar, Star } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useState } from "react"
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
-import { useState } from "react"
-import { Skeleton } from "@/components/ui/skeleton"
+import {
+  AlertCircle,
+  ArrowLeft,
+  Calendar,
+  Gift,
+  History,
+  Sparkles,
+  Trophy,
+} from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useCurrentUser } from "@/hooks/use-user-profile"
+import {
+  useMyPromotionProgress,
+  useMyPromotionSpinLogs,
+  useSpinPromotionMutation,
+} from "@/hooks/use-rewards"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+    maximumFractionDigits: 0,
+  }).format(amount)
 
 export default function RewardsPage() {
   const router = useRouter()
-  const [page, setPage] = useState(1)
   const { data: user } = useCurrentUser()
-  const { data: tracking, isLoading: isTrackingLoading } = useMyRewardTracking()
-  const { data: history, isLoading: isHistoryLoading } = useMyRewardHistory(page)
+  const { data: progressData, isLoading } = useMyPromotionProgress()
+  const spinMutation = useSpinPromotionMutation()
 
-  const threshold = tracking?.reward_threshold || 60000000 // Fallback 60 Triệu nếu chưa load kịp
+  const [selectedPromotionId, setSelectedPromotionId] = useState<number | null>(null)
+  const [isSpinDialogOpen, setIsSpinDialogOpen] = useState(false)
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(amount)
+  const { data: spinLogsData, isLoading: isSpinLogsLoading } =
+    useMyPromotionSpinLogs(selectedPromotionId)
+
+  const selectedCampaign =
+    progressData?.items.find((item) => item.promotionId === selectedPromotionId) || null
+
+  const handleOpenSpinDialog = (promotionId: number) => {
+    setSelectedPromotionId(promotionId)
+    setIsSpinDialogOpen(true)
   }
 
-  // Nếu chưa login hoặc đang load user
+  const handleSpin = async () => {
+    if (!selectedPromotionId) return
+    await spinMutation.mutateAsync(selectedPromotionId)
+  }
+
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
         <AlertCircle className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
         <h2 className="text-xl font-bold">Vui lòng đăng nhập</h2>
-        <p className="text-muted-foreground mt-2">Bạn cần đăng nhập để xem thông tin tích lũy và quà tặng.</p>
+        <p className="text-muted-foreground mt-2">
+          Bạn cần đăng nhập để xem tích lũy và quay thưởng.
+        </p>
       </div>
     )
   }
 
+  const campaigns = progressData?.items || []
+
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20">
-      {/* Header Profile Section */}
       <div className="bg-gradient-to-r from-emerald-600 to-teal-500 pt-10 pb-24 px-4 text-white">
-        <div className="container mx-auto max-w-4xl">
-          <div className="flex flex-col md:flex-row items-center gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <Button 
-                variant="outline" 
-                size="icon" 
-                className="rounded-full bg-white/20 border-white/30 text-white hover:bg-white/30 shrink-0"
-                onClick={() => router.back()}
-              >
-                <ArrowLeft className="h-4 w-4" />
+        <div className="container mx-auto max-w-5xl">
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <Button
+              variant="outline"
+              size="icon"
+              className="rounded-full bg-white/20 border-white/30 text-white hover:bg-white/30 shrink-0"
+              onClick={() => router.back()}
+            >
+              <ArrowLeft className="h-4 w-4" />
             </Button>
             <div className="h-20 w-20 rounded-full border-4 border-white/30 bg-white/20 flex items-center justify-center text-3xl font-bold shadow-xl backdrop-blur-sm">
               {user.user_profile?.nickname?.charAt(0).toUpperCase() || user.account.charAt(0).toUpperCase()}
             </div>
             <div className="text-center md:text-left">
-              <h1 className="text-2xl md:text-3xl font-bold">Xin chào, {user.user_profile?.nickname || user.account}!</h1>
+              <h1 className="text-2xl md:text-3xl font-bold">
+                Xin chào, {user.user_profile?.nickname || user.account}!
+              </h1>
               <p className="opacity-90 flex items-center justify-center md:justify-start gap-2 mt-1 font-medium">
-                <CheckCircle2 size={16} /> Thành viên thân thiết Xanh AGRI
+                <Sparkles size={16} /> Tích lũy mua hàng, nhận lượt quay và săn quà
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto max-w-4xl px-4 -mt-16">
+      <div className="container mx-auto max-w-5xl px-4 -mt-16">
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 bg-white/80 backdrop-blur shadow-sm border border-slate-200 p-1 h-12 rounded-xl">
-            <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-emerald-500 data-[state=active]:text-white transition-all font-bold">
-              <Star size={16} className="mr-2" /> Tích lũy hiện tại
+            <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-emerald-500 data-[state=active]:text-white font-bold">
+              <Sparkles size={16} className="mr-2" /> Campaign của tôi
             </TabsTrigger>
-            <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-emerald-500 data-[state=active]:text-white transition-all font-bold">
-              <History size={16} className="mr-2" /> Lịch sử quà tặng
+            <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-emerald-500 data-[state=active]:text-white font-bold">
+              <History size={16} className="mr-2" /> Lịch sử quay
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="space-y-6 outline-none">
-            {/* Main Progress Card */}
-            <Card className="border-none shadow-xl border-slate-100 overflow-hidden bg-white rounded-2xl">
-              <CardHeader className="bg-emerald-50/50 border-b border-emerald-100 p-4 md:p-6">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="flex items-center gap-2 text-emerald-800 text-base md:text-xl">
-                    <Gift className="text-emerald-500 w-5 h-5 md:w-6 md:h-6" />
-                    Tiến trình nhận quà
-                  </CardTitle>
-                  <Badge variant="outline" className="border-emerald-200 text-emerald-700 bg-white px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs">
-                    Mốc {Math.round(threshold / 1000000)} triệu
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-6 md:pt-8 p-4 md:p-6">
-                {isTrackingLoading ? (
-                  <div className="space-y-4">
-                    <Skeleton className="h-8 w-full" />
-                    <Skeleton className="h-4 w-2/3" />
+          <TabsContent value="overview" className="space-y-6">
+            {isLoading ? (
+              <Card className="border-none shadow-xl bg-white rounded-2xl">
+                <CardContent className="pt-6 p-6 space-y-4">
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-32 w-full" />
+                  <Skeleton className="h-32 w-full" />
+                </CardContent>
+              </Card>
+            ) : campaigns.length === 0 ? (
+              <Card className="border-none shadow-xl bg-white rounded-2xl">
+                <CardContent className="p-10 text-center">
+                  <div className="bg-slate-50 h-20 w-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Gift className="h-10 w-10 text-slate-300" />
                   </div>
-                ) : (
-                  <div className="space-y-8 md:space-y-10">
-                    <div className="space-y-6">
-                      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 md:gap-0">
-                        <div className="space-y-1">
-                          <p className="text-[10px] md:text-sm font-bold text-slate-400 uppercase tracking-tight md:tracking-tighter">Tích lũy đến hiện tại</p>
-                          <p className="text-2xl md:text-4xl font-black text-emerald-600 tabular-nums">
-                            {formatCurrency(Number(tracking?.pending_amount || 0))}
-                          </p>
-                        </div>
-                        <div className="md:text-right space-y-1 p-3 rounded-xl bg-orange-50 border border-orange-100 md:bg-transparent md:border-none">
-                          <p className="text-[10px] md:text-sm font-bold text-slate-400 uppercase tracking-tight md:tracking-tighter">Còn thiếu đến quà tặng kế</p>
-                          <p className="text-lg md:text-xl font-bold text-orange-500 tabular-nums">
-                            {formatCurrency(tracking?.shortage_to_next || 0)}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="relative pt-2">
-                        <Progress 
-                          value={Math.min(
-                            Math.round((Number(tracking?.pending_amount || 0) / threshold) * 100),
-                            100
-                          )} 
-                          className="h-4 md:h-5 bg-slate-100 rounded-full [&>div]:bg-gradient-to-r [&>div]:from-emerald-400 [&>div]:to-emerald-600"
-                        />
-                        <div className="flex justify-between mt-3 text-[10px] md:text-xs font-bold text-slate-400 uppercase">
-                          <span>0 đ</span>
-                          <span className="text-emerald-600">Mục tiêu: {Math.round(threshold / 1000000)} Triệu đ</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 md:gap-4 pt-6 border-t border-slate-100">
-                      <div className="text-left md:text-center p-3 md:p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100/50 transition-colors hover:bg-emerald-50">
-                        <p className="text-[10px] text-emerald-700/60 mb-1 uppercase tracking-wider font-bold">Tổng tích lũy</p>
-                        <p className="text-sm md:text-xl font-black text-slate-700">{formatCurrency(Number(tracking?.total_accumulated || 0))}</p>
-                      </div>
-                      <div className="text-left md:text-center p-3 md:p-4 rounded-2xl bg-amber-50/50 border border-amber-100/50 transition-colors hover:bg-amber-50">
-                        <p className="text-[10px] text-amber-700/60 mb-1 uppercase tracking-wider font-bold">Quà đã nhận</p>
-                        <p className="text-sm md:text-xl font-black text-amber-900">{tracking?.reward_count || 0} lần</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            <div className="bg-emerald-600 rounded-2xl p-6 border border-emerald-700 shadow-xl text-white relative overflow-hidden group">
-              <div className="absolute top-0 right-0 -mt-4 -mr-4 bg-white/10 h-24 w-24 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
-              <div className="flex gap-5 relative z-10">
-                <div className="bg-white/20 h-12 w-12 shrink-0 rounded-2xl flex items-center justify-center text-white backdrop-blur-md border border-white/20">
-                  <Award size={28} />
-                </div>
-                <div>
-                  <h3 className="font-bold text-white text-xl">Chương trình tri ân nhà nông</h3>
-                  <p className="text-emerald-50 mt-2 leading-relaxed font-light">
-                    Cám ơn chú đã tin tưởng đồng hành cùng Xanh AGRI. Khi chú đạt mốc tích lũy <span className="font-bold text-yellow-300">60 Triệu đồng</span>, 
-                    hệ thống sẽ gửi tặng chú một phần quà tri ân thay lời cảm ơn chân thành.
+                  <h3 className="text-xl font-bold text-slate-800">
+                    Bạn chưa tham gia campaign nào
+                  </h3>
+                  <p className="text-slate-500 mt-2">
+                    Khi có mua hàng thuộc campaign, tiến độ và lượt quay sẽ hiển thị tại đây.
                   </p>
-                </div>
-              </div>
-            </div>
+                </CardContent>
+              </Card>
+            ) : (
+              campaigns.map((campaign) => {
+                const progress =
+                  campaign.thresholdAmount > 0
+                    ? Math.min(
+                        Math.round((campaign.qualifiedAmount / campaign.thresholdAmount) * 100),
+                        100,
+                      )
+                    : 0
+
+                return (
+                  <Card key={campaign.promotionId} className="border-none shadow-xl bg-white rounded-2xl">
+                    <CardHeader className="bg-emerald-50/50 border-b border-emerald-100 p-4 md:p-6">
+                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <CardTitle className="flex items-center gap-2 text-emerald-800 text-base md:text-xl">
+                            <Gift className="text-emerald-500 w-5 h-5 md:w-6 md:h-6" />
+                            {campaign.promotionName}
+                          </CardTitle>
+                          <CardDescription className="mt-2 text-slate-600">
+                            {format(new Date(campaign.startAt), "dd/MM/yyyy", { locale: vi })} -{" "}
+                            {format(new Date(campaign.endAt), "dd/MM/yyyy", { locale: vi })}
+                          </CardDescription>
+                        </div>
+                        <Badge variant="outline" className="border-emerald-200 text-emerald-700 bg-white">
+                          {campaign.statusLabel}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-6 p-4 md:p-6 space-y-6">
+                      <div className="grid gap-4 md:grid-cols-3">
+                        <div className="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4">
+                          <p className="text-xs font-bold uppercase tracking-wider text-emerald-700/70">
+                            Đã tích lũy
+                          </p>
+                          <p className="mt-1 text-2xl font-black text-slate-800">
+                            {formatCurrency(campaign.qualifiedAmount)}
+                          </p>
+                          <p className="text-sm text-slate-500">
+                            Mốc 1 lượt: {formatCurrency(campaign.thresholdAmount)}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl border border-orange-100 bg-orange-50/50 p-4">
+                          <p className="text-xs font-bold uppercase tracking-wider text-orange-700/70">
+                            Lượt quay
+                          </p>
+                          <p className="mt-1 text-2xl font-black text-slate-800">
+                            {campaign.remainingSpinCount}
+                          </p>
+                          <p className="text-sm text-slate-500">
+                            Đã có {campaign.earnedSpinCount} · Đã dùng {campaign.usedSpinCount}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl border border-sky-100 bg-sky-50/50 p-4">
+                          <p className="text-xs font-bold uppercase tracking-wider text-sky-700/70">
+                            Đã trúng
+                          </p>
+                          <p className="mt-1 text-2xl font-black text-slate-800">
+                            {campaign.winCount} lần
+                          </p>
+                          <p className="text-sm text-slate-500">
+                            Tỉ lệ trúng thực tế tự tăng hoặc giảm theo quota tháng còn lại
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between text-xs font-bold uppercase text-slate-400">
+                          <span>{formatCurrency(campaign.qualifiedAmount)}</span>
+                          <span>Mục tiêu: {formatCurrency(campaign.thresholdAmount)}</span>
+                        </div>
+                        <Progress
+                          value={progress}
+                          className="h-4 bg-slate-100 rounded-full [&>div]:bg-gradient-to-r [&>div]:from-emerald-400 [&>div]:to-emerald-600"
+                        />
+                      </div>
+
+                      <div className="rounded-2xl border border-slate-100 p-4">
+                        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                          Quà nổi bật
+                        </p>
+                        <div className="mt-3 grid gap-3 md:grid-cols-3">
+                          {campaign.featuredRewards.map((reward) => (
+                            <div key={`${campaign.promotionId}-${reward.rewardName}`} className="rounded-xl bg-slate-50 p-3">
+                              <p className="font-semibold text-slate-800">{reward.rewardName}</p>
+                              <p className="text-sm text-orange-500">{formatCurrency(reward.rewardValue)}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end">
+                        <Button
+                          onClick={() => handleOpenSpinDialog(campaign.promotionId)}
+                          disabled={campaign.remainingSpinCount <= 0}
+                          className="bg-emerald-600 hover:bg-emerald-700"
+                        >
+                          <Sparkles className="mr-2 h-4 w-4" />
+                          Quay ngay
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })
+            )}
           </TabsContent>
 
-          <TabsContent value="history" className="outline-none">
-            <Card className="border-none shadow-xl bg-white overflow-hidden rounded-2xl">
+          <TabsContent value="history">
+            <Card className="border-none shadow-xl bg-white rounded-2xl">
               <CardHeader className="bg-slate-50 border-b border-slate-100">
                 <CardTitle className="text-slate-800 flex items-center gap-2">
-                  <Gift className="text-orange-500" />
-                  Lịch sử tri ân
+                  <History className="text-orange-500" />
+                  Lịch sử quay gần nhất
                 </CardTitle>
-                <CardDescription className="font-medium text-slate-500">
-                  Danh sách những món quà chú đã nhận từ cửa hàng
-                </CardDescription>
+                <CardDescription>Chọn một campaign để xem chi tiết các lượt quay của bạn.</CardDescription>
               </CardHeader>
-              <CardContent className="p-0">
-                {isHistoryLoading ? (
-                  <div className="p-6 space-y-4">
-                    <Skeleton className="h-20 w-full rounded-xl" />
-                    <Skeleton className="h-20 w-full rounded-xl" />
-                    <Skeleton className="h-20 w-full rounded-xl" />
-                  </div>
-                ) : history?.items?.length === 0 ? (
-                  <div className="p-16 text-center">
-                    <div className="bg-slate-50 h-20 w-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                       <AlertCircle className="h-10 w-10 text-slate-300" />
-                    </div>
-                    <p className="text-slate-500 font-medium">Chú chưa nhận món quà nào. Hãy tiếp tục ủng hộ cửa hàng chú nhé!</p>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-slate-50">
-                    {history?.items?.map((item) => (
-                      <div 
-                        key={item.id} 
-                        className="p-4 md:p-8 hover:bg-slate-50/80 transition-all group border-l-4 border-transparent hover:border-emerald-500"
-                      >
-                        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-                          <div className="flex gap-4 md:gap-5 w-full sm:w-auto">
-                            <div className="h-12 w-12 md:h-14 md:w-14 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shrink-0 group-hover:scale-110 transition-transform duration-300">
-                              <Gift className="w-6 h-6 md:w-7 md:h-7" />
-                            </div>
-                            <div className="space-y-2 flex-grow">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <h4 className="font-black text-slate-800 text-lg md:text-xl leading-tight">
-                                  {item.gift_description}
-                                </h4>
-                                <Badge className="sm:hidden bg-emerald-600 shadow-sm uppercase tracking-widest text-[8px] px-2 py-0.5">Thành công</Badge>
-                              </div>
-                              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs md:text-sm">
-                                <span className="flex items-center gap-1.5 font-bold text-slate-400">
-                                  <Calendar size={14} className="md:w-4 md:h-4" />
-                                  Ngày {format(new Date(item.reward_date), 'dd/MM/yyyy', { locale: vi })}
-                                </span>
-                                {item.season_names?.length > 0 && (
-                                  <div className="flex items-center gap-2">
-                                     <span className="text-slate-400 font-bold tracking-tighter uppercase text-[9px] md:text-[10px]">Từ vụ:</span>
-                                     <div className="flex flex-wrap gap-1">
-                                       {item.season_names.map((name, i) => (
-                                         <Badge key={i} className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-100 shadow-none font-bold text-[10px]">
-                                           {name}
-                                         </Badge>
-                                       ))}
-                                     </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <Badge className="hidden sm:flex bg-emerald-600 shadow-lg shadow-emerald-200 uppercase tracking-widest px-3 py-1">Thành công</Badge>
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {/* Phân trang - Sử dụng setPage để fix lỗi lint */}
-                    {history && history.total > 10 && (
-                      <div className="p-4 flex justify-between items-center border-t border-slate-100 bg-slate-50/30">
-                        <button 
-                          onClick={() => setPage(p => Math.max(1, p - 1))}
-                          disabled={page === 1}
-                          className="px-4 py-2 text-sm font-bold text-slate-600 disabled:opacity-30 transition-opacity"
-                        >
-                          Trang trước
-                        </button>
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                          Trang {page} / {Math.ceil(history.total / 10)}
-                        </span>
-                        <button 
-                          onClick={() => setPage(p => p + 1)}
-                          disabled={page * 10 >= history.total}
-                          className="px-4 py-2 text-sm font-bold text-emerald-600 disabled:opacity-30 transition-opacity"
-                        >
-                          Trang sau
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
+              <CardContent className="p-6 space-y-4">
+                {campaigns.map((campaign) => (
+                  <Button
+                    key={`history-${campaign.promotionId}`}
+                    variant="outline"
+                    className="mr-2 mb-2"
+                    onClick={() => handleOpenSpinDialog(campaign.promotionId)}
+                  >
+                    {campaign.promotionName}
+                  </Button>
+                ))}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
 
-      {/* Floating Support Button for farmers */}
-      <div className="fixed bottom-6 right-6 z-40 sm:hidden">
-        <div className="h-14 w-14 rounded-full bg-orange-500 shadow-xl flex items-center justify-center text-white animate-pulse">
-           <Star fill="currentColor" size={28} />
-        </div>
-      </div>
+      <Dialog open={isSpinDialogOpen} onOpenChange={setIsSpinDialogOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{selectedCampaign?.promotionName || "Quay thưởng"}</DialogTitle>
+            <DialogDescription>
+              {selectedCampaign
+                ? `Bạn còn ${selectedCampaign.remainingSpinCount} lượt quay.`
+                : "Theo dõi kết quả quay và lịch sử của bạn."}
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedCampaign && (
+            <div className="space-y-4">
+              <div className="grid gap-3 md:grid-cols-3">
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <p className="text-xs font-bold uppercase text-slate-400">Lượt còn lại</p>
+                  <p className="mt-1 text-2xl font-black text-slate-800">{selectedCampaign.remainingSpinCount}</p>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <p className="text-xs font-bold uppercase text-slate-400">Đã trúng</p>
+                  <p className="mt-1 text-2xl font-black text-slate-800">{selectedCampaign.winCount}</p>
+                </div>
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <p className="text-xs font-bold uppercase text-slate-400">Mốc tích lũy</p>
+                  <p className="mt-1 text-lg font-black text-slate-800">{formatCurrency(selectedCampaign.thresholdAmount)}</p>
+                </div>
+              </div>
+
+              <p className="text-sm text-slate-500">
+                Hệ thống chỉ quay trong quota đang mở của tháng hiện tại. Nếu quota tháng còn nhiều ở gần cuối tháng,
+                tỉ lệ trúng thực tế sẽ được tăng lên tự động.
+              </p>
+
+              <div className="flex justify-center">
+                <Button
+                  onClick={handleSpin}
+                  disabled={selectedCampaign.remainingSpinCount <= 0 || spinMutation.isPending}
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  {spinMutation.isPending ? "Đang quay..." : "Quay ngay"}
+                </Button>
+              </div>
+
+              {spinMutation.data && selectedCampaign.promotionId === selectedPromotionId && (
+                <Card className="border border-emerald-100 bg-emerald-50/50">
+                  <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                      <Trophy className="mt-0.5 h-5 w-5 text-emerald-600" />
+                        <div>
+                          <p className="font-semibold text-slate-800">{spinMutation.data.message}</p>
+                          <p className="text-sm text-slate-500 mt-1">
+                            Tỉ lệ áp dụng cho lượt này: {spinMutation.data.appliedRate}%
+                          </p>
+                          {spinMutation.data.reward && (
+                          <p className="text-sm text-orange-600">
+                            {spinMutation.data.reward.rewardName} · {formatCurrency(spinMutation.data.reward.rewardValue)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              <div className="space-y-3">
+                <h3 className="font-semibold text-slate-800">Lịch sử quay gần nhất</h3>
+                {isSpinLogsLoading ? (
+                  <div className="space-y-3">
+                    <Skeleton className="h-16 w-full" />
+                    <Skeleton className="h-16 w-full" />
+                  </div>
+                ) : (spinLogsData?.items || []).length === 0 ? (
+                  <p className="text-sm text-slate-500">Bạn chưa có lượt quay nào trong campaign này.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {spinLogsData?.items.map((log) => (
+                      <div key={log.id} className="rounded-xl border border-slate-100 p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="font-semibold text-slate-800">
+                              {log.resultType === "win" ? "Trúng thưởng" : "Không trúng"}
+                            </p>
+                            <p className="text-sm text-slate-500 flex items-center gap-2">
+                              <Calendar className="h-4 w-4" />
+                              {format(new Date(log.spunAt), "dd/MM/yyyy HH:mm", { locale: vi })}
+                            </p>
+                          </div>
+                          <Badge variant="outline">
+                            {log.resultType === "win" ? "Win" : "Lose"}
+                          </Badge>
+                        </div>
+                        {log.rewardName && (
+                          <p className="mt-2 text-sm text-orange-600">
+                            {log.rewardName} · {formatCurrency(log.rewardValue)}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
