@@ -19,14 +19,9 @@ export const metadata: Metadata = {
     title: "Xanh AGRI",
   },
   icons: {
-    // Favicon chính hiển thị trên tab trình duyệt
-    icon: [
-      { url: "/assets/logo3.png", type: "image/png" },
-    ],
-    // Icon cho thiết bị Apple (iOS bookmark)
-    apple: "/assets/logo3.png",
-    // Shortcut icon (favicon.ico fallback)
-    shortcut: "/assets/logo3.png",
+    icon: [{ url: "/icon.png", type: "image/png" }],
+    apple: "/icon.png",
+    shortcut: "/icon.png",
   },
 }
 
