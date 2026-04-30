@@ -35,7 +35,7 @@ export default function HeroSection() {
             className="text-white font-black text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4 leading-tight animate-in fade-in slide-in-from-left-4 duration-700 delay-100 uppercase"
             style={{ textShadow: '0 4px 12px rgba(0,0,0,0.4)' }}
           >
-            <span className="block sm:inline whitespace-nowrap">Cửa hàng Vật tư Nông nghiệp</span> <br />
+            <span className="block md:inline md:whitespace-nowrap">Cửa hàng Vật tư Nông nghiệp</span> <br className="hidden md:block" />
             <span 
               className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-[#059669] via-[#84cc16] to-[#059669] bg-[length:200%_auto] animate-shine text-5xl sm:text-6xl md:text-7xl lg:text-8xl pt-2 pb-1"
               style={{ 
