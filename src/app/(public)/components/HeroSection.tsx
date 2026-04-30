@@ -62,7 +62,7 @@ export default function HeroSection() {
               </div>
               <div className="text-left">
                 <p className="text-xs text-white/80 font-medium uppercase tracking-wider">Địa chỉ cửa hàng</p>
-                <p className="text-sm font-medium text-white">Số nhà 257, Tân Hòa A, An Giang</p>
+                <p className="text-sm font-medium text-white">Số nhà 257, Ấp Tân Hòa A, Xã Tân Hiêp, An Giang</p>
               </div>
             </div>
           </div>
