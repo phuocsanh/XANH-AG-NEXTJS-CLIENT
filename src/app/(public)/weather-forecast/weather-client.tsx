@@ -449,7 +449,7 @@ export default function WeatherForecastPage() {
                     className={`flex-shrink-0 snap-start min-w-[110px] sm:min-w-[140px] p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2.5rem] transition-all duration-300 transform ${i === 0 ? 'ml-1' : ''} ${
                       activeTab === i 
                       ? 'bg-agri-600 text-white shadow-xl scale-[1.03] sm:scale-105 ring-2 sm:ring-4 ring-agri-100' 
-                      : 'bg-white text-gray-500 hover:bg-agri-50 border border-agri-100 hover:scale-[1.02]'
+                      : 'bg-white text-gray-500 hover:bg-agri-50 border-2 border-agri-200/80 hover:border-agri-300 hover:scale-[1.02] shadow-sm'
                     }`}
                   >
                     <p className={`text-[11px] sm:text-xs font-black uppercase mb-1 sm:mb-3 tracking-widest ${activeTab === i ? 'text-agri-200' : 'text-gray-400'}`}>
@@ -459,20 +459,12 @@ export default function WeatherForecastPage() {
                       <p className="text-2xl sm:text-4xl font-black tabular-nums">{new Date(day.date).getDate()}<span className="text-sm sm:text-xl opacity-50 ml-0.5">/{new Date(day.date).getMonth() + 1}</span></p>
                       <p className={`text-[9px] sm:text-[11px] font-bold uppercase tracking-wider mt-0.5 ${activeTab === i ? 'text-agri-200' : 'text-gray-400'}`}>Ngày/Tháng</p>
                     </div>
-                    <div className="my-3 sm:my-5 flex justify-center">
-                      {getWeatherIcon(day.weatherCode, "w-8 h-8 sm:w-12 sm:h-12")}
+                    <div className="my-4 sm:my-6 flex flex-col items-center justify-center min-h-[60px] sm:min-h-[80px]">
+                      <Droplets className={`w-6 h-6 sm:w-10 sm:h-10 mb-1 ${activeTab === i ? 'text-white' : 'text-blue-500'}`} />
+                      <p className={`text-[9px] sm:text-[10px] font-black uppercase tracking-widest ${activeTab === i ? 'text-agri-200' : 'text-gray-400'}`}>Khả năng mưa</p>
+                      <p className={`text-xl sm:text-3xl font-black tabular-nums ${activeTab === i ? 'text-white' : 'text-blue-700'}`}>{day.precipitationProbabilityMax}%</p>
                     </div>
                     <p className={`text-sm sm:text-lg font-black ${activeTab === i ? 'text-white' : 'text-gray-800'}`}>{day.tempMax}°<span className="opacity-40 font-bold mx-1">/</span>{day.tempMin}°</p>
-                    
-                    {/* Khả năng mưa mini badge */}
-                    <div className={`mt-2 flex items-center gap-1 px-2 py-0.5 rounded-full border text-[9px] sm:text-[10px] tabular-nums ${
-                      activeTab === i 
-                        ? 'bg-white/20 border-white/30 text-white' 
-                        : getPopStyle(day.precipitationProbabilityMax)
-                    }`}>
-                      <Droplets className={`w-3 h-3 ${activeTab === i ? 'text-white' : ''}`} />
-                      <span>{day.precipitationProbabilityMax}%</span>
-                    </div>
                   </button>
                 ))}
               </div>
@@ -566,7 +558,7 @@ export default function WeatherForecastPage() {
                         className={`flex items-center justify-between p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 transition-all group shadow-sm hover:shadow-lg w-full overflow-hidden ${
                           isCurrentHour 
                             ? 'bg-agri-50 border-agri-400 ring-2 ring-agri-200' 
-                            : 'bg-gray-50/50 border-transparent hover:border-agri-200 hover:bg-white'
+                            : 'bg-white border-gray-300 hover:border-agri-300'
                         }`}
                       >
                         <div className="flex items-center gap-4 sm:gap-10 min-w-0 flex-1">
