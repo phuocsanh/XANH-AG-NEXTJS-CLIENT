@@ -487,10 +487,6 @@ export default function SpinWheelPage() {
                 <svg viewBox="0 0 400 400" className="h-full w-full">
                   {(() => {
                     const sliceAngle = 360 / Math.max(wheelSlots.length, 1)
-                    // Tính toán ô đang ở vị trí mũi tên (WHEEL_POINTER_ANGLE = 270)
-                    const normalizedRotation = ((rotation % 360) + 360) % 360
-                    const relativePointerAngle = (WHEEL_POINTER_ANGLE - normalizedRotation + 360) % 360
-                    const pointingIndex = Math.floor(relativePointerAngle / sliceAngle)
 
                     return wheelSlots.map((slot, idx) => {
                       const startAngle = idx * sliceAngle

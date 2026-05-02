@@ -229,13 +229,6 @@ export default function WeatherForecastPage() {
     )
   }, [searchTerm])
 
-  const getWeatherIcon = (code: number, size = "w-8 h-8") => {
-    if (code === 0 || code === 1) return <Sun className={`${size} text-yellow-400`} />
-    if (code >= 2 && code <= 3) return <Cloud className={`${size} text-blue-400`} />
-    if (code >= 51 && code <= 65) return <CloudRain className={`${size} text-blue-600`} />
-    if (code >= 80 && code <= 82) return <CloudRain className={`${size} text-blue-800`} />
-    return <Cloud className={`${size} text-gray-400`} />
-  }
 
   // Hàm helper để lấy style dựa trên khả năng mưa (Cảnh báo: Xanh -> Vàng -> Cam -> Đỏ)
   const getPopStyle = (popPercentage: number) => {
