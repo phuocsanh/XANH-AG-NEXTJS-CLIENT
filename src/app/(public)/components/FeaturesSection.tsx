@@ -60,7 +60,7 @@ export default function FeaturesSection() {
             </svg>
           </div>
           <p className="text-gray-600 max-w-3xl mx-auto">
-            Hơn 30 năm đồng hành cùng nông nghiệp Việt, chúng tôi tạo dựng thương hiệu và uy tín của cửa hàng bằng những điều tốt đẹp mà đội ngũ kỹ sư mạng lại cho từng mảnh vườn trên khắp toàn quốc. Với mong muốn góp phần vào sự phát triển nền nông nghiệp nước nhà theo hướng sạch, an toàn và chất lượng. Chúng tôi đã và đang hoàn thiện và kiện thực nông nghiệp tiên tiến nhằm đáp ứng tốt nhất nhu cầu của nông dân thời đại 4.0
+            Chúng tôi tạo dựng thương hiệu và uy tín của cửa hàng bằng những điều tốt đẹp cho từng ruộng lúa. Với mong muốn góp phần vào sự phát triển nền nông nghiệp nước nhà theo hướng sạch, an toàn và chất lượng. Chúng tôi đã và đang hoàn thiện và kiện thực nông nghiệp tiên tiến nhằm đáp ứng tốt nhất nhu cầu của nông dân thời đại 4.0
           </p>
         </div>
 
