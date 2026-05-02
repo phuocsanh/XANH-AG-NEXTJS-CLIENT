@@ -10,6 +10,7 @@ export async function POST() {
     const refreshToken = cookieStore.get("refreshToken")?.value
 
     if (!refreshToken) {
+      console.error("❌ Refresh failed: Không có refreshToken cookie")
       return NextResponse.json(
         {
           message: "No refresh token",
@@ -19,6 +20,8 @@ export async function POST() {
         { status: 401 },
       )
     }
+
+    console.log("🔄 Gọi backend refresh với token (first 20 chars):", refreshToken.substring(0, 20) + "...")
 
     const response = await fetch(
       `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/refresh`,
@@ -32,6 +35,14 @@ export async function POST() {
     )
 
     if (!response.ok) {
+      // Log chi tiết để chẩn đoán lỗi trên production
+      const errorBody = await response.text().catch(() => "Cannot read body")
+      console.error("❌ Backend refresh failed:", {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorBody,
+        backendUrl: `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/refresh`,
+      })
       return NextResponse.json(
         {
           message: "Invalid refresh token",
