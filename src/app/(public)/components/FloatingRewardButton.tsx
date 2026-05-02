@@ -28,7 +28,7 @@ export default function FloatingRewardButton() {
     : "/rewards"
 
   return (
-    <div className="fixed top-24 right-6 z-[999] animate-bounce">
+    <div className="absolute top-24 right-6 z-[999] animate-bounce">
       <div className="relative group">
         <Link
           href={targetHref}
@@ -49,7 +49,7 @@ export default function FloatingRewardButton() {
             e.stopPropagation();
             setIsVisible(false);
           }}
-          className="absolute -top-1 -left-1 bg-black/80 text-white p-1 rounded-full border border-white shadow-md hover:bg-black transition-colors opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute -top-1 -left-1 bg-black/80 text-white p-1 rounded-full border border-white shadow-md hover:bg-black transition-all"
           title="Tắt"
         >
           <X size={8} strokeWidth={4} />

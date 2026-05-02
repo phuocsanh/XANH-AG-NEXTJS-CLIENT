@@ -16,16 +16,18 @@ export default function HomeLayout({
   children: React.ReactNode
 }>) {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <main className='flex-grow'>
-        {children}
-      </main>
-      <Footer />
-      {/* Ẩn Chat UI */}
-      {/* <FloatingChatButton /> */}
-      {/* Pull to Refresh */}
-      <PullToRefreshProvider />
+    <div className="bg-slate-100 min-h-screen flex justify-center overflow-x-hidden">
+      <div className="flex flex-col min-h-screen w-full max-w-[1600px] bg-white shadow-2xl relative">
+        <Navbar />
+        <main className='flex-grow'>
+          {children}
+        </main>
+        <Footer />
+        {/* Ẩn Chat UI */}
+        {/* <FloatingChatButton /> */}
+        {/* Pull to Refresh */}
+        <PullToRefreshProvider />
+      </div>
     </div>
   )
 }
