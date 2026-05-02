@@ -25,7 +25,7 @@ const features: Feature[] = [
   {
     id: 'experience',
     title: 'Kinh nghiệm dày dặn',
-    description: 'Với hơn 30 năm kinh nghiệm, chúng tôi tự tin rằng sẽ là bạn đồng hành tốt nhất của quý khách',
+    description: 'Với nhiều năm kinh nghiệm, chúng tôi tự tin rằng sẽ là bạn đồng hành tốt nhất của quý khách',
     icon: <ThumbsUp className="w-12 h-12 text-agri-500" />,
   },
   {
