@@ -496,7 +496,6 @@ export default function SpinWheelPage() {
                       const startAngle = idx * sliceAngle
                       const endAngle = startAngle + sliceAngle
                       const midAngle = startAngle + sliceAngle / 2
-                      const isPointing = pointingIndex === idx
                       const isActive = activeIndex === idx
                     const fill =
                       slot.type === "lose"
