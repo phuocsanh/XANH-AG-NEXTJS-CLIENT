@@ -1,9 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import http from "@/lib/http"
 
 export interface PromotionFeaturedReward {
   rewardName: string
   rewardValue: number
+  totalQuantity: number
 }
 
 export interface PromotionProgressItem {
@@ -28,6 +29,8 @@ export interface PromotionProgressResponse {
 
 export interface PromotionSpinLogItem {
   id: number
+  promotionId?: number
+  promotionName?: string
   resultType: "win" | "lose"
   rewardName?: string | null
   rewardValue: number
@@ -76,22 +79,27 @@ export function useMyPromotionSpinLogs(promotionId?: number | null) {
   })
 }
 
-export function useSpinPromotionMutation() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (promotionId: number) => {
-      const response = await http.post<{ data: SpinResultResponse }>(
-        `/promotion-campaigns/${promotionId}/spin`,
-        {},
+export function useMyPromotionSpinHistory() {
+  return useQuery({
+    queryKey: ["my-promotion-spin-history"],
+    queryFn: async () => {
+      const response = await http.get<{ data: PromotionSpinLogResponse }>(
+        "/promotion-campaigns/my-spin-history",
       )
       return response.data
     },
-    onSuccess: (_data, promotionId) => {
-      queryClient.invalidateQueries({ queryKey: ["my-promotion-progress"] })
-      queryClient.invalidateQueries({
-        queryKey: ["my-promotion-spin-logs", promotionId],
-      })
+  })
+}
+
+export function useSpinPromotionMutation() {
+  return useMutation({
+    mutationFn: async (promotionId: number) => {
+      const response = await http.post<any>(
+        `/promotion-campaigns/${promotionId}/spin`,
+        {},
+      )
+      // Nếu backend bọc trong .data thì lấy .data, nếu không lấy cả response
+      return response.data || response
     },
   })
 }
