@@ -23,6 +23,8 @@ import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -167,6 +169,18 @@ const splitLabel = (label: string) => {
 }
 
 /* ─────────────────────────────────────────────
+   CSS Animations
+───────────────────────────────────────────── */
+const WHEEL_ANIMATIONS = `
+  @keyframes pulse-green-border {
+    0% { stroke: #10b981; stroke-width: 6; filter: drop-shadow(0 0 2px #10b981); }
+    50% { stroke: #34d399; stroke-width: 3; filter: drop-shadow(0 0 8px #34d399); }
+    100% { stroke: #10b981; stroke-width: 6; filter: drop-shadow(0 0 2px #10b981); }
+  }
+`
+
+
+/* ─────────────────────────────────────────────
    Component trang vòng quay
 ───────────────────────────────────────────── */
 export default function SpinWheelPage() {
@@ -183,7 +197,7 @@ export default function SpinWheelPage() {
 
   // State vòng quay
   const [rotation, setRotation] = useState(0)          // góc xoay hiện tại (deg)
-  const [activeIndex, setActiveIndex] = useState(0)    // ô đang được chọn sau khi dừng
+  const [activeIndex, setActiveIndex] = useState(-1)    // ô đang được chọn sau khi dừng
   const [isSpinning, setIsSpinning] = useState(false)  // đang quay hay không
   const [displayResult, setDisplayResult] = useState<null | {
     message: string
@@ -192,6 +206,8 @@ export default function SpinWheelPage() {
     reward?: { rewardName: string; rewardValue: number } | null
   }>(null)
   const [isResultModalOpen, setIsResultModalOpen] = useState(false)
+  // Ref timer tự động đóng popup sau 10 giây (chạy ngầm, không hiển thị)
+  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Ref cho requestAnimationFrame
   const rafRef = useRef<number | null>(null)
@@ -212,8 +228,22 @@ export default function SpinWheelPage() {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
       if (idleSpinRef.current) cancelAnimationFrame(idleSpinRef.current)
+      if (autoCloseTimerRef.current) clearInterval(autoCloseTimerRef.current)
     }
   }, [])
+
+  // Tự đóng popup sau 10 giây (chạy ngầm)
+  useEffect(() => {
+    if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current)
+    if (isResultModalOpen) {
+      autoCloseTimerRef.current = setTimeout(() => {
+        setIsResultModalOpen(false)
+      }, 10000)
+    }
+    return () => {
+      if (autoCloseTimerRef.current) clearTimeout(autoCloseTimerRef.current)
+    }
+  }, [isResultModalOpen])
 
   const startIdleSpin = () => {
     if (idleSpinRef.current) cancelAnimationFrame(idleSpinRef.current)
@@ -332,6 +362,9 @@ export default function SpinWheelPage() {
       const targetIndex = getTargetIndex(wheelSlots, result)
 
       await animateWheel(targetIndex)
+      
+      // Đợi 1.5 giây để người dùng thấy hiệu ứng nhấp nháy xanh trước khi hiện popup
+      await new Promise((resolve) => setTimeout(resolve, 1500))
 
       setDisplayResult({
         message: result.message || "Chúc mừng!",
@@ -371,7 +404,7 @@ export default function SpinWheelPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-slate-50">
         <p className="text-slate-500">Không tìm thấy chương trình quay thưởng.</p>
-        <Button onClick={() => router.push("/rewards")} variant="outline">
+        <Button onClick={() => router.push("/")} variant="outline">
           <ArrowLeft className="mr-2 h-4 w-4" /> Quay lại
         </Button>
       </div>
@@ -387,12 +420,12 @@ export default function SpinWheelPage() {
       <div className="bg-gradient-to-r from-emerald-600 to-teal-500 px-4 pb-6 pt-10 text-white">
         <div className="mx-auto flex max-w-lg items-center gap-4">
           <Button
-            variant="outline"
-            size="icon"
-            className="shrink-0 rounded-full border-white/30 bg-white/20 text-white hover:bg-white/30"
-            onClick={() => router.push("/rewards")}
+            variant="ghost"
+            className="flex items-center gap-2 shrink-0 rounded-full border border-white/30 bg-white/20 text-white hover:bg-white/30 px-4 py-2 h-auto"
+            onClick={() => router.push("/")}
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-4 w-4 shrink-0" />
+            <span className="text-sm font-medium">Quay lại</span>
           </Button>
           <div>
             <h1 className="text-xl font-bold leading-tight">{campaign.promotionName}</h1>
@@ -450,13 +483,21 @@ export default function SpinWheelPage() {
                 className="absolute inset-[6px] rounded-full"
                 style={{ transform: `rotate(${rotation}deg)` }}
               >
+                <style>{WHEEL_ANIMATIONS}</style>
                 <svg viewBox="0 0 400 400" className="h-full w-full">
-                  {wheelSlots.map((slot, idx) => {
-                    const sliceAngle = 360 / wheelSlots.length
-                    const startAngle = idx * sliceAngle
-                    const endAngle = startAngle + sliceAngle
-                    const midAngle = startAngle + sliceAngle / 2
-                    const isActive = activeIndex === idx
+                  {(() => {
+                    const sliceAngle = 360 / Math.max(wheelSlots.length, 1)
+                    // Tính toán ô đang ở vị trí mũi tên (WHEEL_POINTER_ANGLE = 270)
+                    const normalizedRotation = ((rotation % 360) + 360) % 360
+                    const relativePointerAngle = (WHEEL_POINTER_ANGLE - normalizedRotation + 360) % 360
+                    const pointingIndex = Math.floor(relativePointerAngle / sliceAngle)
+
+                    return wheelSlots.map((slot, idx) => {
+                      const startAngle = idx * sliceAngle
+                      const endAngle = startAngle + sliceAngle
+                      const midAngle = startAngle + sliceAngle / 2
+                      const isPointing = pointingIndex === idx
+                      const isActive = activeIndex === idx
                     const fill =
                       slot.type === "lose"
                         ? idx % 2 === 0
@@ -473,7 +514,13 @@ export default function SpinWheelPage() {
                           d={describeArcSlice(200, 200, 184, startAngle, endAngle)}
                           fill={fill}
                           stroke={isActive ? "#10b981" : "#ffffff"}
-                          strokeWidth={isActive ? 4 : 1.25}
+                          strokeWidth={isActive ? 5 : 1.25}
+                          style={
+                            isActive
+                              ? { animation: "pulse-green-border 0.4s infinite ease-in-out" }
+                              : {}
+                          }
+                          className="transition-all duration-200"
                         />
                         <g transform={`translate(${textPt.x} ${textPt.y}) rotate(${textRot})`}>
                           <text
@@ -491,7 +538,8 @@ export default function SpinWheelPage() {
                         </g>
                       </g>
                     )
-                  })}
+                  })
+                })()}
                 </svg>
               </div>
 
@@ -521,6 +569,8 @@ export default function SpinWheelPage() {
         {/* Modal kết quả */}
         <Dialog open={isResultModalOpen} onOpenChange={setIsResultModalOpen}>
           <DialogContent className="max-w-[90vw] sm:max-w-[400px] rounded-[32px] border-none p-0 overflow-hidden bg-white shadow-2xl">
+            <DialogTitle className="sr-only">Kết quả quay thưởng</DialogTitle>
+            <DialogDescription className="sr-only">Thông báo kết quả trúng thưởng hoặc chia buồn</DialogDescription>
             <div className="relative p-6 pt-10 text-center">
               {/* Nút đóng */}
               <div className="absolute right-4 top-4 z-10">
@@ -562,7 +612,7 @@ export default function SpinWheelPage() {
                   <h2 className="mb-2 text-xl font-bold text-slate-700">
                     Tiếc quá...
                   </h2>
-                  <p className="text-slate-500 px-4">
+                  <p className="text-lg font-semibold text-slate-600 px-4">
                     Chúc bạn may mắn hơn ở lượt quay sau nhé! Cố gắng thử lại nào.
                   </p>
                 </div>

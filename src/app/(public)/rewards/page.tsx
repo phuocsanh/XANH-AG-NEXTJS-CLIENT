@@ -70,15 +70,20 @@ export default function RewardsPage() {
       {/* Header */}
       <div className="bg-gradient-to-r from-emerald-600 to-teal-500 pt-10 pb-24 px-4 text-white">
         <div className="container mx-auto max-w-5xl">
-          <div className="flex flex-col md:flex-row items-center gap-6">
+          {/* Nút quay lại luôn nằm ở góc trái trên, tách khỏi phần avatar */}
+          <div className="mb-4 flex justify-start">
             <Button
-              variant="outline"
-              size="icon"
-              className="rounded-full bg-white/20 border-white/30 text-white hover:bg-white/30 shrink-0"
-              onClick={() => router.back()}
+              variant="ghost"
+              className="flex items-center gap-2 rounded-full bg-white/20 border border-white/30 text-white hover:bg-white/30 px-4 py-2 h-auto"
+              onClick={() => router.push("/")}
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-4 w-4 shrink-0" />
+              <span className="text-sm font-medium">Quay lại</span>
             </Button>
+          </div>
+
+          {/* Avatar và tên người dùng */}
+          <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="h-20 w-20 rounded-full border-4 border-white/30 bg-white/20 flex items-center justify-center text-3xl font-bold shadow-xl backdrop-blur-sm">
               {user.user_profile?.nickname?.charAt(0).toUpperCase() ||
                 user.account.charAt(0).toUpperCase()}
@@ -129,11 +134,9 @@ export default function RewardsPage() {
                     <Gift className="h-10 w-10 text-slate-300" />
                   </div>
                   <h3 className="text-xl font-bold text-slate-800">
-                    Bạn chưa tham gia campaign nào
+                    Chưa có chương trình nào
                   </h3>
-                  <p className="text-slate-500 mt-2">
-                    Khi có mua hàng thuộc campaign, tiến độ và lượt quay sẽ hiển thị tại đây.
-                  </p>
+                  
                 </CardContent>
               </Card>
             ) : (

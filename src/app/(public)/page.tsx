@@ -5,6 +5,7 @@ import ProductShowcase from "./components/ProductShowcase"
 import LatestNews from "./components/LatestNews"
 import { Metadata } from 'next'
 import Block from "@/app/components/Block"
+import FloatingRewardButton from "./components/FloatingRewardButton"
 
 export const metadata: Metadata = {
   title: 'Xanh AGRI - Nông nghiệp thông minh | Vật tư nông nghiệp chất lượng',
@@ -43,9 +44,9 @@ async function Page() {
           {/* Latest News - Tin tức nông nghiệp mới nhất */}
           <LatestNews />
           
-           {/* Features Section - Giới thiệu về Xanh AGRI */}
           <FeaturesSection />
         </Block>
+        <FloatingRewardButton />
       </main>
     )
   } catch (error) {
