@@ -368,9 +368,17 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                       <div>
                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Ngày gieo mạ</p>
                         <div className="flex flex-col">
-                          <p className="text-gray-900 font-black">
-                            {dayjs(currentCrop.sowing_date).format('DD/MM/YYYY')}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-gray-900 font-black">
+                              {dayjs(currentCrop.sowing_date).format('DD/MM/YYYY')}
+                            </p>
+                            {/* Số ngày từ ngày gieo mạ đến hôm nay */}
+                            {calculateDaysDiff(currentCrop.sowing_date) !== null && (
+                              <span className="text-[10px] bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded-full border border-amber-200">
+                                {calculateDaysDiff(currentCrop.sowing_date)} ngày sau xạ
+                              </span>
+                            )}
+                          </div>
                           <p className="text-[13px] text-emerald-600 font-bold mt-0.5">
                             {(() => {
                               const d = dayjs(currentCrop.sowing_date)
@@ -394,9 +402,17 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                       <div>
                         <p className="text-[10px] text-teal-500 font-bold uppercase tracking-widest">Ngày cấy</p>
                         <div className="flex flex-col">
-                          <p className="text-gray-900 font-black">
-                            {dayjs(currentCrop.transplanting_date).format('DD/MM/YYYY')}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-gray-900 font-black">
+                              {dayjs(currentCrop.transplanting_date).format('DD/MM/YYYY')}
+                            </p>
+                            {/* Số ngày từ ngày cấy đến hôm nay */}
+                            {calculateDaysDiff(currentCrop.transplanting_date) !== null && (
+                              <span className="text-[10px] bg-teal-100 text-teal-700 font-bold px-2 py-0.5 rounded-full border border-teal-200">
+                                {calculateDaysDiff(currentCrop.transplanting_date)} ngày sau cấy
+                              </span>
+                            )}
+                          </div>
                           <p className="text-[13px] text-teal-600 font-bold mt-0.5">
                             {(() => {
                               const d = dayjs(currentCrop.transplanting_date)
