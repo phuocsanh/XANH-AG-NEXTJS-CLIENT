@@ -358,18 +358,19 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white rounded-xl text-gray-400">
-                      <Calendar className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Ngày gieo (Sạ/Cấy)</p>
-                      <div className="flex flex-col">
-                        <p className="text-gray-900 font-black">
-                          {currentCrop.sowing_date ? dayjs(currentCrop.sowing_date).format('DD/MM/YYYY') : '---'}
-                        </p>
-                        {currentCrop.sowing_date && (
+                {/* Ngày gieo mạ - chỉ hiển thị khi có dữ liệu */}
+                {currentCrop.sowing_date && (
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-white rounded-xl text-gray-400">
+                        <Calendar className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Ngày gieo mạ</p>
+                        <div className="flex flex-col">
+                          <p className="text-gray-900 font-black">
+                            {dayjs(currentCrop.sowing_date).format('DD/MM/YYYY')}
+                          </p>
                           <p className="text-[13px] text-emerald-600 font-bold mt-0.5">
                             {(() => {
                               const d = dayjs(currentCrop.sowing_date)
@@ -377,11 +378,37 @@ export default function CurrentRiceCropPopup({ isOpen, onOpenChange }: CurrentRi
                               return `${lDay}/${lMonth}/${lYear}`
                             })()} (Âm lịch)
                           </p>
-                        )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
+
+                {/* Ngày cấy - chỉ hiển thị khi có dữ liệu */}
+                {currentCrop.transplanting_date && (
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-white rounded-xl text-teal-400">
+                        <Calendar className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-teal-500 font-bold uppercase tracking-widest">Ngày cấy</p>
+                        <div className="flex flex-col">
+                          <p className="text-gray-900 font-black">
+                            {dayjs(currentCrop.transplanting_date).format('DD/MM/YYYY')}
+                          </p>
+                          <p className="text-[13px] text-teal-600 font-bold mt-0.5">
+                            {(() => {
+                              const d = dayjs(currentCrop.transplanting_date)
+                              const [lDay, lMonth, lYear] = convertSolar2Lunar(d.date(), d.month() + 1, d.year())
+                              return `${lDay}/${lMonth}/${lYear}`
+                            })()} (Âm lịch)
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
                   </>
                 );
