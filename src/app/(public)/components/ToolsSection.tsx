@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useAppStore } from '@/stores'
-import { Cloud, Calendar as CalendarIcon, ArrowRight, Sun, Moon, MapPin, Zap, Scale, Smartphone, Sprout, TrendingUp } from 'lucide-react'
+import { Cloud, Calendar as CalendarIcon, ArrowRight, Sun, Moon, MapPin, Zap, Scale, Smartphone, Sprout, TrendingUp, FlaskConical } from 'lucide-react'
 import CurrentRiceCropPopup from './CurrentRiceCropPopup'
 import { localFarmingService } from '@/lib/local-farming-service'
 
@@ -58,7 +58,7 @@ export default function ToolsSection() {
         </div>
 
         {/* Widgets Grid - Responsive: Scroll ngang trên mobile, grid trên desktop */}
-        <div className={`flex md:grid gap-4 md:gap-8 overflow-x-auto md:overflow-x-visible pb-8 md:pb-0 snap-x snap-mandatory mx-auto ${isLogin ? 'md:grid-cols-2 lg:grid-cols-3' : (showCurrentRiceCrop ? 'md:grid-cols-2 lg:grid-cols-3' : 'lg:grid-cols-2 md:gap-12')}`}>
+        <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-x-visible pb-8 md:pb-0 snap-x snap-mandatory mx-auto">
           {/* Current Rice Crop Summary Card - NEW */}
           {showCurrentRiceCrop && (
             <div 
@@ -146,6 +146,35 @@ export default function ToolsSection() {
             {/* Decorative Calendar Icons */}
             <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity">
               <CalendarIcon className="w-48 md:w-64 h-48 md:h-64 text-white" />
+            </div>
+          </Link>
+
+          {/* Fertilizer Calculator Card */}
+          <Link
+            href="/fertilizer-calculator"
+            className="flex-shrink-0 w-[75%] md:w-auto snap-center group relative bg-gradient-to-br from-teal-600 via-emerald-600 to-lime-700 rounded-[1.5rem] md:rounded-[3rem] p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
+          >
+            <div className="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-white/10 rounded-full blur-3xl -translate-y-12 md:-translate-y-20 translate-x-12 md:translate-x-20 group-hover:bg-white/20 transition-all" />
+
+            <div className="relative z-10">
+              <div className="w-12 h-12 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-4 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
+                <FlaskConical className="w-6 h-6 md:w-10 md:h-10 text-white" />
+              </div>
+              <p className="text-lime-100 font-black uppercase tracking-widest text-[9px] md:text-sm mb-1 md:mb-4">Công cụ tính toán</p>
+              <h3 className="text-xl md:text-5xl font-black text-white mb-3 md:mb-6 leading-tight">Tính phối <br/> Phân</h3>
+              <div className="flex items-center gap-2 md:gap-3 text-white/60 mb-5 md:mb-8">
+                <Scale className="w-4 h-4 md:w-5 md:h-5 text-yellow-300" />
+                <span className="font-bold text-xs md:text-base">Dùng ngay không cần đăng nhập</span>
+              </div>
+
+              <div className="flex items-center gap-2 text-white font-black text-sm md:text-lg group-hover:gap-4 transition-all">
+                Tính ngay
+                <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-accent-gold" />
+              </div>
+            </div>
+
+            <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity">
+              <FlaskConical className="w-48 md:w-64 h-48 md:h-64 text-white" />
             </div>
           </Link>
 

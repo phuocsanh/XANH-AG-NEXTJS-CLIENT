@@ -16,8 +16,16 @@ import { Loader2, Smartphone } from "lucide-react"
 import dayjs from "dayjs"
 import { localFarmingService } from "@/lib/local-farming-service"
 import { useToast } from "@/hooks/use-toast"
-import { CreateRiceCropBody, CreateRiceCropBodyType } from "@/schemaValidations/rice-farming.schema"
-import { FormNumberInput, FormFieldWrapper, FormDatePicker, FormComboBox } from "@/components/form"
+import {
+  CreateRiceCropBody,
+  CreateRiceCropBodyType,
+} from "@/schemaValidations/rice-farming.schema"
+import {
+  FormNumberInput,
+  FormFieldWrapper,
+  FormDatePicker,
+  FormComboBox,
+} from "@/components/form"
 import { convertSolar2Lunar } from "@/lib/lunar-calendar"
 
 interface CreateGuestRiceCropModalProps {
@@ -56,7 +64,6 @@ export default function CreateGuestRiceCropModal({
     },
   })
 
-
   // Theo dõi sự thay đổi để tự tính toán
   const watchedSowingDate = form.watch("sowing_date")
   const watchedTransplantingDate = form.watch("transplanting_date")
@@ -69,7 +76,11 @@ export default function CreateGuestRiceCropModal({
     if (watchedTransplantingDate) {
       const solarDate = dayjs(watchedTransplantingDate)
       if (solarDate.isValid()) {
-        const [lDay, lMonth] = convertSolar2Lunar(solarDate.date(), solarDate.month() + 1, solarDate.year())
+        const [lDay, lMonth] = convertSolar2Lunar(
+          solarDate.date(),
+          solarDate.month() + 1,
+          solarDate.year(),
+        )
         form.setValue("transplanting_lunar_date", `${lDay}/${lMonth} (Âm lịch)`)
       }
     } else {
@@ -82,7 +93,11 @@ export default function CreateGuestRiceCropModal({
     if (watchedSowingDate) {
       const solarDate = dayjs(watchedSowingDate)
       if (solarDate.isValid()) {
-        const [lDay, lMonth] = convertSolar2Lunar(solarDate.date(), solarDate.month() + 1, solarDate.year())
+        const [lDay, lMonth] = convertSolar2Lunar(
+          solarDate.date(),
+          solarDate.month() + 1,
+          solarDate.year(),
+        )
         form.setValue("sowing_lunar_date", `${lDay}/${lMonth} (Âm lịch)`)
       }
     }
@@ -93,15 +108,23 @@ export default function CreateGuestRiceCropModal({
     if (watchedExpectedHarvestDate) {
       const solarDate = dayjs(watchedExpectedHarvestDate)
       if (solarDate.isValid()) {
-        const [lDay, lMonth] = convertSolar2Lunar(solarDate.date(), solarDate.month() + 1, solarDate.year())
-        form.setValue("expected_harvest_lunar_date", `${lDay}/${lMonth} (Âm lịch)`)
+        const [lDay, lMonth] = convertSolar2Lunar(
+          solarDate.date(),
+          solarDate.month() + 1,
+          solarDate.year(),
+        )
+        form.setValue(
+          "expected_harvest_lunar_date",
+          `${lDay}/${lMonth} (Âm lịch)`,
+        )
       }
     }
   }, [watchedExpectedHarvestDate, form])
 
   // Tự tính diện tích tổng
   React.useEffect(() => {
-    const totalArea = Number(watchedAmountOfLand || 0) * Number(watchedAreaPerCom || 0)
+    const totalArea =
+      Number(watchedAmountOfLand || 0) * Number(watchedAreaPerCom || 0)
     form.setValue("field_area", totalArea)
   }, [watchedAmountOfLand, watchedAreaPerCom, form])
 
@@ -112,20 +135,20 @@ export default function CreateGuestRiceCropModal({
         ...values,
         id: Date.now(),
       })
-      
-      toast({ 
-        title: "Thành công 🎉", 
-        description: "Đã tạo ruộng lúa mới lưu trong bộ nhớ máy." 
+
+      toast({
+        title: "Thành công 🎉",
+        description: "Đã tạo ruộng lúa mới lưu trong bộ nhớ máy.",
       })
       onSuccess()
       onClose()
       form.reset()
     } catch (error) {
       console.error("Error creating local crop:", error)
-      toast({ 
-        title: "Lỗi", 
-        description: "Không thể lưu dữ liệu local.", 
-        variant: "destructive" 
+      toast({
+        title: "Lỗi",
+        description: "Không thể lưu dữ liệu local.",
+        variant: "destructive",
       })
     } finally {
       setIsSubmitting(false)
@@ -134,78 +157,83 @@ export default function CreateGuestRiceCropModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[550px] rounded-[2rem] border-none shadow-2xl p-0 overflow-hidden">
-        <div className="bg-gradient-to-br from-agri-600 to-agri-800 p-8 text-white">
+      <DialogContent className='sm:max-w-[550px] rounded-[2rem] border-none shadow-2xl p-0 overflow-hidden'>
+        <div className='bg-gradient-to-br from-agri-600 to-agri-800 p-8 text-white'>
           <DialogHeader>
-            <div className="flex items-center gap-3 mb-2">
-               <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center">
-                  <Smartphone className="w-6 h-6 text-white" />
-               </div>
-               <DialogTitle className="text-2xl font-black">Vụ mùa mới</DialogTitle>
+            <div className='flex items-center gap-3 mb-2'>
+              <div className='w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center'>
+                <Smartphone className='w-6 h-6 text-white' />
+              </div>
+              <DialogTitle className='text-2xl font-black'>
+                Vụ mùa mới
+              </DialogTitle>
             </div>
-            <p className="text-agri-100 text-sm font-medium">
+            <p className='text-agri-100 text-sm font-medium'>
               Khởi tạo vụ mùa nhanh chóng để bắt đầu theo dõi tiến độ canh tác.
             </p>
           </DialogHeader>
         </div>
-        
-        <div className="p-8 bg-white max-h-[70vh] overflow-y-auto">
+
+        <div className='p-8 bg-white max-h-[70vh] overflow-y-auto'>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl flex items-start gap-3">
-                 <Smartphone className="w-5 h-5 text-blue-600 mt-0.5" />
-                 <div>
-                    <p className="text-xs font-bold text-blue-700 uppercase tracking-widest mb-1">Dữ liệu thiết bị</p>
-                    <p className="text-xs text-blue-600/80 leading-relaxed">
-                       Thông tin này sẽ được lưu duy nhất trên trình duyệt của bạn. Nếu xóa cache trình duyệt, dữ liệu sẽ mất.
-                    </p>
-                 </div>
+            <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+              <div className='bg-blue-50 border border-blue-100 p-4 rounded-2xl flex items-start gap-3'>
+                <Smartphone className='w-5 h-5 text-blue-600 mt-0.5' />
+                <div>
+                  <p className='text-xs font-bold text-blue-700 uppercase tracking-widest mb-1'>
+                    Dữ liệu thiết bị
+                  </p>
+                  <p className='text-xs text-blue-600/80 leading-relaxed'>
+                    Thông tin này sẽ được lưu duy nhất trên trình duyệt của bạn.
+                    Nếu xóa cache trình duyệt, dữ liệu sẽ mất.
+                  </p>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className='grid grid-cols-2 gap-4'>
                 <FormFieldWrapper
                   control={form.control}
-                  name="field_name"
-                  label="Tên ruộng lúa (Vị trí)"
-                  placeholder="VD: Ruộng nhà"
+                  name='field_name'
+                  label='Tên ruộng lúa'
+                  placeholder='VD: Ruộng nhà'
                   required
                 />
                 <FormFieldWrapper
                   control={form.control}
-                  name="location"
-                  label="Vị trí địa lý"
-                  placeholder="VD: Xã Tân Mỹ, An Giang"
+                  name='location'
+                  label='Vị trí địa lý'
+                  placeholder='VD: Xã Tân Mỹ, An Giang'
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className='grid grid-cols-2 gap-4'>
                 <FormFieldWrapper
                   control={form.control}
-                  name="customer_name"
-                  label="Người làm ruộng"
-                  placeholder="VD: Nguyễn Văn A"
+                  name='customer_name'
+                  label='Người làm ruộng'
+                  placeholder='VD: Nguyễn Văn A'
                 />
                 <FormFieldWrapper
                   control={form.control}
-                  name="season_name"
-                  label="Mùa vụ"
-                  placeholder="VD: Thu Đông 2024"
+                  name='season_name'
+                  label='Mùa vụ'
+                  placeholder='VD: Thu Đông 2024'
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className='grid grid-cols-2 gap-4'>
                 <FormNumberInput
                   control={form.control}
-                  name="amount_of_land"
-                  label="Số công đất"
-                  placeholder="0"
+                  name='amount_of_land'
+                  label='Số công đất'
+                  placeholder='0'
                   required
                   decimalScale={3}
                 />
                 <FormComboBox
                   control={form.control}
-                  name="area_per_com"
-                  label="Diện tích mỗi công"
+                  name='area_per_com'
+                  label='Diện tích mỗi công'
                   options={[
                     { value: 1000, label: "Tầm nhỏ (1000 m²)" },
                     { value: 1296, label: "Tầm lớn (1296 m²)" },
@@ -213,85 +241,87 @@ export default function CreateGuestRiceCropModal({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className='grid grid-cols-2 gap-4'>
                 <FormNumberInput
                   control={form.control}
-                  name="field_area"
-                  label="Tổng diện tích"
-                  placeholder="0"
-                  suffix=" m²"
+                  name='field_area'
+                  label='Tổng diện tích'
+                  placeholder='0'
+                  suffix=' m²'
                   disabled
                 />
                 <FormFieldWrapper
                   control={form.control}
-                  name="rice_variety"
-                  label="Giống lúa"
-                  placeholder="VD: Đài Thơm 8, OM18..."
+                  name='rice_variety'
+                  label='Giống lúa'
+                  placeholder='VD: Đài Thơm 8, OM18...'
                   required
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <FormDatePicker 
+              <div className='grid grid-cols-2 gap-4'>
+                <FormDatePicker
                   control={form.control}
-                  name="sowing_date"
-                  label="Ngày gieo"
+                  name='sowing_date'
+                  label='Ngày gieo'
                   required
                 />
                 <FormFieldWrapper
                   control={form.control}
-                  name="sowing_lunar_date"
-                  label="Ngày gieo âm lịch"
-                  placeholder="Tự động tính..."
+                  name='sowing_lunar_date'
+                  label='Gieo âm lịch'
+                  placeholder='Tự động tính...'
                   disabled
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <FormDatePicker 
+              <div className='grid grid-cols-2 gap-4'>
+                <FormDatePicker
                   control={form.control}
-                  name="transplanting_date"
-                  label="Ngày cấy"
+                  name='transplanting_date'
+                  label='Ngày cấy'
                 />
                 <FormFieldWrapper
                   control={form.control}
-                  name="transplanting_lunar_date"
-                  label="Ngày cấy âm lịch"
-                  placeholder="Tự động tính..."
+                  name='transplanting_lunar_date'
+                  label='Cấy âm lịch'
+                  placeholder='Tự động tính...'
                   disabled
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <FormDatePicker 
+              <div className='grid grid-cols-2 gap-4'>
+                <FormDatePicker
                   control={form.control}
-                  name="expected_harvest_date"
-                  label="Dự kiến thu hoạch"
+                  name='expected_harvest_date'
+                  label='Dự kiến thu hoạch'
                 />
                 <FormFieldWrapper
                   control={form.control}
-                  name="expected_harvest_lunar_date"
-                  label="Dự kiến thu hoạch âm lịch"
-                  placeholder="Tự động tính..."
+                  name='expected_harvest_lunar_date'
+                  label='Thu hoạch âm lịch'
+                  placeholder='Tự động tính...'
                   disabled
                 />
               </div>
 
-              <DialogFooter className="pt-4 flex flex-row items-center justify-end gap-3">
-                <Button 
-                  type="button" 
-                  variant="ghost" 
+              <DialogFooter className='pt-4 flex flex-row items-center justify-end gap-3'>
+                <Button
+                  type='button'
+                  variant='ghost'
                   onClick={onClose}
-                  className="rounded-xl font-bold text-gray-500 hover:bg-gray-100 h-12"
+                  className='rounded-xl font-bold text-gray-500 hover:bg-gray-100 h-12'
                 >
                   Hủy bỏ
                 </Button>
-                <Button 
-                  type="submit" 
+                <Button
+                  type='submit'
                   disabled={isSubmitting}
-                  className="bg-agri-600 hover:bg-agri-700 text-white font-bold rounded-xl px-8 h-12 shadow-lg shadow-agri-100"
+                  className='bg-agri-600 hover:bg-agri-700 text-white font-bold rounded-xl px-8 h-12 shadow-lg shadow-agri-100'
                 >
-                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isSubmitting && (
+                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                  )}
                   Bắt đầu vụ mùa
                 </Button>
               </DialogFooter>

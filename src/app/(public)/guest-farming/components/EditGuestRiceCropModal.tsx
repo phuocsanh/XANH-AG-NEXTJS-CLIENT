@@ -183,7 +183,7 @@ export default function EditGuestRiceCropModal({
                 <FormFieldWrapper
                   control={form.control}
                   name="field_name"
-                  label="Tên ruộng lúa (Vị trí)"
+                  label="Tên ruộng lúa"
                   placeholder="VD: Ruộng nhà"
                   required
                 />
@@ -287,7 +287,7 @@ export default function EditGuestRiceCropModal({
                 <FormFieldWrapper
                   control={form.control}
                   name="sowing_lunar_date"
-                  label="Ngày gieo âm lịch"
+                  label="Âm lịch"
                   placeholder="Tự động tính..."
                   disabled
                 />
@@ -302,7 +302,7 @@ export default function EditGuestRiceCropModal({
                 <FormFieldWrapper
                   control={form.control}
                   name="transplanting_lunar_date"
-                  label="Ngày cấy âm lịch"
+                  label="Âm lịch"
                   placeholder="Tự động tính..."
                   disabled
                 />
@@ -317,7 +317,7 @@ export default function EditGuestRiceCropModal({
                 <FormFieldWrapper
                   control={form.control}
                   name="expected_harvest_lunar_date"
-                  label="Dự kiến thu hoạch âm lịch"
+                  label="Âm lịch"
                   placeholder="Tự động tính..."
                   disabled
                 />
