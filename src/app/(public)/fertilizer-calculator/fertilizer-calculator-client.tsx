@@ -42,6 +42,9 @@ const createIngredient = (index?: number): Ingredient => ({
 
 const initialIngredients: Ingredient[] = [createIngredient(1), createIngredient(2)]
 
+const KG_RANGE = { min: 1, max: 500 }
+const PERCENT_RANGE = { min: 1, max: 100 }
+
 const formatNumber = (value: number, digits = 2) =>
   new Intl.NumberFormat('vi-VN', {
     maximumFractionDigits: digits,
@@ -51,6 +54,62 @@ const formatNumber = (value: number, digits = 2) =>
 const toNumber = (value: string) => {
   const parsed = Number(value.replace(',', '.'))
   return Number.isFinite(parsed) ? parsed : 0
+}
+
+const getSliderValue = (value: string, min: number, max: number) => {
+  const numericValue = toNumber(value)
+
+  if (numericValue <= 0) {
+    return min
+  }
+
+  return Math.min(max, Math.max(min, numericValue))
+}
+
+type NumberSliderInputProps = {
+  value: string
+  min: number
+  max: number
+  unit?: string
+  ariaLabel: string
+  onChange: (value: string) => void
+}
+
+function NumberSliderInput({ value, min, max, unit = '', ariaLabel, onChange }: NumberSliderInputProps) {
+  const suffix = unit ? ` ${unit}` : ''
+
+  return (
+    <div className="min-w-0">
+      <Input
+        className="min-w-0"
+        type="number"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+      <input
+        aria-label={`${ariaLabel} từ ${min} đến ${max}`}
+        className="mt-2 h-2 w-full cursor-pointer accent-emerald-600"
+        type="range"
+        min={min}
+        max={max}
+        step={1}
+        value={getSliderValue(value, min, max)}
+        onChange={(event) => onChange(event.target.value)}
+      />
+      <div className="mt-1 flex justify-between text-[11px] font-bold text-gray-400">
+        <span>
+          {min}
+          {suffix}
+        </span>
+        <span>
+          {max}
+          {suffix}
+        </span>
+      </div>
+    </div>
+  )
 }
 
 export default function FertilizerCalculatorClient() {
@@ -214,26 +273,27 @@ export default function FertilizerCalculatorClient() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <label className="block min-w-0">
-                    <span className="mb-2 block text-sm font-bold text-gray-700">Kg</span>
-                    <Input
-                      className="min-w-0"
-                      type="number"
-                      min={0}
+                    <span className="mb-2 block text-sm font-bold text-gray-700">Kg có sẵn</span>
+                    <NumberSliderInput
                       value={item.kg}
-                      onChange={(event) => updateIngredient(item.id, { kg: event.target.value })}
+                      min={KG_RANGE.min}
+                      max={KG_RANGE.max}
+                      unit="kg"
+                      ariaLabel="Kg có sẵn"
+                      onChange={(value) => updateIngredient(item.id, { kg: value })}
                     />
                   </label>
 
                   {(['n', 'p', 'k'] as NutrientKey[]).map((key) => (
                     <label key={key} className="block min-w-0">
                       <span className="mb-2 block text-sm font-bold text-gray-700">{nutrientLabels[key]} %</span>
-                      <Input
-                        className="min-w-0"
-                        type="number"
-                        min={0}
-                        max={100}
+                      <NumberSliderInput
                         value={item[key]}
-                        onChange={(event) => updateIngredient(item.id, { [key]: event.target.value })}
+                        min={PERCENT_RANGE.min}
+                        max={PERCENT_RANGE.max}
+                        unit="%"
+                        ariaLabel={`${nutrientLabels[key]} %`}
+                        onChange={(value) => updateIngredient(item.id, { [key]: value })}
                       />
                     </label>
                   ))}
@@ -244,9 +304,9 @@ export default function FertilizerCalculatorClient() {
 
           <div className="hidden max-w-full overflow-x-auto lg:block">
             <div className="min-w-[760px]">
-              <div className="grid grid-cols-[1.5fr_110px_100px_100px_100px_48px] gap-3 rounded-lg bg-gray-50 px-3 py-2 text-sm font-black text-gray-600">
+              <div className="grid grid-cols-[1.4fr_150px_130px_130px_130px_48px] gap-3 rounded-lg bg-gray-50 px-3 py-2 text-sm font-black text-gray-600">
                 <span>Tên phân</span>
-                <span>Kg</span>
+                <span>Kg có sẵn</span>
                 <span>Đạm %</span>
                 <span>Lân %</span>
                 <span>Kali %</span>
@@ -256,23 +316,26 @@ export default function FertilizerCalculatorClient() {
                 {ingredients.map((item) => (
                   <div
                     key={item.id}
-                    className="grid grid-cols-[1.5fr_110px_100px_100px_100px_48px] gap-3 px-3 py-3"
+                    className="grid grid-cols-[1.4fr_150px_130px_130px_130px_48px] gap-3 px-3 py-3"
                   >
                     <Input value={item.name} onChange={(event) => updateIngredient(item.id, { name: event.target.value })} />
-                    <Input
-                      type="number"
-                      min={0}
+                    <NumberSliderInput
                       value={item.kg}
-                      onChange={(event) => updateIngredient(item.id, { kg: event.target.value })}
+                      min={KG_RANGE.min}
+                      max={KG_RANGE.max}
+                      unit="kg"
+                      ariaLabel="Kg có sẵn"
+                      onChange={(value) => updateIngredient(item.id, { kg: value })}
                     />
                     {(['n', 'p', 'k'] as NutrientKey[]).map((key) => (
-                      <Input
+                      <NumberSliderInput
                         key={key}
-                        type="number"
-                        min={0}
-                        max={100}
                         value={item[key]}
-                        onChange={(event) => updateIngredient(item.id, { [key]: event.target.value })}
+                        min={PERCENT_RANGE.min}
+                        max={PERCENT_RANGE.max}
+                        unit="%"
+                        ariaLabel={`${nutrientLabels[key]} %`}
+                        onChange={(value) => updateIngredient(item.id, { [key]: value })}
                       />
                     ))}
                     <Button
@@ -302,7 +365,12 @@ export default function FertilizerCalculatorClient() {
             <Badge variant={isWithinTarget ? 'success' : 'warning'}>{isWithinTarget ? 'Đạt mục tiêu' : 'Chưa đạt'}</Badge>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-4">
+            <div className="rounded-lg bg-emerald-50 p-4">
+              <p className="text-sm font-bold text-emerald-700">Tổng phân đã phối</p>
+              <p className="mt-1 text-3xl font-black text-emerald-700">{formatNumber(totals.totalKg)} kg</p>
+              <p className="mt-2 text-sm font-medium text-emerald-700/80">Tổng kg từ các loại phân đã nhập</p>
+            </div>
             {(['n', 'p', 'k'] as NutrientKey[]).map((key) => {
               const targetValue = toNumber(target[key])
               const isOff = Math.abs(totals.actualPercent[key] - targetValue) > 0.05
