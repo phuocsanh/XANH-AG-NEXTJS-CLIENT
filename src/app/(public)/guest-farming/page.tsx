@@ -135,7 +135,7 @@ export default function GuestFarmingPage() {
                           {crop.field_name}
                         </TableCell>
                         <TableCell className="py-5 px-6 text-gray-600 font-medium">
-                          {crop.season?.name || "Kỳ vụ local"}
+                          {crop.season_name?.trim() || crop.season?.name?.trim() || ""}
                         </TableCell>
                         <TableCell className="py-5 px-6 font-medium text-gray-600">
                            {formatNumber(Number(crop.field_area || 0))} m²

@@ -161,7 +161,9 @@ export default function FertilizerCalculatorClient() {
     setIngredients([createIngredient(1), createIngredient(2)])
   }
 
-  const isWithinTarget = (['n', 'p', 'k'] as NutrientKey[]).every(
+  const activeTargetKeys = (['n', 'p', 'k'] as NutrientKey[]).filter((key) => target[key].trim() !== '')
+  const hasTarget = activeTargetKeys.length > 0
+  const isWithinTarget = hasTarget && activeTargetKeys.every(
     (key) => Math.abs(totals.actualPercent[key] - toNumber(target[key])) <= 0.05,
   )
 
@@ -362,7 +364,9 @@ export default function FertilizerCalculatorClient() {
               <Calculator className="h-5 w-5 text-emerald-600" />
               <h2 className="text-lg font-black text-gray-900">Kết quả phối</h2>
             </div>
-            <Badge variant={isWithinTarget ? 'success' : 'warning'}>{isWithinTarget ? 'Đạt mục tiêu' : 'Chưa đạt'}</Badge>
+            {hasTarget && (
+              <Badge variant={isWithinTarget ? 'success' : 'warning'}>{isWithinTarget ? 'Đạt mục tiêu' : 'Chưa đạt'}</Badge>
+            )}
           </div>
 
           <div className="grid gap-3 md:grid-cols-4">
@@ -372,15 +376,18 @@ export default function FertilizerCalculatorClient() {
               <p className="mt-2 text-sm font-medium text-emerald-700/80">Tổng kg từ các loại phân đã nhập</p>
             </div>
             {(['n', 'p', 'k'] as NutrientKey[]).map((key) => {
-              const targetValue = toNumber(target[key])
-              const isOff = Math.abs(totals.actualPercent[key] - targetValue) > 0.05
+              const hasNutrientTarget = target[key].trim() !== ''
+              const targetValue = hasNutrientTarget ? toNumber(target[key]) : 0
+              const isOff = hasNutrientTarget && Math.abs(totals.actualPercent[key] - targetValue) > 0.05
               return (
                 <div key={key} className="rounded-lg bg-gray-50 p-4">
                   <p className="text-sm font-bold text-gray-500">{nutrientLabels[key]} thực tế</p>
                   <p className={`mt-1 text-3xl font-black ${isOff ? 'text-red-600' : 'text-emerald-700'}`}>
                     {formatNumber(totals.actualPercent[key])}%
                   </p>
-                  <p className="mt-2 text-sm font-medium text-gray-500">Mục tiêu {formatNumber(targetValue)}%</p>
+                  {hasNutrientTarget && (
+                    <p className="mt-2 text-sm font-medium text-gray-500">Mục tiêu {formatNumber(targetValue)}%</p>
+                  )}
                   <p className="mt-1 text-sm font-medium text-gray-500">
                     Có {formatNumber(totals.nutrientKg[key])} kg {nutrientLabels[key].toLowerCase()}
                   </p>

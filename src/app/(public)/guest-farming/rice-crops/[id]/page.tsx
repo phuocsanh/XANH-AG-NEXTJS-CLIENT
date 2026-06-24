@@ -76,6 +76,8 @@ export default function GuestRiceCropDetailPage() {
     )
   }
 
+  const seasonName = riceCrop.season_name?.trim() || riceCrop.season?.name?.trim()
+
   return (
     <div className="container mx-auto py-6 md:py-10 px-4 max-w-7xl">
       {/* Premium Navigation Header */}
@@ -94,10 +96,12 @@ export default function GuestRiceCropDetailPage() {
               <h1 className="text-2xl md:text-4xl font-black text-gray-900">{riceCrop.field_name}</h1>
               
             </div>
-            <div className="flex items-center gap-2 text-gray-500 font-medium">
-               <Calendar className="w-4 h-4" />
-               <span>{riceCrop.season?.name || "Vụ Đông Xuân 2024"}</span>
-            </div>
+            {seasonName && (
+              <div className="flex items-center gap-2 text-gray-500 font-medium">
+                 <Calendar className="w-4 h-4" />
+                 <span>{seasonName}</span>
+              </div>
+            )}
           </div>
         </div>
 
