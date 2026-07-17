@@ -3,6 +3,7 @@ import http from "@/lib/http"
 
 export interface PromotionFeaturedReward {
   rewardName: string
+  rewardImageUrl?: string | null
   rewardValue: number
   totalQuantity: number
 }

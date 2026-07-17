@@ -210,9 +210,29 @@ export default function RewardsPage() {
                         {campaign.featuredRewards.map((reward) => (
                           <div
                             key={`${campaign.promotionId}-${reward.rewardName}`}
-                            className="rounded-xl bg-slate-50 p-3"
+                            className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50"
                           >
-                            <p className="font-semibold text-slate-800">{reward.rewardName}</p>
+                            {reward.rewardImageUrl ? (
+                              <img
+                                src={reward.rewardImageUrl}
+                                alt={reward.rewardName}
+                                className="h-28 w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-28 items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100 text-3xl">
+                                🎁
+                              </div>
+                            )}
+                            <div className="space-y-1 p-3">
+                              <p className="font-semibold text-slate-800">{reward.rewardName}</p>
+                              <p className="text-xs text-slate-500">
+                                {new Intl.NumberFormat("vi-VN", {
+                                  style: "currency",
+                                  currency: "VND",
+                                  maximumFractionDigits: 0,
+                                }).format(reward.rewardValue)}
+                              </p>
+                            </div>
                           </div>
                         ))}
                       </div>

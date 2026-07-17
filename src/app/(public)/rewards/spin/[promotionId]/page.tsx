@@ -18,6 +18,7 @@ import {
   useMyPromotionSpinLogs,
   useSpinPromotionMutation,
 } from "@/hooks/use-rewards"
+import { useCurrentUser } from "@/hooks/use-user-profile"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -191,6 +192,7 @@ export default function SpinWheelPage() {
   // Lấy promotionId từ URL params
   const promotionId = Number(params.promotionId)
 
+  const { data: user } = useCurrentUser()
   const { data: progressData, isLoading } = useMyPromotionProgress()
   const { data: spinLogsData, isLoading: isSpinLogsLoading } = useMyPromotionSpinLogs(promotionId)
   const spinMutation = useSpinPromotionMutation()
@@ -216,6 +218,13 @@ export default function SpinWheelPage() {
 
   // Dữ liệu campaign đang chọn
   const campaign = progressData?.items.find((c) => c.promotionId === promotionId) ?? null
+  const displayUserName = user?.user_profile?.nickname || user?.account || "Khách hàng"
+  const selectedReward =
+    displayResult?.resultType === "win" && displayResult.reward
+      ? campaign?.featuredRewards.find(
+          (reward) => reward.rewardName === displayResult.reward?.rewardName,
+        )
+      : null
 
   // Danh sách ô vòng quay
   const wheelSlots = useMemo(
@@ -428,7 +437,10 @@ export default function SpinWheelPage() {
             <span className="text-sm font-medium">Quay lại</span>
           </Button>
           <div>
-            <h1 className="text-xl font-bold leading-tight">{campaign.promotionName}</h1>
+            <h1 className="text-xl font-bold leading-tight">{displayUserName}</h1>
+            <p className="mt-0.5 text-sm text-white/80">
+              Chương trình: <span className="font-semibold text-white">{campaign.promotionName}</span>
+            </p>
             <p className="mt-0.5 text-sm text-white/80">
               Còn{" "}
               <span className="font-bold text-yellow-300">{campaign.remainingSpinCount}</span>{" "}
@@ -585,6 +597,19 @@ export default function SpinWheelPage() {
                     src="/assets/Gifts.json"
                     className="relative mx-auto mb-2 h-64 w-64"
                   />
+                  {selectedReward?.rewardImageUrl ? (
+                    <div className="mx-auto mb-4 overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-lg shadow-emerald-100/50">
+                      <img
+                        src={selectedReward.rewardImageUrl}
+                        alt={selectedReward.rewardName}
+                        className="h-40 w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="mx-auto mb-4 flex h-40 w-full max-w-[260px] items-center justify-center rounded-3xl border border-dashed border-emerald-200 bg-emerald-50 text-5xl">
+                      🎁
+                    </div>
+                  )}
                   <h2 className="mb-2 text-2xl font-black text-orange-600 uppercase tracking-tight">
                     Trúng thưởng rồi!
                   </h2>
@@ -629,15 +654,34 @@ export default function SpinWheelPage() {
             <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
               Có thể trúng
             </p>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid gap-3 sm:grid-cols-2">
               {campaign.featuredRewards.map((r) => (
-                <Badge
+                <div
                   key={r.rewardName}
-                  variant="outline"
-                  className="border-orange-200 bg-orange-50 text-orange-700"
+                  className="overflow-hidden rounded-xl border border-orange-100 bg-orange-50/60"
                 >
-                  {r.rewardName}
-                </Badge>
+                  {r.rewardImageUrl ? (
+                    <img
+                      src={r.rewardImageUrl}
+                      alt={r.rewardName}
+                      className="h-28 w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-28 items-center justify-center bg-gradient-to-br from-amber-50 to-orange-100 text-3xl">
+                      🎁
+                    </div>
+                  )}
+                  <div className="space-y-1 p-3">
+                    <p className="font-semibold text-orange-800">{r.rewardName}</p>
+                    <p className="text-xs text-orange-700/80">
+                      {new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                        maximumFractionDigits: 0,
+                      }).format(r.rewardValue)}
+                    </p>
+                  </div>
+                </div>
               ))}
             </div>
           </div>

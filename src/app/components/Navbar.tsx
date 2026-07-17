@@ -243,10 +243,18 @@ export default function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align='end'
-                className='w-48 md:w-56 bg-background'
+              className='w-48 md:w-56 bg-background'
               >
                 {user ? (
                   <>
+                    <div className="px-3 py-2 border-b border-border">
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {userName || "Người dùng"}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {user.account || "Đã đăng nhập"}
+                      </p>
+                    </div>
                     <DropdownMenuGroup>
                       <DropdownMenuItem asChild>
                         <Link href="/rewards" className="cursor-pointer">
