@@ -17,10 +17,7 @@ export interface SeasonsResponse {
 /**
  * Hook lấy danh sách mùa vụ
  */
-export const useSeasons = (
-  params?: { page?: number; limit?: number; keyword?: string },
-  enabled = true,
-) => {
+export const useSeasons = (params?: { page?: number; limit?: number; keyword?: string }) => {
   return useApiQuery<SeasonsResponse>(`${API_URL}/season/search`, {
     queryKey: ["seasons", "list", JSON.stringify(params)],
     method: "POST",
@@ -29,6 +26,5 @@ export const useSeasons = (
       limit: params?.limit || 100,
       ...params,
     },
-    enabled,
   })
 }
