@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useAppStore } from '@/stores'
-import { Cloud, Calendar as CalendarIcon, ArrowRight, Sun, Moon, MapPin, Zap, Scale, Smartphone, Sprout, TrendingUp, FlaskConical } from 'lucide-react'
+import { Cloud, Calendar as CalendarIcon, ArrowRight, Sun, Scale, Smartphone, Sprout, FlaskConical, Gift, WalletCards } from 'lucide-react'
 import CurrentRiceCropPopup from './CurrentRiceCropPopup'
 import { localFarmingService } from '@/lib/local-farming-service'
 
@@ -57,28 +57,46 @@ export default function ToolsSection() {
           </p>
         </div>
 
-        {/* Widgets Grid - Responsive: Scroll ngang trên mobile, grid trên desktop */}
-        <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 overflow-x-auto md:overflow-x-visible pb-8 md:pb-0 snap-x snap-mandatory mx-auto">
+        {/* Widgets Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8 pb-8 md:pb-0 mx-auto">
+          {isLogin && (
+            <Link
+              href="/rewards"
+              className="w-full h-44 sm:h-52 md:h-96 group relative bg-gradient-to-br from-amber-500 via-orange-500 to-red-600 rounded-[1.25rem] md:rounded-[3rem] p-4 sm:p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
+            >
+              <div className="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-white/10 rounded-full blur-3xl -translate-y-12 md:-translate-y-20 translate-x-12 md:translate-x-20 group-hover:bg-white/20 transition-all" />
+
+              <div className="relative z-10 flex h-full flex-col justify-between">
+                <div className="w-10 h-10 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-3 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
+                  <Gift className="w-5 h-5 md:w-10 md:h-10 text-white" />
+                </div>
+                <h3 className="text-lg sm:text-xl md:text-5xl font-black text-white leading-tight">Quay <br/> Thưởng</h3>
+                <div className="flex items-center gap-2 text-white font-black text-xs sm:text-sm md:text-lg group-hover:gap-4 transition-all">
+                  Quay ngay
+                  <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-accent-gold" />
+                </div>
+              </div>
+
+              <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Gift className="w-48 md:w-64 h-48 md:h-64 text-white" />
+              </div>
+            </Link>
+          )}
+
           {/* Current Rice Crop Summary Card - NEW */}
           {showCurrentRiceCrop && (
             <div 
               onClick={() => setIsRiceCropPopupOpen(true)}
-              className="flex-shrink-0 w-[75%] md:w-auto snap-center group relative bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-[1.5rem] md:rounded-[3rem] p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500 cursor-pointer"
+              className="w-full h-44 sm:h-52 md:h-96 group relative bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-[1.25rem] md:rounded-[3rem] p-4 sm:p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500 cursor-pointer"
             >
               <div className="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-white/10 rounded-full blur-3xl -translate-y-12 md:-translate-y-20 translate-x-12 md:translate-x-20 group-hover:bg-white/20 transition-all" />
 
-              <div className="relative z-10">
-                <div className="w-12 h-12 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-4 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
-                  <Sprout className="w-6 h-6 md:w-10 md:h-10 text-white" />
+              <div className="relative z-10 flex h-full flex-col justify-between">
+                <div className="w-10 h-10 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-3 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
+                  <Sprout className="w-5 h-5 md:w-10 md:h-10 text-white" />
                 </div>
-                <p className="text-emerald-100 font-black uppercase tracking-widest text-[9px] md:text-sm mb-1 md:mb-4">Thông tin nhanh</p>
-                <h3 className="text-xl md:text-5xl font-black text-white mb-3 md:mb-6 leading-tight">Ruộng lúa <br/> Hiện tại</h3>
-                <div className="flex items-center gap-2 md:gap-3 text-white/60 mb-5 md:mb-8">
-                  <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-yellow-300" />
-                  <span className="font-bold text-xs md:text-base">Xem chi phí & Tiến độ</span>
-                </div>
-
-                <div className="flex items-center gap-2 text-white font-black text-sm md:text-lg group-hover:gap-4 transition-all">
+                <h3 className="text-lg sm:text-xl md:text-5xl font-black text-white leading-tight">Ruộng lúa <br/> Hiện tại</h3>
+                <div className="flex items-center gap-2 text-white font-black text-xs sm:text-sm md:text-lg group-hover:gap-4 transition-all">
                   Xem ngay 
                   <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-accent-gold" />
                 </div>
@@ -89,25 +107,44 @@ export default function ToolsSection() {
               </div>
             </div>
           )}
+
+          {isLogin && (
+            <Link
+              href="/customer-rewards"
+              className="w-full h-44 sm:h-52 md:h-96 group relative bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-800 rounded-[1.25rem] md:rounded-[3rem] p-4 sm:p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
+            >
+              <div className="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-white/10 rounded-full blur-3xl -translate-y-12 md:-translate-y-20 translate-x-12 md:translate-x-20 group-hover:bg-white/20 transition-all" />
+
+              <div className="relative z-10 flex h-full flex-col justify-between">
+                <div className="w-10 h-10 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-3 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
+                  <WalletCards className="w-5 h-5 md:w-10 md:h-10 text-white" />
+                </div>
+                <h3 className="text-lg sm:text-xl md:text-5xl font-black text-white leading-tight">Tích <br/> Lũy</h3>
+                <div className="flex items-center gap-2 text-white font-black text-xs sm:text-sm md:text-lg group-hover:gap-4 transition-all">
+                  Xem tích lũy
+                  <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-accent-gold" />
+                </div>
+              </div>
+
+              <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity">
+                <WalletCards className="w-48 md:w-64 h-48 md:h-64 text-white" />
+              </div>
+            </Link>
+          )}
+
           {/* Weather Entry Card */}
           <Link 
             href="/weather-forecast"
-            className="flex-shrink-0 w-[75%] md:w-auto snap-center group relative bg-gradient-to-br from-agri-600 to-agri-800 rounded-[1.5rem] md:rounded-[3rem] p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
+            className="w-full h-44 sm:h-52 md:h-96 group relative bg-gradient-to-br from-sky-600 via-blue-700 to-cyan-900 rounded-[1.25rem] md:rounded-[3rem] p-4 sm:p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
           >
             <div className="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-white/10 rounded-full blur-3xl -translate-y-12 md:-translate-y-20 translate-x-12 md:translate-x-20 group-hover:bg-white/20 transition-all" />
             
-            <div className="relative z-10">
-              <div className="w-12 h-12 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-4 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
-                <Cloud className="w-6 h-6 md:w-10 md:h-10 text-white" />
+            <div className="relative z-10 flex h-full flex-col justify-between">
+              <div className="w-10 h-10 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-3 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
+                <Cloud className="w-5 h-5 md:w-10 md:h-10 text-white" />
               </div>
-              <p className="text-agri-100 font-black uppercase tracking-widest text-[9px] md:text-sm mb-1 md:mb-4">Theo dõi nông vụ</p>
-              <h3 className="text-xl md:text-5xl font-black text-white mb-3 md:mb-6 leading-tight">Dự báo <br/> Thời tiết</h3>
-              <div className="flex items-center gap-2 md:gap-3 text-white/60 mb-5 md:mb-8">
-                <MapPin className="w-4 h-4 md:w-5 md:h-5" />
-                <span className="font-bold text-xs md:text-base">Vị trí của bạn</span>
-              </div>
-              
-              <div className="flex items-center gap-2 text-white font-black text-sm md:text-lg group-hover:gap-4 transition-all">
+              <h3 className="text-lg sm:text-xl md:text-5xl font-black text-white leading-tight">Dự báo <br/> Thời tiết</h3>
+              <div className="flex items-center gap-2 text-white font-black text-xs sm:text-sm md:text-lg group-hover:gap-4 transition-all">
                 Xem chi tiết 7 ngày 
                 <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-accent-gold" />
               </div>
@@ -122,22 +159,16 @@ export default function ToolsSection() {
           {/* Calendar Entry Card */}
           <Link 
             href="/lunar-calendar"
-            className="flex-shrink-0 w-[75%] md:w-auto snap-center group relative bg-gradient-to-br from-orange-600 to-red-700 rounded-[1.5rem] md:rounded-[3rem] p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
+            className="w-full h-44 sm:h-52 md:h-96 group relative bg-gradient-to-br from-rose-600 via-red-700 to-pink-900 rounded-[1.25rem] md:rounded-[3rem] p-4 sm:p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
           >
             <div className="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-white/10 rounded-full blur-3xl -translate-y-12 md:-translate-y-20 translate-x-12 md:translate-x-20 group-hover:bg-white/20 transition-all" />
 
-            <div className="relative z-10">
-              <div className="w-12 h-12 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-4 md:mb-8 border border-white/20 group-hover:-rotate-12 transition-transform">
-                <CalendarIcon className="w-6 h-6 md:w-10 md:h-10 text-white" />
+            <div className="relative z-10 flex h-full flex-col justify-between">
+              <div className="w-10 h-10 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-3 md:mb-8 border border-white/20 group-hover:-rotate-12 transition-transform">
+                <CalendarIcon className="w-5 h-5 md:w-10 md:h-10 text-white" />
               </div>
-              <p className="text-orange-100 font-black uppercase tracking-widest text-[9px] md:text-sm mb-1 md:mb-4">Văn hóa & Đời sống</p>
-              <h3 className="text-xl md:text-5xl font-black text-white mb-3 md:mb-6 leading-tight">Lịch <br/> Vạn Niên</h3>
-              <div className="flex items-center gap-2 md:gap-3 text-white/60 mb-5 md:mb-8">
-                <Moon className="w-4 h-4 md:w-5 md:h-5" />
-                <span className="font-bold text-xs md:text-base">Âm - Dương lịch</span>
-              </div>
-
-              <div className="flex items-center gap-2 text-white font-black text-sm md:text-lg group-hover:gap-4 transition-all">
+              <h3 className="text-lg sm:text-xl md:text-5xl font-black text-white leading-tight">Lịch <br/> Vạn Niên</h3>
+              <div className="flex items-center gap-2 text-white font-black text-xs sm:text-sm md:text-lg group-hover:gap-4 transition-all">
                 Xem chi tiết lịch âm 
                 <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-accent-gold" />
               </div>
@@ -152,22 +183,16 @@ export default function ToolsSection() {
           {/* Fertilizer Calculator Card */}
           <Link
             href="/fertilizer-calculator"
-            className="flex-shrink-0 w-[75%] md:w-auto snap-center group relative bg-gradient-to-br from-teal-600 via-emerald-600 to-lime-700 rounded-[1.5rem] md:rounded-[3rem] p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
+            className="w-full h-44 sm:h-52 md:h-96 group relative bg-gradient-to-br from-teal-500 via-cyan-700 to-slate-800 rounded-[1.25rem] md:rounded-[3rem] p-4 sm:p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
           >
             <div className="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-white/10 rounded-full blur-3xl -translate-y-12 md:-translate-y-20 translate-x-12 md:translate-x-20 group-hover:bg-white/20 transition-all" />
 
-            <div className="relative z-10">
-              <div className="w-12 h-12 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-4 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
-                <FlaskConical className="w-6 h-6 md:w-10 md:h-10 text-white" />
+            <div className="relative z-10 flex h-full flex-col justify-between">
+              <div className="w-10 h-10 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-3 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
+                <FlaskConical className="w-5 h-5 md:w-10 md:h-10 text-white" />
               </div>
-              <p className="text-lime-100 font-black uppercase tracking-widest text-[9px] md:text-sm mb-1 md:mb-4">Công cụ tính toán</p>
-              <h3 className="text-xl md:text-5xl font-black text-white mb-3 md:mb-6 leading-tight">Tính phối <br/> Phân</h3>
-              <div className="flex items-center gap-2 md:gap-3 text-white/60 mb-5 md:mb-8">
-                <Scale className="w-4 h-4 md:w-5 md:h-5 text-yellow-300" />
-                <span className="font-bold text-xs md:text-base">Dùng ngay không cần đăng nhập</span>
-              </div>
-
-              <div className="flex items-center gap-2 text-white font-black text-sm md:text-lg group-hover:gap-4 transition-all">
+                <h3 className="text-lg sm:text-xl md:text-5xl font-black text-white leading-tight">Phối trộn <br/> Phân</h3>
+              <div className="flex items-center gap-2 text-white font-black text-xs sm:text-sm md:text-lg group-hover:gap-4 transition-all">
                 Tính ngay
                 <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-accent-gold" />
               </div>
@@ -178,28 +203,20 @@ export default function ToolsSection() {
             </div>
           </Link>
 
-         
-
           {/* Farm Management Card - Authenticated */}
           {isLogin ? (
             <Link 
               href="/rice-crops"
-              className="flex-shrink-0 w-[75%] md:w-auto snap-center group relative bg-gradient-to-br from-emerald-600 to-teal-700 rounded-[1.5rem] md:rounded-[3rem] p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
+              className="w-full h-44 sm:h-52 md:h-96 group relative bg-gradient-to-br from-fuchsia-600 via-pink-700 to-rose-800 rounded-[1.25rem] md:rounded-[3rem] p-4 sm:p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
             >
               <div className="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-white/10 rounded-full blur-3xl -translate-y-12 md:-translate-y-20 translate-x-12 md:translate-x-20 group-hover:bg-white/20 transition-all" />
 
-              <div className="relative z-10">
-                <div className="w-12 h-12 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-4 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
-                  <Sprout className="w-6 h-6 md:w-10 md:h-10 text-white" />
+              <div className="relative z-10 flex h-full flex-col justify-between">
+                <div className="w-10 h-10 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-3 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
+                  <Sprout className="w-5 h-5 md:w-10 md:h-10 text-white" />
                 </div>
-                <p className="text-emerald-100 font-black uppercase tracking-widest text-[9px] md:text-sm mb-1 md:mb-4">Quản lý nông nghiệp</p>
-                <h3 className="text-xl md:text-5xl font-black text-white mb-3 md:mb-6 leading-tight">Quản lý <br/> Canh tác</h3>
-                <div className="flex items-center gap-2 md:gap-3 text-white/60 mb-5 md:mb-8">
-                  <Cloud className="w-4 h-4 md:w-5 md:h-5" />
-                  <span className="font-bold text-xs md:text-base">Đồng bộ Đám mây</span>
-                </div>
-
-                <div className="flex items-center gap-2 text-white font-black text-sm md:text-lg group-hover:gap-4 transition-all">
+                <h3 className="text-lg sm:text-xl md:text-5xl font-black text-white leading-tight">Quản lý <br/> Canh tác</h3>
+                <div className="flex items-center gap-2 text-white font-black text-xs sm:text-sm md:text-lg group-hover:gap-4 transition-all">
                   Xem danh sách vụ lúa 
                   <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-accent-gold" />
                 </div>
@@ -213,22 +230,16 @@ export default function ToolsSection() {
             /* Farm Management Card - Guest / Offline mode */
             <Link 
               href="/guest-farming"
-              className="flex-shrink-0 w-[75%] md:w-auto snap-center group relative bg-gradient-to-br from-indigo-500 to-indigo-800 rounded-[1.5rem] md:rounded-[3rem] p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
+              className="w-full h-44 sm:h-52 md:h-96 group relative bg-gradient-to-br from-indigo-500 to-indigo-800 rounded-[1.25rem] md:rounded-[3rem] p-4 sm:p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
             >
               <div className="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-white/10 rounded-full blur-3xl -translate-y-12 md:-translate-y-20 translate-x-12 md:translate-x-20 group-hover:bg-white/20 transition-all" />
 
-              <div className="relative z-10">
-                <div className="w-12 h-12 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-4 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
-                  <Smartphone className="w-6 h-6 md:w-10 md:h-10 text-white" />
+              <div className="relative z-10 flex h-full flex-col justify-between">
+                <div className="w-10 h-10 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-3 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
+                  <Smartphone className="w-5 h-5 md:w-10 md:h-10 text-white" />
                 </div>
-                <p className="text-indigo-100 font-black uppercase tracking-widest text-[9px] md:text-sm mb-1 md:mb-4">Công cụ miễn phí</p>
-                <h3 className="text-xl md:text-5xl font-black text-white mb-3 md:mb-6 leading-tight">Canh tác</h3>
-                <div className="flex items-center gap-2 md:gap-3 text-white/60 mb-5 md:mb-8">
-                  <Zap className="w-4 h-4 md:w-5 md:h-5 text-yellow-300" />
-                  <span className="font-bold text-xs md:text-base">Lưu trên thiết bị</span>
-                </div>
-
-                <div className="flex items-center gap-2 text-white font-black text-sm md:text-lg group-hover:gap-4 transition-all">
+                <h3 className="text-lg sm:text-xl md:text-5xl font-black text-white leading-tight">Canh tác</h3>
+                <div className="flex items-center gap-2 text-white font-black text-xs sm:text-sm md:text-lg group-hover:gap-4 transition-all">
                   Bắt đầu ngay 
                   <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-accent-gold" />
                 </div>
@@ -236,39 +247,6 @@ export default function ToolsSection() {
 
               <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity">
                 <Sprout className="w-48 md:w-64 h-48 md:h-64 text-white" />
-              </div>
-            </Link>
-          )}
-
-
-
-          {/* Disease Warning Card - NEW */}
-          {isLogin && (
-            <Link 
-              href="/disease-warning"
-              className="flex-shrink-0 w-[75%] md:w-auto snap-center group relative bg-gradient-to-br from-red-600 to-rose-800 rounded-[1.5rem] md:rounded-[3rem] p-5 md:p-10 overflow-hidden shadow-2xl hover:scale-[1.02] transition-all duration-500"
-            >
-              <div className="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-white/10 rounded-full blur-3xl -translate-y-12 md:-translate-y-20 translate-x-12 md:translate-x-20 group-hover:bg-white/20 transition-all" />
-
-              <div className="relative z-10">
-                <div className="w-12 h-12 md:w-20 md:h-20 bg-white/10 backdrop-blur-xl rounded-xl md:rounded-3xl flex items-center justify-center mb-4 md:mb-8 border border-white/20 group-hover:rotate-12 transition-transform">
-                  <Zap className="w-6 h-6 md:w-10 md:h-10 text-white fill-yellow-300" />
-                </div>
-                <p className="text-rose-100 font-black uppercase tracking-widest text-[9px] md:text-sm mb-1 md:mb-4">Phân tích</p>
-                <h3 className="text-xl md:text-5xl font-black text-white mb-3 md:mb-6 leading-tight">Cảnh báo <br/> Dịch bệnh</h3>
-                <div className="flex items-center gap-2 md:gap-3 text-white/60 mb-5 md:mb-8">
-                  <Sprout className="w-4 h-4 md:w-5 md:h-5" />
-                  <span className="font-bold text-xs md:text-base">Chẩn đoán rủi ro</span>
-                </div>
-
-                <div className="flex items-center gap-2 text-white font-black text-sm md:text-lg group-hover:gap-4 transition-all">
-                  Kiểm tra ngay 
-                  <ArrowRight className="w-4 h-4 md:w-6 md:h-6 text-accent-gold" />
-                </div>
-              </div>
-
-              <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity">
-                <Zap className="w-48 md:w-64 h-48 md:h-64 text-white" />
               </div>
             </Link>
           )}

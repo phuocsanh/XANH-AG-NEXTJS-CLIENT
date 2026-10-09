@@ -175,7 +175,7 @@ export default function FertilizerCalculatorClient() {
             <FlaskConical className="h-4 w-4" />
             Công cụ nhà nông
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-gray-950 md:text-5xl">Tính phối phân</h1>
+          <h1 className="text-3xl font-black tracking-tight text-gray-950 md:text-5xl">Phối trộn phân</h1>
           <p className="mt-3 max-w-3xl text-base font-medium leading-7 text-gray-500 md:text-lg">
             Nhập kg từng loại phân để xem NPK thực tế, rồi quy đổi lượng bón theo tổng kg dinh dưỡng cây nhận.
           </p>

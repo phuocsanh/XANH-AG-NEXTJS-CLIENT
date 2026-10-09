@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
+  Gift,
   LogOut,
   Menu,
   User,
@@ -177,20 +178,26 @@ export default function Navbar() {
                 Thời tiết
               </Link>
               {user && (
-                <Link
-                  href='/disease-warning'
-                  className='text-white hover:text-yellow-300 font-medium transition-colors'
-                >
-                  Dịch bệnh
-                </Link>
-              )}
-              {user && (
-                <Link
-                  href='/rewards'
-                  className='text-white hover:text-yellow-300 font-medium transition-colors'
-                >
-                  Tích lũy
-                </Link>
+                <>
+                  <Link
+                    href='/rewards'
+                    className={cn(
+                      'font-medium transition-colors',
+                      pathname.startsWith('/rewards') ? 'text-yellow-400' : 'text-white hover:text-yellow-300'
+                    )}
+                  >
+                    Quay thưởng
+                  </Link>
+                  <Link
+                    href='/customer-rewards'
+                    className={cn(
+                      'font-medium transition-colors',
+                      pathname === '/customer-rewards' ? 'text-yellow-400' : 'text-white hover:text-yellow-300'
+                    )}
+                  >
+                    Tích lũy
+                  </Link>
+                </>
               )}
               <Link
                 href='/lunar-calendar'
@@ -258,8 +265,14 @@ export default function Navbar() {
                     <DropdownMenuGroup>
                       <DropdownMenuItem asChild>
                         <Link href="/rewards" className="cursor-pointer">
+                          <Gift className='mr-2 h-4 w-4 text-orange-600' />
+                          <span>Quay thưởng</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/customer-rewards" className="cursor-pointer">
                           <Star className='mr-2 h-4 w-4 text-emerald-600' />
-                          <span>Tích lũy & Quà tặng</span>
+                          <span>Tích lũy</span>
                         </Link>
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
@@ -350,22 +363,22 @@ export default function Navbar() {
                 Thời tiết
               </Link>
               {user && (
-                <Link
-                  href='/disease-warning'
-                  className='block py-2 text-white hover:text-yellow-300 font-medium text-sm transition-colors'
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Dịch bệnh
-                </Link>
-              )}
-              {user && (
-                <Link
-                  href='/rewards'
-                  className='block py-2 text-white hover:text-yellow-300 font-medium text-sm transition-colors'
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Tích lũy
-                </Link>
+                <>
+                  <Link
+                    href='/rewards'
+                    className='block py-2 text-white hover:text-yellow-300 font-medium text-sm transition-colors'
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Quay thưởng
+                  </Link>
+                  <Link
+                    href='/customer-rewards'
+                    className='block py-2 text-white hover:text-yellow-300 font-medium text-sm transition-colors'
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Tích lũy
+                  </Link>
+                </>
               )}
               <Link
                 href='/lunar-calendar'

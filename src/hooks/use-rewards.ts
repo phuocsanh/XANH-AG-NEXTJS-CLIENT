@@ -41,6 +41,47 @@ export interface PromotionSpinLogItem {
 
 export interface PromotionSpinLogResponse {
   items: PromotionSpinLogItem[]
+  total: number
+  page: number
+  limit: number
+}
+
+export interface CustomerRewardTracking {
+  id?: number
+  customer_id?: number
+  pending_amount: number
+  total_accumulated: number
+  reward_count: number
+  reward_threshold: number
+  effective_reward_threshold: number
+  shortage_to_next: number
+  last_reward_date?: string | null
+  status?: string
+}
+
+export interface CustomerRewardHistoryItem {
+  id: number
+  customer_id: number
+  customer_name?: string | null
+  reward_threshold: number
+  accumulated_amount: number
+  reward_sequence: number
+  season_names?: string[] | null
+  reward_date: string
+  gift_description?: string | null
+  gift_product_name?: string | null
+  gift_quantity?: number | null
+  gift_status: string
+  reward_type?: string | null
+  delivered_date?: string | null
+  notes?: string | null
+}
+
+export interface CustomerRewardHistoryResponse {
+  items: CustomerRewardHistoryItem[]
+  total: number
+  page: number
+  limit: number
 }
 
 export interface SpinResultResponse {
@@ -80,15 +121,41 @@ export function useMyPromotionSpinLogs(promotionId?: number | null) {
   })
 }
 
-export function useMyPromotionSpinHistory() {
+export function useMyPromotionSpinHistory(page = 1, limit = 10) {
   return useQuery({
-    queryKey: ["my-promotion-spin-history"],
+    queryKey: ["my-promotion-spin-history", page, limit],
     queryFn: async () => {
       const response = await http.get<{ data: PromotionSpinLogResponse }>(
-        "/promotion-campaigns/my-spin-history",
+        `/promotion-campaigns/my-spin-history?page=${page}&limit=${limit}`,
       )
       return response.data
     },
+  })
+}
+
+export function useMyCustomerRewardTracking() {
+  return useQuery({
+    queryKey: ["my-customer-reward-tracking"],
+    queryFn: async () => {
+      const response = await http.get<{ data: CustomerRewardTracking }>(
+        "/customer-rewards/my-tracking",
+      )
+      return response.data
+    },
+    staleTime: 60 * 1000,
+  })
+}
+
+export function useMyCustomerRewardHistory(page = 1, limit = 20) {
+  return useQuery({
+    queryKey: ["my-customer-reward-history", page, limit],
+    queryFn: async () => {
+      const response = await http.get<{ data: CustomerRewardHistoryResponse }>(
+        `/customer-rewards/my-history?page=${page}&limit=${limit}`,
+      )
+      return response.data
+    },
+    staleTime: 60 * 1000,
   })
 }
 

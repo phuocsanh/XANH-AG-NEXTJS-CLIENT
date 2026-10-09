@@ -1,7 +1,7 @@
 "use client"
 
 /**
- * Trang tích lũy quay thưởng.
+ * Trang quay thưởng.
  * Hiển thị danh sách chương trình và lịch sử quay.
  * Khi nhấn "Quay ngay" → chuyển hướng đến trang /rewards/spin/[promotionId]
  * (tách riêng để animation vòng quay không bị block bởi modal).
@@ -9,6 +9,7 @@
 
 import { format } from "date-fns"
 import { vi } from "date-fns/locale"
+import { useState } from "react"
 import {
   AlertCircle,
   ArrowLeft,
@@ -33,7 +34,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 /** Định dạng tiền tệ VND */
 const formatCurrency = (amount: number) =>
@@ -43,12 +43,15 @@ const formatCurrency = (amount: number) =>
     maximumFractionDigits: 0,
   }).format(amount)
 
+const HISTORY_PAGE_LIMIT = 10
+
 export default function RewardsPage() {
   const router = useRouter()
+  const [spinHistoryPage, setSpinHistoryPage] = useState(1)
   const { data: user } = useCurrentUser()
   const { data: progressData, isLoading } = useMyPromotionProgress()
   const { data: spinHistoryData, isLoading: isSpinHistoryLoading } =
-    useMyPromotionSpinHistory()
+    useMyPromotionSpinHistory(spinHistoryPage, HISTORY_PAGE_LIMIT)
 
   /* ─── Chưa đăng nhập ─── */
   if (!user) {
@@ -57,13 +60,18 @@ export default function RewardsPage() {
         <AlertCircle className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
         <h2 className="text-xl font-bold">Vui lòng đăng nhập</h2>
         <p className="text-muted-foreground mt-2">
-          Bạn cần đăng nhập để xem tích lũy và quay thưởng.
+          Bạn cần đăng nhập để xem quay thưởng.
         </p>
       </div>
     )
   }
 
   const campaigns = progressData?.items || []
+  const spinHistoryTotal = Number(spinHistoryData?.total || 0)
+  const spinHistoryTotalPages = Math.max(
+    1,
+    Math.ceil(spinHistoryTotal / HISTORY_PAGE_LIMIT),
+  )
 
   return (
     <div className="min-h-screen bg-slate-50/50 pb-20">
@@ -93,7 +101,7 @@ export default function RewardsPage() {
                 Xin chào, {user.user_profile?.nickname || user.account}!
               </h1>
               <p className="opacity-90 flex items-center justify-center md:justify-start gap-2 mt-1 font-medium">
-                <Sparkles size={16} /> Tích lũy mua hàng, nhận lượt quay và săn quà
+                <Sparkles size={16} /> Quay thưởng mua hàng, nhận lượt quay và săn quà
               </p>
             </div>
           </div>
@@ -101,24 +109,8 @@ export default function RewardsPage() {
       </div>
 
       <div className="container mx-auto max-w-5xl px-4 -mt-16">
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 bg-white/80 backdrop-blur shadow-sm border border-slate-200 p-1 h-12 rounded-xl">
-            <TabsTrigger
-              value="overview"
-              className="rounded-lg data-[state=active]:bg-emerald-500 data-[state=active]:text-white font-bold"
-            >
-              <Sparkles size={16} className="mr-2" /> Chương trình của tôi
-            </TabsTrigger>
-            <TabsTrigger
-              value="history"
-              className="rounded-lg data-[state=active]:bg-emerald-500 data-[state=active]:text-white font-bold"
-            >
-              <History size={16} className="mr-2" /> Lịch sử quay
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Tab: Chương trình */}
-          <TabsContent value="overview" className="space-y-6">
+        <div className="space-y-6">
+          <section className="space-y-6">
             {isLoading ? (
               <Card className="border-none shadow-xl bg-white rounded-2xl">
                 <CardContent className="pt-6 p-6 space-y-4">
@@ -171,7 +163,7 @@ export default function RewardsPage() {
                     <div className="grid gap-4 md:grid-cols-3">
                       <div className="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4">
                         <p className="text-xs font-bold uppercase tracking-wider text-emerald-700/70">
-                          Đã tích lũy
+                          Đã mua hợp lệ
                         </p>
                         <p className="mt-1 text-2xl font-black text-slate-800">
                           {formatCurrency(campaign.qualifiedAmount)}
@@ -255,10 +247,10 @@ export default function RewardsPage() {
                 </Card>
               ))
             )}
-          </TabsContent>
+          </section>
 
-          {/* Tab: Lịch sử */}
-          <TabsContent value="history">
+          {/* Lịch sử quay */}
+          <section>
             <Card className="border-none shadow-xl bg-white rounded-2xl">
               <CardHeader className="bg-slate-50 border-b border-slate-100">
                 <CardTitle className="text-slate-800 flex items-center gap-2">
@@ -279,38 +271,72 @@ export default function RewardsPage() {
                 ) : (spinHistoryData?.items || []).length === 0 ? (
                   <p className="text-sm text-slate-500">Bạn chưa có lượt quay nào.</p>
                 ) : (
-                  spinHistoryData?.items.map((log) => (
-                    <div
-                      key={`history-all-${log.id}`}
-                      className="rounded-xl border border-slate-100 p-4"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="font-semibold text-slate-800">
-                            {log.resultType === "win" ? "Trúng thưởng" : "Chúc may mắn lần sau"}
-                          </p>
-                          <p className="text-sm text-slate-500 flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            {format(new Date(log.spunAt), "dd/MM/yyyy HH:mm", { locale: vi })}
-                          </p>
-                          <p className="mt-1 text-sm text-emerald-700">
-                            Chương trình: {log.promotionName}
-                          </p>
+                  <>
+                    {spinHistoryData?.items.map((log) => (
+                      <div
+                        key={`history-all-${log.id}`}
+                        className="rounded-xl border border-slate-100 p-4"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="font-semibold text-slate-800">
+                              {log.resultType === "win" ? "Trúng thưởng" : "Chúc may mắn lần sau"}
+                            </p>
+                            <p className="text-sm text-slate-500 flex items-center gap-2">
+                              <Calendar className="h-4 w-4" />
+                              {format(new Date(log.spunAt), "dd/MM/yyyy HH:mm", { locale: vi })}
+                            </p>
+                            <p className="mt-1 text-sm text-emerald-700">
+                              Chương trình: {log.promotionName}
+                            </p>
+                          </div>
+                          <Badge variant="outline">
+                            {log.resultType === "win" ? "Trúng" : "Chưa trúng"}
+                          </Badge>
                         </div>
-                        <Badge variant="outline">
-                          {log.resultType === "win" ? "Trúng" : "Chưa trúng"}
-                        </Badge>
+                        {log.rewardName && (
+                          <p className="mt-2 text-sm text-orange-600">{log.rewardName}</p>
+                        )}
                       </div>
-                      {log.rewardName && (
-                        <p className="mt-2 text-sm text-orange-600">{log.rewardName}</p>
-                      )}
-                    </div>
-                  ))
+                    ))}
+                    {spinHistoryTotalPages > 1 && (
+                      <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                        <Button
+                          variant="outline"
+                          disabled={spinHistoryPage <= 1 || isSpinHistoryLoading}
+                          onClick={() =>
+                            setSpinHistoryPage((currentPage) =>
+                              Math.max(1, currentPage - 1),
+                            )
+                          }
+                        >
+                          Trước
+                        </Button>
+                        <span className="text-sm font-semibold text-slate-600">
+                          Trang {spinHistoryPage}/{spinHistoryTotalPages}
+                        </span>
+                        <Button
+                          variant="outline"
+                          disabled={
+                            spinHistoryPage >= spinHistoryTotalPages ||
+                            isSpinHistoryLoading
+                          }
+                          onClick={() =>
+                            setSpinHistoryPage((currentPage) =>
+                              Math.min(spinHistoryTotalPages, currentPage + 1),
+                            )
+                          }
+                        >
+                          Sau
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          </section>
+        </div>
       </div>
     </div>
   )
