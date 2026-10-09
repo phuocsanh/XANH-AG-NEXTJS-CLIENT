@@ -24,12 +24,98 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { UpdateRiceCropBody, UpdateRiceCropBodyType } from "@/schemaValidations/rice-farming.schema"
 import { FormDatePicker, FormComboBox, FormFieldWrapper, FormNumberInput } from "@/components/form"
-import { convertSolar2Lunar } from "@/lib/lunar-calendar"
+import { convertLunar2Solar, convertSolar2Lunar } from "@/lib/lunar-calendar"
 
 interface EditRiceCropModalProps {
   isOpen: boolean
   onClose: () => void
   riceCrop: RiceCrop
+}
+
+const lunarPickerValueFromSolarDate = (solarDateValue?: string) => {
+  if (!solarDateValue) return ""
+
+  const solarDate = dayjs(solarDateValue)
+  if (!solarDate.isValid()) return ""
+
+  const [lunarDay, lunarMonth, lunarYear] = convertSolar2Lunar(
+    solarDate.date(),
+    solarDate.month() + 1,
+    solarDate.year(),
+  )
+
+  return dayjs()
+    .year(Number(lunarYear))
+    .month(Number(lunarMonth) - 1)
+    .date(Number(lunarDay))
+    .format("YYYY-MM-DD")
+}
+
+const lunarPickerValueFromStoredText = (storedValue?: string) => {
+  if (!storedValue) return ""
+
+  const [day, month, year] = storedValue
+    .match(/\d+/g)
+    ?.map((part) => Number(part)) || []
+
+  if (!day || !month || !year) return ""
+
+  return dayjs()
+    .year(year)
+    .month(month - 1)
+    .date(day)
+    .format("YYYY-MM-DD")
+}
+
+const getLunarPickerValue = (solarDateValue?: string, storedLunarValue?: string) =>
+  lunarPickerValueFromSolarDate(solarDateValue) ||
+  lunarPickerValueFromStoredText(storedLunarValue)
+
+const formatLunarDisplayValue = (lunarPickerValue?: string) => {
+  if (!lunarPickerValue) return ""
+
+  const lunarDate = dayjs(lunarPickerValue)
+  if (!lunarDate.isValid()) return ""
+
+  return `${lunarDate.date()}/${lunarDate.month() + 1}/${lunarDate.year()} (Âm lịch)`
+}
+
+const solarPickerValueFromLunarDate = (lunarPickerValue?: string) => {
+  if (!lunarPickerValue) return ""
+
+  const lunarDate = dayjs(lunarPickerValue)
+  if (!lunarDate.isValid()) return ""
+
+  const lunarDay = lunarDate.date()
+  const lunarMonth = lunarDate.month() + 1
+  const lunarYear = lunarDate.year()
+  const [solarDay, solarMonth, solarYear] = convertLunar2Solar(
+    lunarDay,
+    lunarMonth,
+    lunarYear,
+  )
+
+  if (!solarDay || !solarMonth || !solarYear) return ""
+
+  const [roundTripDay, roundTripMonth, roundTripYear] = convertSolar2Lunar(
+    Number(solarDay),
+    Number(solarMonth),
+    Number(solarYear),
+  )
+
+  if (
+    Number(roundTripDay) !== lunarDay ||
+    Number(roundTripMonth) !== lunarMonth ||
+    Number(roundTripYear) !== lunarYear
+  ) {
+    return ""
+  }
+
+  return dayjs()
+    .year(Number(solarYear))
+    .month(Number(solarMonth) - 1)
+    .date(Number(solarDay))
+    .format("YYYY-MM-DD")
 }
 
 export default function EditRiceCropModal({
@@ -54,11 +140,20 @@ export default function EditRiceCropModal({
       growth_stage: riceCrop.growth_stage,
       status: riceCrop.status,
       sowing_date: riceCrop.sowing_date || undefined,
-      sowing_lunar_date: riceCrop.sowing_lunar_date || "",
+      sowing_lunar_date: getLunarPickerValue(
+        riceCrop.sowing_date,
+        riceCrop.sowing_lunar_date,
+      ),
       transplanting_date: riceCrop.transplanting_date || undefined,
-      transplanting_lunar_date: riceCrop.transplanting_lunar_date || "",
+      transplanting_lunar_date: getLunarPickerValue(
+        riceCrop.transplanting_date,
+        riceCrop.transplanting_lunar_date,
+      ),
       expected_harvest_date: riceCrop.expected_harvest_date || undefined,
-      expected_harvest_lunar_date: riceCrop.expected_harvest_lunar_date || "",
+      expected_harvest_lunar_date: getLunarPickerValue(
+        riceCrop.expected_harvest_date,
+        riceCrop.expected_harvest_lunar_date,
+      ),
       actual_harvest_date: riceCrop.actual_harvest_date || undefined,
       area_per_com: (riceCrop.field_area && riceCrop.amount_of_land) ? (Math.round(riceCrop.field_area / riceCrop.amount_of_land) === 1296 ? 1296 : 1000) : 1000,
     },
@@ -66,46 +161,36 @@ export default function EditRiceCropModal({
 
 
   // Theo dõi sự thay đổi để tự tính toán
-  const watchedSowingDate = form.watch("sowing_date")
-  const watchedTransplantingDate = form.watch("transplanting_date")
+  const watchedSowingLunarDate = form.watch("sowing_lunar_date")
+  const watchedTransplantingLunarDate = form.watch("transplanting_lunar_date")
   const watchedAmountOfLand = form.watch("amount_of_land")
   const watchedAreaPerCom = form.watch("area_per_com")
-  const watchedExpectedHarvestDate = form.watch("expected_harvest_date")
+  const watchedExpectedHarvestLunarDate = form.watch("expected_harvest_lunar_date")
 
-  // Tự tính ngày âm khi ngày dương thay đổi (Ngày cấy)
+  // Tự tính ngày dương khi ngày âm thay đổi (Ngày cấy)
   useEffect(() => {
-    if (watchedTransplantingDate) {
-      const solarDate = dayjs(watchedTransplantingDate)
-      if (solarDate.isValid()) {
-        const [lDay, lMonth, lYear] = convertSolar2Lunar(solarDate.date(), solarDate.month() + 1, solarDate.year())
-        form.setValue("transplanting_lunar_date", `${lDay}/${lMonth}/${lYear} (Âm lịch)`)
-      }
-    } else {
-      form.setValue("transplanting_lunar_date", "")
-    }
-  }, [watchedTransplantingDate, form])
+    form.setValue(
+      "transplanting_date",
+      solarPickerValueFromLunarDate(watchedTransplantingLunarDate) || undefined,
+    )
+  }, [watchedTransplantingLunarDate, form])
 
-  // Tự tính ngày âm khi ngày dương thay đổi (Ngày gieo)
+  // Tự tính ngày dương khi ngày âm thay đổi (Ngày gieo)
   useEffect(() => {
-    if (watchedSowingDate) {
-      const solarDate = dayjs(watchedSowingDate)
-      if (solarDate.isValid()) {
-        const [lDay, lMonth, lYear] = convertSolar2Lunar(solarDate.date(), solarDate.month() + 1, solarDate.year())
-        form.setValue("sowing_lunar_date", `${lDay}/${lMonth}/${lYear} (Âm lịch)`)
-      }
-    }
-  }, [watchedSowingDate, form])
+    form.setValue(
+      "sowing_date",
+      solarPickerValueFromLunarDate(watchedSowingLunarDate) || undefined,
+    )
+  }, [watchedSowingLunarDate, form])
 
-  // Tự tính ngày âm khi ngày dương thay đổi (Dự kiến thu hoạch)
+  // Tự tính ngày dương khi ngày âm thay đổi (Dự kiến thu hoạch)
   useEffect(() => {
-    if (watchedExpectedHarvestDate) {
-      const solarDate = dayjs(watchedExpectedHarvestDate)
-      if (solarDate.isValid()) {
-        const [lDay, lMonth, lYear] = convertSolar2Lunar(solarDate.date(), solarDate.month() + 1, solarDate.year())
-        form.setValue("expected_harvest_lunar_date", `${lDay}/${lMonth}/${lYear} (Âm lịch)`)
-      }
-    }
-  }, [watchedExpectedHarvestDate, form])
+    form.setValue(
+      "expected_harvest_date",
+      solarPickerValueFromLunarDate(watchedExpectedHarvestLunarDate) ||
+        undefined,
+    )
+  }, [watchedExpectedHarvestLunarDate, form])
 
   // Tự tính diện tích tổng
   useEffect(() => {
@@ -127,11 +212,20 @@ export default function EditRiceCropModal({
         growth_stage: riceCrop.growth_stage,
         status: riceCrop.status,
         sowing_date: riceCrop.sowing_date || undefined,
-        sowing_lunar_date: riceCrop.sowing_lunar_date || "",
+        sowing_lunar_date: getLunarPickerValue(
+          riceCrop.sowing_date,
+          riceCrop.sowing_lunar_date,
+        ),
         transplanting_date: riceCrop.transplanting_date || undefined,
-        transplanting_lunar_date: riceCrop.transplanting_lunar_date || "",
+        transplanting_lunar_date: getLunarPickerValue(
+          riceCrop.transplanting_date,
+          riceCrop.transplanting_lunar_date,
+        ),
         expected_harvest_date: riceCrop.expected_harvest_date || undefined,
-        expected_harvest_lunar_date: riceCrop.expected_harvest_lunar_date || "",
+        expected_harvest_lunar_date: getLunarPickerValue(
+          riceCrop.expected_harvest_date,
+          riceCrop.expected_harvest_lunar_date,
+        ),
         actual_harvest_date: riceCrop.actual_harvest_date || undefined,
         area_per_com: (riceCrop.field_area && riceCrop.amount_of_land) ? (Math.round(Number(riceCrop.field_area) / Number(riceCrop.amount_of_land)) === 1296 ? 1296 : 1000) : 1000,
       })
@@ -142,11 +236,15 @@ export default function EditRiceCropModal({
     try {
       const dto: UpdateRiceCropDto = {
         ...values,
+        field_name: riceCrop.field_name,
         growth_stage: values.growth_stage as GrowthStage,
         status: values.status as CropStatus,
         sowing_date: values.sowing_date ? dayjs(values.sowing_date).format("YYYY-MM-DD") : undefined,
+        sowing_lunar_date: formatLunarDisplayValue(values.sowing_lunar_date),
         transplanting_date: values.transplanting_date ? dayjs(values.transplanting_date).format("YYYY-MM-DD") : undefined,
+        transplanting_lunar_date: formatLunarDisplayValue(values.transplanting_lunar_date),
         expected_harvest_date: values.expected_harvest_date ? dayjs(values.expected_harvest_date).format("YYYY-MM-DD") : undefined,
+        expected_harvest_lunar_date: formatLunarDisplayValue(values.expected_harvest_lunar_date),
         actual_harvest_date: values.actual_harvest_date ? dayjs(values.actual_harvest_date).format("YYYY-MM-DD") : undefined,
       }
 
@@ -173,6 +271,7 @@ export default function EditRiceCropModal({
                 name="field_name"
                 label="Tên ruộng"
                 placeholder="Nhập tên ruộng"
+                disabled
                 required
               />
               <FormFieldWrapper
@@ -278,13 +377,13 @@ export default function EditRiceCropModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4 border-agri-50">
               <FormDatePicker
                 control={form.control}
-                name="sowing_date"
-                label="Ngày gieo"
-              />
-              <FormFieldWrapper
-                control={form.control}
                 name="sowing_lunar_date"
                 label="Ngày gieo âm lịch"
+              />
+              <FormDatePicker
+                control={form.control}
+                name="sowing_date"
+                label="Ngày gieo dương lịch"
                 placeholder="Tự động tính..."
                 disabled
               />
@@ -293,25 +392,25 @@ export default function EditRiceCropModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormDatePicker
                 control={form.control}
-                name="transplanting_date"
-                label="Ngày cấy"
-              />
-              <FormFieldWrapper
-                control={form.control}
                 name="transplanting_lunar_date"
                 label="Ngày cấy âm lịch"
+              />
+              <FormDatePicker
+                control={form.control}
+                name="transplanting_date"
+                label="Ngày cấy dương lịch"
                 placeholder="Tự động tính..."
                 disabled
               />
               <FormDatePicker
                 control={form.control}
-                name="expected_harvest_date"
-                label="Ngày thu hoạch dự kiến"
-              />
-              <FormFieldWrapper
-                control={form.control}
                 name="expected_harvest_lunar_date"
                 label="Ngày thu hoạch dự kiến âm lịch"
+              />
+              <FormDatePicker
+                control={form.control}
+                name="expected_harvest_date"
+                label="Ngày thu hoạch dự kiến dương lịch"
                 placeholder="Tự động tính..."
                 disabled
               />

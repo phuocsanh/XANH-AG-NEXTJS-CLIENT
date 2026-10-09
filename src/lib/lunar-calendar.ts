@@ -156,3 +156,45 @@ export function convertSolar2Lunar(dd: number, mm: number, yy: number, timeZone:
   }
   return [lunarDay, lunarMonth, lunarYear, lunarLeap === 1];
 }
+
+export function convertLunar2Solar(
+  lunarDay: number,
+  lunarMonth: number,
+  lunarYear: number,
+  lunarLeap: boolean = false,
+  timeZone: number = 7,
+) {
+  let a11;
+  let b11;
+
+  if (lunarMonth < 11) {
+    a11 = getLunarMonth11(lunarYear - 1, timeZone);
+    b11 = getLunarMonth11(lunarYear, timeZone);
+  } else {
+    a11 = getLunarMonth11(lunarYear, timeZone);
+    b11 = getLunarMonth11(lunarYear + 1, timeZone);
+  }
+
+  const k = INT(0.5 + (a11 - 2415021.076998695) / 29.530588853);
+  let off = lunarMonth - 11;
+  if (off < 0) {
+    off += 12;
+  }
+
+  if (b11 - a11 > 365) {
+    const leapOff = getLeapMonthOffset(a11, timeZone);
+    let leapMonth = leapOff - 2;
+    if (leapMonth < 0) {
+      leapMonth += 12;
+    }
+    if (lunarLeap && lunarMonth !== leapMonth) {
+      return [0, 0, 0];
+    }
+    if (lunarLeap || off >= leapOff) {
+      off += 1;
+    }
+  }
+
+  const monthStart = getNewMoonDay(k + off, timeZone);
+  return jdToDate(monthStart + lunarDay - 1);
+}
