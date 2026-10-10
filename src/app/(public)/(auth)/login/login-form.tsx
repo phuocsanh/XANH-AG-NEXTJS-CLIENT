@@ -26,7 +26,8 @@ const LoginForm = () => {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
+  // Mặc định tự động tick chọn "Nhớ mật khẩu"
+  const [rememberMe, setRememberMe] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
 
   const form = useForm<LoginBodyType>({
@@ -37,16 +38,21 @@ const LoginForm = () => {
     },
   })
 
-  // Load saved credentials khi component mount
+  // Tự động load thông tin đã lưu khi component mount, mặc định luôn tick "Nhớ mật khẩu"
   useEffect(() => {
     const savedAccount = localStorage.getItem("savedAccount")
     const savedPassword = localStorage.getItem("savedPassword")
-    const wasRemembered = localStorage.getItem("rememberMe") === "true"
+    const wasRemembered = localStorage.getItem("rememberMe")
 
-    if (wasRemembered && savedAccount && savedPassword) {
-      form.setValue("user_account", savedAccount)
-      form.setValue("user_password", savedPassword)
+    // Nếu người dùng từng chủ động bỏ chọn ("false"), tôn trọng lựa chọn đó, ngược lại luôn mặc định tick true
+    if (wasRemembered === "false") {
+      setRememberMe(false)
+    } else {
       setRememberMe(true)
+      if (savedAccount && savedPassword) {
+        form.setValue("user_account", savedAccount)
+        form.setValue("user_password", savedPassword)
+      }
     }
   }, [form])
 
@@ -96,12 +102,12 @@ const LoginForm = () => {
 
         console.log("✅ Saved credentials to localStorage")
       } else {
-        // Xóa saved credentials nếu không chọn "Nhớ mật khẩu"
+        // Xóa saved credentials nếu người dùng chủ động bỏ chọn "Nhớ mật khẩu"
         localStorage.removeItem("savedAccount")
         localStorage.removeItem("savedPassword")
-        localStorage.removeItem("rememberMe")
+        localStorage.setItem("rememberMe", "false")
 
-        console.log("✅ Cleared saved credentials")
+        console.log("✅ Cleared saved credentials and set rememberMe to false")
       }
 
       setIsLogin(true)
