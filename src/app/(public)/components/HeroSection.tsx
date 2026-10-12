@@ -22,10 +22,13 @@ export default function HeroSection() {
       {/* Background Image with Overlay */}
       <div className='absolute inset-0 z-0'>
         <Img
-          src='/assets/banner.png'
+          src='/assets/banner-web.png'
           alt='Cửa hàng Vật tư Nông nghiệp Xanh'
           className='w-full h-full bg-emerald-900'
           classNameImg='object-cover object-center'
+          sizes='100vw'
+          quality={100}
+          priority
         />
         {/* Overlay nhẹ nhàng để giữ độ sáng cho banner */}
         <div className='absolute inset-0 bg-emerald-900/10 z-10' />
