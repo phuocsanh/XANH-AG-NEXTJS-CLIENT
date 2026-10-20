@@ -38,7 +38,8 @@ export async function GET(
         limit,
         keyword: keyword || undefined,
         status: 'active', // Chỉ lấy sản phẩm đang hoạt động
-        is_sold_on_web: true // Chỉ lấy sản phẩm cho phép bán trên web
+        is_sold_on_web: true, // Chỉ lấy sản phẩm cho phép bán trên web
+        in_stock_only: true // Không trả sản phẩm đã hết tồn cho danh sách web
       }),
       cache: 'no-store',
     })

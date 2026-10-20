@@ -64,11 +64,11 @@ export default function ProductsClient() {
   const [loadingMore, setLoadingMore] = useState<Record<number, boolean>>({})
   const [hasScrolledInitial, setHasScrolledInitial] = useState(false)
 
-  // Fetch all product types and their products (Page 1)
+  // Tải trang đầu của từng nhóm và tìm theo từ khóa trên máy chủ
   useEffect(() => {
-    async function fetchInitialProducts() {
+    let isCurrentSearch = true
+    const fetchInitialProducts = async () => {
       try {
-        // 1. Fetch product types
         const typesResponse = await fetch('/api/product-types')
         if (!typesResponse.ok) throw new Error('Failed to fetch product types')
         
@@ -77,9 +77,10 @@ export default function ProductsClient() {
         if (typesData.success && typesData.data) {
           const types: ProductType[] = typesData.data
           
-          // 2. Fetch products for each type (Chỉ lấy trang 1)
           const productsPromises = types.map(async (type) => {
-            const productsResponse = await fetch(`/api/products/by-type/${type.id}?page=1&limit=${PRODUCTS_PER_PAGE}`)
+            const params = new URLSearchParams({ page: '1', limit: String(PRODUCTS_PER_PAGE) })
+            if (searchQuery.trim()) params.set('keyword', searchQuery.trim())
+            const productsResponse = await fetch(`/api/products/by-type/${type.id}?${params.toString()}`)
             if (!productsResponse.ok) return { type, products: [], pagination: { total: 0, page: 1 } }
             
             const productsData = await productsResponse.json()
@@ -91,11 +92,10 @@ export default function ProductsClient() {
           })
           
           const results = await Promise.all(productsPromises)
-          // Chỉ hiển thị các type có sản phẩm
+          if (!isCurrentSearch) return
           const filteredResults = results.filter(r => r.products.length > 0)
           setProductsByType(filteredResults.map(r => ({ type: r.type, products: r.products })))
           
-          // Initialize pagination info
           const initialPagination: Record<number, { total: number, page: number }> = {}
           filteredResults.forEach(r => {
             initialPagination[r.type.id] = { 
@@ -106,14 +106,22 @@ export default function ProductsClient() {
           setPaginationInfo(initialPagination)
         }
       } catch (error) {
-        console.error('Error fetching products:', error)
+        if (isCurrentSearch) console.error('Error fetching products:', error)
       } finally {
-        setLoading(false)
+        if (isCurrentSearch) setLoading(false)
       }
     }
 
-    fetchInitialProducts()
-  }, [])
+    const timeoutId = window.setTimeout(() => {
+      setLoading(true)
+      fetchInitialProducts()
+    }, searchQuery.trim() ? 300 : 0)
+
+    return () => {
+      isCurrentSearch = false
+      window.clearTimeout(timeoutId)
+    }
+  }, [searchQuery])
 
   // Xử lý cuộn đến section khi có hash trên URL (ví dụ: #type-5)
   useEffect(() => {
@@ -147,16 +155,7 @@ export default function ProductsClient() {
     }
   }, [loading, productsByType.length > 0, hasScrolledInitial])
 
-  // Filter products by search query
-  const filteredProductsByType = productsByType.map(group => ({
-    ...group,
-    products: group.products.filter(product =>
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (product.web_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (product.trade_name || '').toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  })).filter(group => group.products.length > 0)
+  const filteredProductsByType = productsByType
 
   // Handle show more for a specific type - Fetching next page from API
   const handleShowMore = async (typeId: number) => {
@@ -170,7 +169,9 @@ export default function ProductsClient() {
     setLoadingMore(prev => ({ ...prev, [typeId]: true }))
     
     try {
-      const response = await fetch(`/api/products/by-type/${typeId}?page=${nextPage}&limit=${PRODUCTS_PER_PAGE}`)
+      const params = new URLSearchParams({ page: String(nextPage), limit: String(PRODUCTS_PER_PAGE) })
+      if (searchQuery.trim()) params.set('keyword', searchQuery.trim())
+      const response = await fetch(`/api/products/by-type/${typeId}?${params.toString()}`)
       if (!response.ok) throw new Error('Failed to fetch more products')
       
       const data = await response.json()

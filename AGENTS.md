@@ -1,4 +1,11 @@
-# CLINE Rules - XANH-AG-NEXTJS-CLIENT (Next.js Frontend)
+# AI Agent Rules - XANH-AG-NEXTJS-CLIENT (Next.js Frontend)
+
+## Quy Tắc Kiểm Thử Môi Trường (BẮT BUỘC)
+
+- Mọi kiểm thử UI/API/E2E của client chỉ được dùng ứng dụng local/dev và backend **dev**. Không kiểm thử trên website production.
+- Trước khi tạo/sửa/xóa dữ liệu, xác minh API base URL trong cấu hình runtime và request thực tế đang đi tới backend dev. Không dựa riêng vào tên `.env`, tên biến, hostname giao diện hoặc nhãn môi trường.
+- Nếu client đang gọi API production hoặc chưa xác định được backend đích, dừng thao tác có kết nối; chỉ chạy kiểm tra cục bộ không gọi API.
+- Dữ liệu kiểm thử phải nhận diện được và có cách dọn dẹp đã định trước; không dùng dữ liệu khách hàng thật để thử.
 
 ## Project Overview
 

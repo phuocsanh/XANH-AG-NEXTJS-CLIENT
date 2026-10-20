@@ -45,6 +45,7 @@ export default function NewsDetailClient() {
       ids: relatedProductIds,
       limit: 10,
       is_sold_on_web: true,
+      in_stock_only: true,
     },
     enabled: relatedProductIds.length > 0,
   })
