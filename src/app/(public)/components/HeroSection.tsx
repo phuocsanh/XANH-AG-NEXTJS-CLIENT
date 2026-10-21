@@ -8,12 +8,30 @@ import {
   ShieldCheck,
   Star,
 } from "lucide-react"
-import Img from "@/app/components/Img"
+import { getImageProps } from "next/image"
 
 /**
  * Hero Section Component - Premium Agriculture Banner
  */
 export default function HeroSection() {
+  // Ảnh dọc riêng cho mobile giúp tránh crop quá sâu từ banner ngang.
+  const imageProps = {
+    alt: "Cửa hàng Vật tư Nông nghiệp Xanh",
+    fill: true,
+    sizes: "100vw",
+    quality: 100,
+    priority: true,
+    className: "object-cover object-center",
+  }
+  const mobileBackground = getImageProps({
+    src: "/assets/banner-mobile.png",
+    ...imageProps,
+  }).props
+  const desktopBackground = getImageProps({
+    src: "/assets/banner-web.png",
+    ...imageProps,
+  }).props
+
   return (
     <section
       className='relative w-full min-h-[600px] md:min-h-[700px] lg:min-h-[750px] overflow-hidden'
@@ -21,15 +39,14 @@ export default function HeroSection() {
     >
       {/* Background Image with Overlay */}
       <div className='absolute inset-0 z-0'>
-        <Img
-          src='/assets/banner-web.png'
-          alt='Cửa hàng Vật tư Nông nghiệp Xanh'
-          className='w-full h-full bg-emerald-900'
-          classNameImg='object-cover object-center'
-          sizes='100vw'
-          quality={100}
-          priority
-        />
+        <picture className='absolute inset-0 bg-emerald-900'>
+          <source
+            media='(max-width: 767px)'
+            srcSet={mobileBackground.srcSet}
+            sizes={mobileBackground.sizes}
+          />
+          <img {...desktopBackground} />
+        </picture>
         {/* Overlay nhẹ nhàng để giữ độ sáng cho banner */}
         <div className='absolute inset-0 bg-emerald-900/10 z-10' />
         <div className='absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent z-10' />
