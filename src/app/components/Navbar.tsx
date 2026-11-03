@@ -25,6 +25,9 @@ import Img from "./Img"
 import { useState, useEffect } from "react"
 import { useCurrentUser } from "@/hooks/use-user-profile"
 import { cn } from "@/lib/utils"
+import { useQueryClient } from "@tanstack/react-query"
+import { CURRENT_USER_QUERY_KEY } from "@/hooks/use-user-profile"
+import { useToast } from "@/hooks/use-toast"
 
 interface ProductType {
   id: number
@@ -35,12 +38,17 @@ interface ProductType {
 
 export default function Navbar() {
   const pathname = usePathname()
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
+  const isLogin = useAppStore((state) => state.isLogin)
+  const authReady = useAppStore((state) => state.authReady)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false) // State cho dropdown sản phẩm trên mobile
   const [productTypes, setProductTypes] = useState<ProductType[]>([])
   
   // Fetch user profile từ API
-  const { data: user } = useCurrentUser()
+  const { data: cachedUser } = useCurrentUser()
+  const user = authReady && isLogin ? cachedUser : undefined
 
   // Fetch product types for dropdown
   useEffect(() => {
@@ -65,20 +73,32 @@ export default function Navbar() {
   const userInitial = userName ? userName.charAt(0).toUpperCase() : "U"
 
   const setIsLogin = useAppStore((state) => state.setIsLogin)
-  const handleLogout = () => {
-    // Xóa tokens và user info
-    localStorage.removeItem("accessToken")
-    localStorage.removeItem("refreshToken")
-    localStorage.removeItem("user")
-    sessionStorage.removeItem("accessToken")
-    sessionStorage.removeItem("refreshToken")
-    sessionStorage.removeItem("user")
-    
-    // Reset state trong store
-    setIsLogin(false)
-    
-    // Reload trang để cập nhật state
-    window.location.href = "/login"
+  const handleLogout = async () => {
+    try {
+      // Xóa cookie httpOnly trước khi cập nhật giao diện để tránh tự đăng nhập lại.
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      })
+      if (!response.ok) throw new Error("Không thể xóa phiên đăng nhập")
+
+      localStorage.removeItem("accessToken")
+      localStorage.removeItem("refreshToken")
+      localStorage.removeItem("user")
+      sessionStorage.removeItem("accessToken")
+      sessionStorage.removeItem("refreshToken")
+      sessionStorage.removeItem("user")
+      queryClient.removeQueries({ queryKey: CURRENT_USER_QUERY_KEY })
+      setIsLogin(false)
+      window.location.href = "/login"
+    } catch (error) {
+      console.error("Không thể đăng xuất:", error)
+      toast({
+        variant: "destructive",
+        title: "Không thể đăng xuất",
+        description: "Vui lòng thử lại.",
+      })
+    }
   }
 
   return (

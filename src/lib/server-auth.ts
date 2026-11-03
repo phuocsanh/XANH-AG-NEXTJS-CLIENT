@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers"
 import envConfig from "@/config"
+import jwt from "jsonwebtoken"
 
 /**
  * Server-side auth helper
@@ -62,6 +63,7 @@ async function refreshTokenFromBackend(refreshToken: string): Promise<{
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ refresh_token: refreshToken }),
+        cache: "no-store",
       },
     )
 
@@ -69,7 +71,8 @@ async function refreshTokenFromBackend(refreshToken: string): Promise<{
       console.warn(
         `❌ Token refresh failed: ${response.status} ${response.statusText}`,
       )
-      return null
+      if (response.status === 400 || response.status === 401) return null
+      throw new Error(`Token refresh unavailable: ${response.status}`)
     }
 
     const data = await response.json()
@@ -87,10 +90,10 @@ async function refreshTokenFromBackend(refreshToken: string): Promise<{
       }
     }
 
-    return null
+    throw new Error("Phản hồi refresh không có đủ token")
   } catch (error) {
     console.error("❌ Error refreshing token:", error)
-    return null
+    throw error
   }
 }
 
@@ -100,12 +103,12 @@ async function refreshTokenFromBackend(refreshToken: string): Promise<{
  *
  * @returns Access token hợp lệ hoặc null nếu không thể lấy/refresh
  */
-export async function getValidAccessToken(): Promise<string | null> {
+export async function getValidAccessToken(forceRefresh = false): Promise<string | null> {
   const cookieStore = await cookies()
   const accessToken = cookieStore.get("accessToken")?.value
 
   // Nếu có token và còn hạn, dùng luôn
-  if (accessToken && !isTokenExpired(accessToken)) {
+  if (!forceRefresh && accessToken && !isTokenExpired(accessToken)) {
     return accessToken
   }
 
@@ -134,12 +137,20 @@ export async function getValidAccessToken(): Promise<string | null> {
     return null
   }
 
+  // Giữ thời hạn cookie theo token để phiên vẫn tồn tại sau khi đóng ứng dụng.
+  const accessExpiry = jwt.decode(newTokens.access_token) as { exp?: number } | null
+  const refreshExpiry = jwt.decode(newTokens.refresh_token) as { exp?: number } | null
+  if (!accessExpiry?.exp || !refreshExpiry?.exp) {
+    throw new Error("Token mới thiếu thời hạn hợp lệ")
+  }
+
   // Update cookies với tokens mới
   cookieStore.set("accessToken", newTokens.access_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
+    expires: new Date(accessExpiry.exp * 1000),
   })
 
   cookieStore.set("refreshToken", newTokens.refresh_token, {
@@ -147,6 +158,7 @@ export async function getValidAccessToken(): Promise<string | null> {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
+    expires: new Date(refreshExpiry.exp * 1000),
   })
 
   return newTokens.access_token

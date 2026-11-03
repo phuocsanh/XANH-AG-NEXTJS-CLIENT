@@ -20,10 +20,13 @@ import { useState, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { handleErrorApi } from "@/lib/utils"
 import { useAppStore } from "@/stores"
+import { useQueryClient } from "@tanstack/react-query"
+import { CURRENT_USER_QUERY_KEY, type User } from "@/hooks/use-user-profile"
 
 const LoginForm = () => {
   const setIsLogin = useAppStore((state) => state.setIsLogin)
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
   // Mặc định tự động tick chọn "Nhớ mật khẩu"
@@ -90,8 +93,6 @@ const LoginForm = () => {
         }
       }
 
-      console.log("✅ Login response:", result)
-
       // Tokens đã được set trong cookies via /api/auth/login
       // Chỉ lưu credentials cho "Remember me" feature
       if (rememberMe) {
@@ -110,6 +111,11 @@ const LoginForm = () => {
         console.log("✅ Cleared saved credentials and set rememberMe to false")
       }
 
+      // Xóa hồ sơ của phiên cũ, rồi dùng hồ sơ vừa được backend xác nhận.
+      queryClient.removeQueries({ queryKey: CURRENT_USER_QUERY_KEY })
+      if (result.data?.user) {
+        queryClient.setQueryData<User>(CURRENT_USER_QUERY_KEY, result.data.user)
+      }
       setIsLogin(true)
 
       toast({

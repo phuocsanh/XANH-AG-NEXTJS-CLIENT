@@ -1,67 +1,53 @@
-import { cookies } from "next/headers"
-import jwt from "jsonwebtoken"
 import { NextResponse } from "next/server"
+import envConfig from "@/config"
+import { clearTokens, getValidAccessToken } from "@/lib/server-auth"
 
-/**
- * Verify nếu access token còn hạn
- * Dùng khi app mount để sync auth state
- * Return: { valid: true/false, expires?: number }
- */
+/** Xác nhận phiên bằng API hồ sơ; backend chịu trách nhiệm kiểm tra chữ ký JWT. */
 export async function POST() {
   try {
-    const cookieStore = await cookies()
-    const accessToken = cookieStore.get("accessToken")?.value
-
+    let accessToken = await getValidAccessToken()
     if (!accessToken) {
+      await clearTokens()
+      return NextResponse.json({ valid: false }, { status: 401 })
+    }
+
+    const getProfile = (token: string) =>
+      fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/users/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      })
+
+    let response = await getProfile(accessToken)
+    if (response.status === 401) {
+      // Access token bị backend từ chối dù thời hạn JWT vẫn còn.
+      accessToken = await getValidAccessToken(true)
+      if (!accessToken) {
+        await clearTokens()
+        return NextResponse.json({ valid: false }, { status: 401 })
+      }
+      response = await getProfile(accessToken)
+    }
+
+    if (!response.ok) {
+      if (response.status === 401) await clearTokens()
       return NextResponse.json(
-        {
-          valid: false,
-          message: "No access token found",
-        },
-        { status: 401 },
+        { valid: false },
+        { status: response.status === 401 ? 401 : 503 },
       )
     }
 
-    // Decode và check expiry
-    const decoded = jwt.decode(accessToken) as { exp?: number } | null
-
-    if (!decoded || !decoded.exp) {
-      return NextResponse.json(
-        {
-          valid: false,
-          message: "Invalid token format",
-        },
-        { status: 401 },
-      )
+    const result = await response.json()
+    const user = result?.data
+    if (!user || typeof user !== "object") {
+      return NextResponse.json({ valid: false }, { status: 503 })
     }
 
-    const now = Math.floor(Date.now() / 1000)
-    const isExpired = decoded.exp < now
-
-    if (isExpired) {
-      return NextResponse.json(
-        {
-          valid: false,
-          message: "Token expired",
-          expires: decoded.exp,
-        },
-        { status: 401 },
-      )
-    }
-
-    // Token còn hạn
-    return NextResponse.json({
-      valid: true,
-      expires: decoded.exp,
-    })
-  } catch (error) {
-    console.error("Error verifying token:", error)
     return NextResponse.json(
-      {
-        valid: false,
-        message: "Token verification failed",
-      },
-      { status: 500 },
+      { valid: true, user },
+      { headers: { "Cache-Control": "no-store" } },
     )
+  } catch (error) {
+    console.error("Không thể xác nhận phiên đăng nhập:", error)
+    return NextResponse.json({ valid: false }, { status: 503 })
   }
 }

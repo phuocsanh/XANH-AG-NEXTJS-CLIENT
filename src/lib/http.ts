@@ -122,30 +122,27 @@ class HttpClient {
 
     const promise = (async () => {
       try {
-        // Luôn refresh qua Next API route để đồng bộ cookie + client storage
-        try {
-          const response = await fetch(
-            "/api/auth/get-access-token-by-refresh-token",
-            {
-              method: "POST",
-            },
-          )
-          if (response.ok) {
-            const data = await response.json()
-            const payload = data?.data || data
-            const accessToken = payload?.accessToken || payload?.access_token
-
-            if (accessToken) {
-              // NOTE: Không lưu vào storage nữa - chỉ rely on cookies
-              // Storage được sync từ cookies khi cần
-              return accessToken
-            }
-          }
-        } catch (error) {
-          console.error("Error refreshing access token via proxy:", error)
+        // Chỉ coi 401 là hết phiên; lỗi mạng/server không được tự đăng xuất.
+        const response = await fetch(
+          "/api/auth/get-access-token-by-refresh-token",
+          { method: "POST", credentials: "include" },
+        )
+        if (response.status === 401) return null
+        if (!response.ok) {
+          throw new HttpError({
+            code: response.status,
+            data: null,
+            message: "Không thể làm mới phiên đăng nhập",
+          })
         }
 
-        return null
+        const data = await response.json()
+        const payload = data?.data || data
+        const accessToken = payload?.accessToken || payload?.access_token
+        if (!accessToken) {
+          throw new Error("Phản hồi làm mới phiên thiếu access token")
+        }
+        return accessToken
       } finally {
         // Clean up promise từ map
         this.refreshPromiseMap.delete(sessionKey)
@@ -291,7 +288,7 @@ class HttpClient {
 
     // Dynamic import để tránh lỗi khi chạy client-side
     const { getValidAccessToken } = await import("@/lib/server-auth")
-    const newAccessToken = await getValidAccessToken()
+    const newAccessToken = await getValidAccessToken(true)
 
     if (!newAccessToken) {
       console.warn("❌ Server-side refresh failed")
@@ -331,10 +328,6 @@ class HttpClient {
     const baseUrl = options?.baseUrl ?? envConfig.NEXT_PUBLIC_API_ENDPOINT
     const fullUrl = `${baseUrl}/${normalizePath(url)}`
 
-    console.log("Making request to:", fullUrl)
-    console.log("Request method:", method)
-    console.log("Request options:", JSON.stringify(options))
-
     let body: string | FormData | undefined
     if (options?.body instanceof FormData) {
       body = options.body
@@ -369,12 +362,6 @@ class HttpClient {
       method,
       signal: signal || options?.signal,
     })
-
-    console.log("Response status:", response.status)
-    console.log(
-      "Response headers:",
-      Object.fromEntries(response.headers.entries()),
-    )
 
     if (!response) {
       const errorMessage = "An error occurred while fetching data."

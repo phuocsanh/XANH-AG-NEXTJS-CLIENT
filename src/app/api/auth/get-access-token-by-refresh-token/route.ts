@@ -1,99 +1,21 @@
-import { cookies } from "next/headers"
-import { createApiResponse, serverHandleApiError } from "@/lib/api-response"
-import envConfig from "@/config"
-import jwt from "jsonwebtoken"
 import { NextResponse } from "next/server"
+import { clearTokens, getValidAccessToken } from "@/lib/server-auth"
 
+/** Làm mới token qua cùng luồng server-side để tránh nhiều request refresh song song. */
 export async function POST() {
   try {
-    const cookieStore = await cookies()
-    const refreshToken = cookieStore.get("refreshToken")?.value
-
-    if (!refreshToken) {
-      console.error("❌ Refresh failed: Không có refreshToken cookie")
-      return NextResponse.json(
-        {
-          message: "No refresh token",
-          code: 401,
-          data: null,
-        },
-        { status: 401 },
-      )
-    }
-
-    console.log("🔄 Gọi backend refresh với token (first 20 chars):", refreshToken.substring(0, 20) + "...")
-
-    const response = await fetch(
-      `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/refresh`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refresh_token: refreshToken }),
-      },
-    )
-
-    if (!response.ok) {
-      // Log chi tiết để chẩn đoán lỗi trên production
-      const errorBody = await response.text().catch(() => "Cannot read body")
-      console.error("❌ Backend refresh failed:", {
-        status: response.status,
-        statusText: response.statusText,
-        body: errorBody,
-        backendUrl: `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/refresh`,
-      })
-      return NextResponse.json(
-        {
-          message: "Invalid refresh token",
-          code: 401,
-          data: null,
-        },
-        { status: 401 },
-      )
-    }
-
-    const responseData = await response.json()
-    const payload = responseData?.data || responseData
-    const accessToken = payload?.access_token || payload?.accessToken
-    const newRefreshToken = payload?.refresh_token || payload?.refreshToken
-
-    // Update cookies with new tokens
-    if (accessToken && newRefreshToken) {
-      const decodeAccessToken = jwt.decode(accessToken) as { exp: number }
-      const decodeRefreshToken = jwt.decode(newRefreshToken) as { exp: number }
-
-      cookieStore.set("accessToken", accessToken, {
-        path: "/",
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-        expires: decodeAccessToken.exp * 1000,
-      })
-
-      cookieStore.set("refreshToken", newRefreshToken, {
-        path: "/",
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-        expires: decodeRefreshToken.exp * 1000,
-      })
-
-      return createApiResponse({
-        accessToken,
-        refreshToken: newRefreshToken,
-      })
+    const accessToken = await getValidAccessToken(true)
+    if (!accessToken) {
+      await clearTokens()
+      return NextResponse.json({ message: "Phiên đăng nhập đã hết hạn" }, { status: 401 })
     }
 
     return NextResponse.json(
-      {
-        message: "Invalid refresh response",
-        code: 500,
-        data: responseData,
-      },
-      { status: 500 },
+      { data: { accessToken } },
+      { headers: { "Cache-Control": "no-store" } },
     )
   } catch (error) {
-    return serverHandleApiError(error)
+    console.error("Không thể làm mới phiên đăng nhập:", error)
+    return NextResponse.json({ message: "Không thể làm mới phiên đăng nhập" }, { status: 503 })
   }
 }
