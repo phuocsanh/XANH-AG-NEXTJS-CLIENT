@@ -71,6 +71,8 @@ export default function RootLayout({
           "min-h-screen bg-background antialiased"
         )}
       >
+        {/* Giữ nền thanh trạng thái ổn định khi PWA iOS hiển thị lớp mờ ở mép trên. */}
+        <div className="ios-pwa-status-bar-anchor" aria-hidden="true" />
         <JsonLd data={organizationSchema} />
         <RootProvider>
           <RemoteConfigInitializer />
